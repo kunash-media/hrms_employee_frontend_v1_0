@@ -1,216 +1,1131 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-    <title>HRMS | Employee Profile Module</title>
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@500;600;700&display=swap"
-        rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Employee Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <link rel="stylesheet" href="../css/profile.css">
-    <!-- Toastify CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    :root {
+    --primary: #1f6f7f;
+    --primary-light: #e6f4f6;
+    --primary-dark: #145c6b;
+    --sidebar-bg: linear-gradient(180deg, #1f6f7f 0%, #145c6b 100%);
+    --sidebar-hover: rgba(255,255,255,0.15);
+    --sidebar-active: rgba(255,255,255,0.18);
+    --sidebar-text: #ffffff;
+    --sidebar-width: 260px;
+    --sidebar-collapsed: 80px;
+    --header-height: 70px;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --success: #6faf2e;
+    --success-bg: #e8f5e9;
+    --radius: 16px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.10);
+}
 
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; }
+
+    /* ── Layout ─────────────────────────────────────── */
+    .dashboard-container { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      transition: width 0.25s ease;
+      z-index: 200; overflow: hidden;
+    }
+    .sidebar.collapsed { width: var(--sidebar-collapsed); }
+    .sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: var(--header-height);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .logo i { font-size: 20px; color: white; min-width: 20px; }
+    .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+    .collapse-btn {
+      background: none; border: none; color: var(--sidebar-text);
+      cursor: pointer; padding: 6px; border-radius: 6px; display: flex;
+      align-items: center; transition: background 0.2s;
+    }
+    .collapse-btn:hover { background: var(--sidebar-hover); color: #fff; }
+    .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+    .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
+    .nav-menu { list-style: none; }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px; color: var(--sidebar-text);
+      text-decoration: none; border-radius: 8px; margin: 2px 8px;
+      transition: background 0.2s, color 0.2s; white-space: nowrap; font-size: 13.5px;
+    }
+    .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
+    .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+    .nav-link.active { background: var(--sidebar-active); color: #fff; }
+    .sidebar.collapsed .nav-text { display: none; }
+    .sidebar.collapsed .logo-text { display: none; }
+    .sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; padding: 10px 10px; background: none; border: none;
+      color: var(--sidebar-text); cursor: pointer; border-radius: 8px;
+      font-size: 13.5px; transition: background 0.2s, color 0.2s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.12); color: #fca5a5; }
+    .logout-btn i { font-size: 15px; min-width: 20px; text-align: center; }
+    .sidebar.collapsed .logout-btn .nav-text { display: none; }
+
+    /* ── Main content ─────────────────────────────────── */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1; display: flex; flex-direction: column;
+      transition: margin-left 0.25s ease; min-width: 0;
+    }
+    .main-content.sidebar-collapsed { margin-left: var(--sidebar-collapsed); }
+
+    /* ── Header ──────────────────────────────────────── */
+    .header {
+      height: var(--header-height);
+      background: var(--card-bg); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; position: sticky; top: 0; z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .mobile-toggle {
+      display: none; background: none; border: none;
+      cursor: pointer; padding: 6px; border-radius: 8px; color: var(--text-secondary);
+    }
+    .mobile-toggle:hover { background: var(--bg); }
+    .page-title { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-primary); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      position: relative; background: none; border: none;
+      cursor: pointer; padding: 8px; border-radius: 8px;
+      color: var(--text-secondary); font-size: 16px; transition: background 0.2s;
+    }
+    .icon-btn:hover { background: var(--bg); color: var(--text-primary); }
+    .notification-badge {
+      position: absolute; top: 3px; right: 3px;
+      background: #ef4444; color: #fff; font-size: 9px;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+    .user-profile { position: relative; }
+    .profile-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: none;
+      border:none;
+      cursor: pointer; padding:6px 10px;
+    }
+    .profile-btn:hover { background: var(--bg); }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 100%;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; overflow: hidden; flex-shrink: 0;
+    }
+    /* .avatar img { width: 100%; height: 100%; object-fit: cover; } */
+    .user-info { text-align: left; }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+    .user-role { font-size: 11px; color: var(--text-secondary); }
+    .dropdown-arrow { font-size: 11px; color: var(--text-secondary); }
+    .profile-dropdown {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow-lg);
+      min-width: 180px; padding: 6px; opacity: 0; pointer-events: none;
+      transform: translateY(-8px); transition: all 0.2s;
+    }
+    .profile-dropdown.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px; font-size: 13px;
+      color: var(--text-primary); text-decoration: none; cursor: pointer;
+      border: none; background: none; width: 100%; transition: background 0.15s;
+    }
+    .dropdown-item:hover { background: var(--bg); }
+    .dropdown-item i { font-size: 14px; color: var(--text-secondary); width: 16px; }
+    .dropdown-divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+    .logout-item { color: #ef4444; }
+    .logout-item i { color: #ef4444; }
+
+    /* ── Content wrapper ─────────────────────────────── */
+    .content-wrapper { padding: 24px; flex: 1; }
+
+    /* ── Stepper ─────────────────────────────────────── */
+    .stepper-container { margin-bottom: 24px;}
+    .stepper {
+      display: flex; align-items: center;
+      background: var(--card-bg); border: 1px solid #20879bcb;
+      border-radius: var(--radius); padding: 16px 20px;
+      box-shadow: var(--shadow-sm); gap: 0;
+    }
+    .step {
+      display: flex; align-items: center; flex: 1;
+      cursor: pointer; position: relative; gap: 10px;
+    }
+    /* .step:not(:last-child)::after {
+      content: ''; position: absolute; right: 0;
+      top: 50%; transform: translateY(-50%);
+      width: calc(100% - 120px); height: 2px;
+      background: var(--border); left: 120px;
+    } */
+    /* .step.completed:not(:last-child)::after { background: var(--primary); } */
+    .step-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--border); color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; flex-shrink: 0;
+      transition: all 0.2s; border: 2px solid transparent;
+    }
+    .step.active .step-circle { background: var(--primary); color: #fff; border-color: var(--primary-dark); }
+    .step.completed .step-circle { background: var(--success); color: #fff; }
+    .step-label { font-size: 12px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+    .step.active .step-label { color: var(--primary); font-weight: 600; }
+    .step.completed .step-label { color: var(--success); }
+
+    /* ── Profile Card ────────────────────────────────── */
+    .profile-content-card {
+      background: var(--card-bg); border: 1px solid #20879bcb;
+      border-radius: var(--radius); box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      
+    }
+    .profile-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      background: #fafbfc;
+    }
+    .profile-header h2 {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 600; color: var(--text-primary);
+    }
+    .profile-header h2 i { color: var(--primary); font-size: 16px; }
+
+    /* ── Loading / Error States ──────────────────────── */
+    .loading-state, .error-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 24px; gap: 16px; color: var(--text-secondary);
+    }
+    .loading-state i { font-size: 32px; color: var(--primary); animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-state i { font-size: 32px; color: #ef4444; }
+    .error-state p { font-size: 15px; font-weight: 500; }
+    .retry-btn {
+      background: var(--primary); color: #fff; border: none;
+      padding: 8px 20px; border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 500; transition: background 0.2s;
+    }
+    .retry-btn:hover { background: var(--primary-dark); }
+
+    /* ── Form Section ────────────────────────────────── */
+    #stepContainer { padding: 24px; }
+    .form-section + .form-section { margin-top: 28px; }
+    .section-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--primary-light);
+    }
+    .section-title i { font-size: 13px; }
+    .form-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px 20px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label {
+      font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .form-group .field-value {
+      font-size: 14px; color: var(--text-primary); font-weight: 500;
+      padding: 9px 12px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 8px;
+      min-height: 40px; display: flex; align-items: center; word-break: break-word;
+    }
+    .field-value.empty { color: var(--text-muted); font-style: italic; font-weight: 400; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    }
+    .badge-active { background: var(--success-bg); color: var(--success); }
+    .badge-fulltime { background: #ede9fe; color: #6d28d9; }
+    .badge-challenged { background: #fef9c3; color: #854d0e; }
+    .badge-no { background: var(--bg); color: var(--text-muted); }
+
+    /* ── Dynamic Lists ───────────────────────────────── */
+    .dynamic-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .dynamic-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 13.5px;
+    }
+    .dynamic-item-left { display: flex; flex-direction: column; gap: 3px; }
+    .dynamic-item strong { font-weight: 600; color: var(--text-primary); }
+    .dynamic-item span { color: var(--text-secondary); font-size: 12.5px; }
+    .empty-list {
+      padding: 16px; text-align: center; color: var(--text-muted);
+      font-size: 13px; border: 1px dashed var(--border);
+      border-radius: 8px; background: var(--bg);
+    }
+
+    /* ── Documents ───────────────────────────────────── */
+    .documents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .doc-card {
+      border: 1px solid #20879bcb; border-radius: 10px;
+      padding: 16px; background: var(--bg);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .doc-card-top { display: flex; align-items: center; gap: 12px; }
+    .doc-icon-wrap {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: var(--primary-light); display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .doc-icon-wrap i { color: var(--primary); font-size: 18px; }
+    .doc-icon-wrap.unavailable { background: #f1f5f9; }
+    .doc-icon-wrap.unavailable i { color: var(--text-muted); }
+    .doc-card-info h4 { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+    .doc-status-badge {
+      font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 12px; margin-top: 2px; display: inline-block;
+    }
+    .doc-status-badge.available { background: var(--success-bg); color: var(--success); }
+    .doc-status-badge.unavailable { background: #f1f5f9; color: var(--text-muted); }
+    .btn-view-doc {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 14px; background: var(--primary); color: #fff;
+      border: none; border-radius: 8px; font-size: 12.5px; font-weight: 500;
+      cursor: pointer; transition: background 0.2s; text-decoration: none;
+    }
+    .btn-view-doc:hover { background: var(--primary-dark); }
+    .btn-view-doc.disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; pointer-events: none; }
+
+    /* ── Step Navigation ─────────────────────────────── */
+    .step-navigation {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; border-top: 1px solid var(--border);
+      background: #fafbfc;
+    }
+    .btn-nav {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 20px; border: 1px solid var(--border);
+      border-radius: 8px; background: var(--card-bg);
+      color: var(--text-primary); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-nav:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
+    .btn-nav:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-prev { }
+    .btn-next { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-next:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
+
+    /* ── Image Modal ─────────────────────────────────── */
+    .img-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .img-modal-overlay.active { opacity: 1; pointer-events: all; }
+    .img-modal-box {
+      background: var(--card-bg); border-radius: 12px;
+      padding: 20px; max-width: 90vw; max-height: 90vh;
+      display: flex; flex-direction: column; gap: 12px;
+      box-shadow: var(--shadow-lg);
+    }
+    .img-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .img-modal-header h3 { font-size: 15px; font-weight: 600; }
+    .img-modal-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: var(--text-secondary); padding: 4px 8px; border-radius: 6px;
+    }
+    .img-modal-close:hover { background: var(--bg); color: var(--text-primary); }
+    .img-modal-content { overflow: auto; max-height: 75vh; border-radius: 8px; background: #000; }
+    .img-modal-content img { max-width: 100%; display: block; border-radius: 8px; }
+    .img-modal-content iframe { width: 80vw; height: 70vh; border: none; border-radius: 8px; }
+    .img-modal-loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--text-muted); }
+    .img-modal-loading i { font-size: 24px; animation: spin 1s linear infinite; }
+    .img-modal-error { padding: 30px; text-align: center; color: #ef4444; }
+
+    /* ── Profile Photo ───────────────────────────────── */
+    .profile-hero {
+      display: flex; align-items: center; gap: 20px;
+      padding: 20px 24px; background: linear-gradient(135deg, var(--primary-light) 0%, #fff 100%);
+      border-bottom: 1px solid var(--border); margin: -24px -24px 24px -24px;
+      border: 1px solid #20879b9c;
+    }
+    .profile-photo-wrap {
+      width: 72px; height: 72px; border-radius: 12px;
+      border: 2px solid var(--border); overflow: hidden;
+      background: var(--primary); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .profile-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-photo-initials { color: #fff; font-size: 22px; font-weight: 700; }
+    .profile-hero-info h2 { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .profile-hero-info p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .profile-hero-badges { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0 !important; }
+      .mobile-toggle { display: flex; }
+      .step-label { display: none; }
+      .stepper { padding: 12px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .profile-hero { flex-direction: column; text-align: center; }
+      .step:not(:last-child)::after { display: none; }
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 13px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.20);
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.25s ease;
+    }
+  </style>
 </head>
-
 <body>
-    <div class="dashboard-container">
+<div class="dashboard-container">
 
-   <!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="logo">
-            <i class="fas fa-briefcase"></i>
-            <span class="logo-text">Employee Portal</span>
-        </div>
-
-        <button class="collapse-btn" id="collapseSidebarBtn" aria-label="Toggle sidebar">
-            <i class="fas fa-chevron-left"></i>
-        </button>
+      <div class="logo">
+        <i class="fas fa-briefcase"></i>
+        <span class="logo-text">Employee Portal</span>
+      </div>
+      <button class="collapse-btn" id="collapseSidebarBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-chevron-left"></i>
+      </button>
     </div>
-
-    <!-- IMPORTANT: added sidebar-nav -->
     <nav class="sidebar-nav">
-        <ul class="nav-menu">
-
-            <li>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-chart-pie"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="nav-link active">
-                    <i class="fas fa-user"></i>
-                    <span class="nav-text">Profile</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="../pages/attendance.html" class="nav-link">
-                    <i class="fas fa-clock"></i>
-                    <span class="nav-text">Attendance</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-money-bill"></i>
-                    <span class="nav-text">Expenses</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-umbrella-beach"></i>
-                    <span class="nav-text">Leave</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span class="nav-text">Payroll</span>
-                </a>
-            </li>
-
-             <li>
-                        <a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span
-                                class="nav-text">Company Policies</span></a>
-                    </li>
-
-        </ul>
+      <ul class="nav-menu">
+        <li><a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
+        <li><a href="../pages/profile.html" class="nav-link active"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
+        <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
+        <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
+        <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
+        <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+        <li><a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
+      </ul>
     </nav>
-
-    <!-- CLEAN FOOTER -->
     <div class="sidebar-footer">
-        <button class="logout-btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="nav-text">Logout</span>
+      <button class="logout-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span class="nav-text">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content" id="mainContent">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-toggle" id="mobileToggleBtn"><i class="fas fa-bars"></i></button>
+        <div class="page-title">Employee Profile</div>
+      </div>
+      <div class="header-right">
+        <div class="notification-bell">
+          <button class="icon-btn" id="notificationBtn">
+            <i class="far fa-bell"></i>
+            <span class="notification-badge">3</span>
+          </button>
+        </div>
+        <div class="user-profile">
+          <button class="profile-btn" id="profileDropdownBtn">
+            <div class="avatar" id="userAvatar">-</div>
+             <div class="user-info">
+                <div class="user-name" id="userName">Employee</div>
+                <div class="user-role" id="userRole"></div>
+            </div>
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a href="#" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout-item" id="dropdownLogoutBtn">
+              <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <!-- Stepper -->
+      <div class="stepper-container">
+        <div class="stepper" id="stepper"></div>
+      </div>
+
+      <!-- Card -->
+      <div class="profile-content-card">
+        <div class="profile-header">
+          <h2><i class="fas fa-id-card"></i><span id="stepTitle">Personal Information</span></h2>
+        </div>
+        <div id="stepContainer">
+          <div class="loading-state">
+            <i class="fas fa-circle-notch"></i>
+            <span>Fetching employee profile…</span>
+          </div>
+        </div>
+        <div class="step-navigation">
+          <button class="btn-nav btn-prev" id="prevBtn" disabled>
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <button class="btn-nav btn-next" id="nextBtn">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image/Document View Modal -->
+<div class="img-modal-overlay" id="imgModalOverlay">
+  <div class="img-modal-box">
+    <div class="img-modal-header">
+      <h3 id="imgModalTitle">View Document</h3>
+      <button class="img-modal-close" id="imgModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="img-modal-content" id="imgModalContent"></div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const firstName = localStorage.getItem('hrms_first_name') || '';
+    const lastName  = localStorage.getItem('hrms_last_name')  || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+    const designation = localStorage.getItem('hrms_designation') || '';
+    const department  = localStorage.getItem('hrms_department')  || '';
+
+    const initials = [firstName, lastName]
+      .filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
+
+    const role = designation || department || 'Employee';
+
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.innerText = initials;
+
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl) userNameEl.innerText = fullName;
+
+    const userRoleEl = document.getElementById('userRole');
+    if (userRoleEl) userRoleEl.innerText = role;
+
+    const dashNameEl = document.getElementById('dashboardUserName');
+    if (dashNameEl) dashNameEl.innerText = firstName || fullName;
+
+    const greetingEl = document.getElementById('greetingMessage');
+    if (greetingEl) {
+      const h = new Date().getHours();
+      const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+      greetingEl.innerText = g + "! Here's your dashboard overview.";
+    }
+  });
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CONSTANTS & CONFIG
+// ═══════════════════════════════════════════════════════
+const BASE_URL = 'http://localhost:8086';
+const FALLBACK_EMP_ID = '';
+const STEPS = [
+  'Personal Information',
+  'Job Details',
+  'Contact & Address',
+  'Education & Family',
+  'Documents'
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let currentStep = 1;
+let empData = null;
+
+// ═══════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════
+function showToast(msg, type = 'success') {
+  Toastify({
+    text: type === 'success' ? `✓ ${msg}` : `✕ ${msg}`,
+    duration: 3500,
+    gravity: 'bottom',
+    position: 'right',
+    backgroundColor: type === 'success' ? '#16a34a' : '#dc2626',
+    stopOnFocus: true,
+    style: {
+      borderRadius: '10px',
+      padding: '12px 16px',
+      fontSize: '13.5px',
+      fontWeight: '500',
+      boxShadow: type === 'success'
+        ? '0 8px 24px rgba(22,163,74,0.22)'
+        : '0 8px 24px rgba(220,38,38,0.22)',
+    },
+  }).showToast();
+}
+
+function safeVal(val, fallback = '—') {
+  if (val === null || val === undefined || val === '' || val === 0 && val !== false) return fallback;
+  return val;
+}
+
+function displayVal(val, fallback = '—') {
+  const v = val === null || val === undefined || val === '' ? null : val;
+  if (!v) return `<span class="empty">${fallback}</span>`;
+  return v;
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  return name.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+function parseJsonSafe(str) {
+  if (!str) return [];
+  try {
+    const parsed = typeof str === 'string' ? JSON.parse(str) : str;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    return new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch {
+    return dateStr;
+  }
+}
+
+function buildDocUrl(path) {
+  if (!path) return null;
+  return `${BASE_URL}${path}`;
+}
+
+function getEmployeeId() {
+  return localStorage.getItem('hrms_employee_id') || FALLBACK_EMP_ID;
+}
+
+
+// ═══════════════════════════════════════════════════════
+//  API FETCH
+// ═══════════════════════════════════════════════════════
+async function fetchEmployee(empId) {
+  const url = `${BASE_URL}/api/employees/get-employee-by-employeeId/${encodeURIComponent(empId)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+  const json = await res.json();
+  if (!json.success || !json.data) throw new Error('Invalid response from server');
+  return json.data;
+}
+
+async function loadEmployee() {
+  const empId = getEmployeeId();
+  document.getElementById('stepContainer').innerHTML = `
+    <div class="loading-state">
+      <i class="fas fa-circle-notch"></i>
+      <span>Fetching profile for <strong>${empId}</strong>…</span>
+    </div>`;
+  try {
+    empData = await fetchEmployee(empId);
+    onEmployeeLoaded();
+  } catch (err) {
+    console.error('[HRMS] Failed to fetch employee:', err);
+    document.getElementById('stepContainer').innerHTML = `
+      <div class="error-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Could not load profile</p>
+        <small style="color:var(--text-muted)">${err.message}</small>
+        <button class="retry-btn" onclick="loadEmployee()">
+          <i class="fas fa-redo"></i> Retry
         </button>
-    </div>
+      </div>`;
+    showToast('Failed to load employee profile', 'error');
+  }
+}
 
-</aside>
+// ═══════════════════════════════════════════════════════
+//  POST-LOAD SETUP
+// ═══════════════════════════════════════════════════════
+function onEmployeeLoaded() {
+  // Update header avatar/name/role
+  const d = empData;
+  const initials = getInitials(d.fullName || `${d.firstName || ''} ${d.lastName || ''}`);
+  // const avatarEl = document.getElementById('userAvatar');
 
-        <div class="main-content" id="mainContent">
+  // if (d.profilePhotoUrl) {
+  //   const photoUrl = buildDocUrl(d.profilePhotoUrl);
+  //   avatarEl.innerHTML = `<img src="${photoUrl}" alt="Profile" onerror="this.parentElement.innerHTML='<span class=\\'profile-photo-initials\\'>${initials}</span>'" />`;
+  // } else {
+  //   avatarEl.textContent = initials;
+  // }
 
-            <!-- Header -->
-            <header class="header">
-                <div class="header-left">
-                    <button class="mobile-toggle" id="mobileToggleBtn">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div class="page-title">Employee Profile</div>
-                </div>
+  // document.getElementById('userName').textContent = d.fullName || `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Employee';
+  // document.getElementById('userRole').textContent = d.designation || '—';
 
-                <div class="header-right">
+  renderStepper();
+  renderCurrentStep();
+  updateNavButtons();
+}
 
-                    <!-- Notification -->
-                    <div class="notification-bell">
-                        <button class="icon-btn" id="notificationBtn">
-                            <i class="far fa-bell"></i>
-                            <span class="notification-badge">3</span>
-                        </button>
-                    </div>
+// ═══════════════════════════════════════════════════════
+//  STEPPER
+// ═══════════════════════════════════════════════════════
+function renderStepper() {
+  const container = document.getElementById('stepper');
+  container.innerHTML = STEPS.map((label, idx) => `
+    <div class="step" data-step="${idx + 1}">
+      <div class="step-circle">${idx + 1}</div>
+      <div class="step-label">${label}</div>
+    </div>`).join('');
+  updateStepperUI();
+  document.querySelectorAll('.step').forEach(el => {
+    el.addEventListener('click', () => {
+      const s = parseInt(el.dataset.step);
+      if (empData) { currentStep = s; renderCurrentStep(); updateStepperUI(); updateNavButtons(); }
+    });
+  });
+}
 
-                    <!-- User Profile -->
-                    <div class="user-profile">
-                        <button class="profile-btn" id="profileDropdownBtn">
+function updateStepperUI() {
+  document.querySelectorAll('.step').forEach((el, idx) => {
+    const num = idx + 1;
+    const circle = el.querySelector('.step-circle');
+    el.classList.remove('active', 'completed');
+    if (num < currentStep) {
+      el.classList.add('completed');
+      circle.innerHTML = '<i class="fas fa-check"></i>';
+    } else if (num === currentStep) {
+      el.classList.add('active');
+      circle.textContent = num;
+    } else {
+      circle.textContent = num;
+    }
+  });
+  document.getElementById('stepTitle').textContent = STEPS[currentStep - 1];
+}
 
-                            <div class="avatar" id="userAvatar">AM</div>
+function updateNavButtons() {
+  const prev = document.getElementById('prevBtn');
+  const next = document.getElementById('nextBtn');
+  prev.disabled = currentStep === 1;
+  if (currentStep === STEPS.length) {
+    next.innerHTML = '<i class="fas fa-check-circle"></i> Done';
+    next.disabled = true;
+  } else {
+    next.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+    next.disabled = false;
+  }
+}
 
-                            <div class="user-info">
-                                <div class="user-name" id="userName">Alex Mercer</div>
-                                <div class="user-role" id="userRole">Senior Developer</div>
-                            </div>
+// ═══════════════════════════════════════════════════════
+//  FIELD RENDERER
+// ═══════════════════════════════════════════════════════
+function field(label, value) {
+  const display = (value === null || value === undefined || value === '')
+    ? `<span class="field-value empty">Not provided</span>`
+    : `<div class="field-value">${value}</div>`;
+  return `<div class="form-group"><label>${label}</label>${display}</div>`;
+}
 
-                            <i class="fas fa-chevron-down dropdown-arrow"></i>
-                        </button>
+function badgeField(label, value, badgeClass, displayText) {
+  return `<div class="form-group"><label>${label}</label>
+    <div class="field-value"><span class="badge ${badgeClass}">${displayText || value}</span></div>
+  </div>`;
+}
 
-                        <!-- Dropdown -->
-                        <div class="profile-dropdown" id="profileDropdown">
+// ═══════════════════════════════════════════════════════
+//  STEP RENDERERS
+// ═══════════════════════════════════════════════════════
+function renderCurrentStep() {
+  if (!empData) return;
+  const container = document.getElementById('stepContainer');
+  const d = empData;
 
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-user-circle"></i>
-                                <span>My Profile</span>
-                            </a>
+  const renderers = {
+    1: renderStep1,
+    2: renderStep2,
+    3: renderStep3,
+    4: renderStep4,
+    5: renderStep5,
+  };
 
-                            <div class="dropdown-divider"></div>
+  container.innerHTML = (renderers[currentStep] || (() => ''))(d);
+  updateStepperUI();
+}
 
-                            <button class="dropdown-item logout-item">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Logout</span>
-                            </button>
+function renderStep1(d) {
+  const initials = getInitials(d.fullName || `${d.firstName || ''} ${d.lastName || ''}`);
+  const photoUrl = d.profilePhotoUrl ? buildDocUrl(d.profilePhotoUrl) : null;
+  const photoHtml = photoUrl
+    ? `<img src="${photoUrl}" alt="Profile photo"
+         onerror="" />
+       <span class="profile-photo-initials" style="display:none">${initials}</span>`
+    : `<span class="profile-photo-initials">${initials}</span>`;
 
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <div class="content-wrapper">
-                <div class="stepper-container">
-                    <div class="stepper" id="stepper"></div>
-                </div>
-                <div class="profile-content-card">
-                    <div class="profile-header">
-                        <h2>
-                            <i class="fas fa-id-card"></i>
-                            <span id="stepTitle">Personal Information</span>
-                        </h2>
-                        <div class="btn-wrapper">
-                            <button class="btn-edit" id="editModeBtn">
-                                <i class="fas fa-pen"></i> Edit
-                            </button>
-
-                            <button class="btn-save" id="saveModeBtn" style="display: none">
-                                <i class="fas fa-save"></i> Save
-                            </button>
-
-                            <button class="btn-cancel" id="cancelModeBtn" style="display: none">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                        </div>
-                    </div>
-                    <div id="stepContainer"></div>
-                    <div class="step-navigation">
-                        <button class="btn-nav btn-prev" id="prevBtn">
-                            <i class="fas fa-chevron-left"></i> Previous</button><button class="btn-nav btn-next"
-                            id="nextBtn">
-                            Next <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+  return `
+  <div style="padding:0">
+    <div class="profile-hero">
+      <div class="profile-photo-wrap">${photoHtml}</div>
+      <div class="profile-hero-info">
+        <h2>${d.fullName || `${d.firstName || ''} ${d.middleName ? d.middleName + ' ' : ''}${d.lastName || ''}`.trim() || '—'}</h2>
+        <p>${d.designation || '—'} &bull; ${d.department || '—'}</p>
+        <div class="profile-hero-badges">
+          <span class="badge badge-active">${d.status || 'Active'}</span>
+          ${d.employmentType ? `<span class="badge badge-fulltime">${d.employmentType.replace('_', ' ')}</span>` : ''}
         </div>
+      </div>
     </div>
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-box">
-            <h3 id="modalTitle">Add Record</h3>
-            <div class="modal-body" id="modalBody"></div>
-            <div class="modal-actions">
-                <button class="btn-cancel-modal" id="cancelModalBtn" style="padding: 10px 20px; border-radius: 40px">
-                    Cancel</button><button class="btn-save-modal" id="saveModalBtn" style="
-              padding: 10px 20px;
-              border-radius: 40px;
-              background: var(--primary);
-              color: white;
-              border: none;
-            ">
-                    Save
-                </button>
-            </div>
+    <div style="padding:24px">
+      <div class="form-section">
+        <div class="section-title"><i class="fas fa-user"></i> Personal Details</div>
+        <div class="form-grid">
+          ${field('Employee ID', d.employeeId)}
+          ${field('First Name', d.firstName)}
+          ${field('Middle Name', d.middleName)}
+          ${field('Last Name', d.lastName)}
+          ${field('Full Name', d.fullName)}
+          ${field('Date of Birth', formatDate(d.dateOfBirth))}
+          ${field('Gender', d.gender)}
+          ${field('Blood Group', d.bloodGroup)}
+          ${field('Nationality', d.nationality)}
+          ${field('Religion', d.religion)}
+          ${field('Marital Status', d.maritalStatus)}
+          ${field('Father / Spouse Name', d.fatherSpouseName)}
+          ${field('PAN Number', d.panNumber)}
+          ${field('Aadhaar Number', d.aadhaarNumber)}
+          ${field('LinkedIn Profile', d.linkedinProfile
+            ? `<a href="${d.linkedinProfile}" target="_blank" rel="noopener" style="color:var(--primary)">${d.linkedinProfile}</a>`
+            : '')}
         </div>
+      </div>
+      <div class="form-section">
+        <div class="section-title"><i class="fas fa-wheelchair"></i> Disability Information</div>
+        <div class="form-grid">
+          ${badgeField('Physically Challenged',
+            d.isPhysicallyChallenged,
+            d.isPhysicallyChallenged ? 'badge-challenged' : 'badge-no',
+            d.isPhysicallyChallenged ? 'Yes' : 'No')}
+          ${d.isPhysicallyChallenged ? field('Disability Type', d.disabilityType) : ''}
+          ${d.isPhysicallyChallenged ? field('Disability %', d.disabilityPercentage != null ? `${d.disabilityPercentage}%` : '') : ''}
+          ${d.isPhysicallyChallenged ? field('Certificate Number', d.certificateNumber) : ''}
+        </div>
+      </div>
     </div>
+  </div>`;
+}
 
-    <script src="../js/profile.js"></script>
+function renderStep2(d) {
+  return `
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-briefcase"></i> Job Details</div>
+    <div class="form-grid">
+      ${field('Department', d.department)}
+      ${field('Sub Department', d.subDepartment)}
+      ${field('Designation', d.designation)}
+      ${field('Employee Grade', d.employeeGrade)}
+      ${field('Employment Type', d.employmentType ? d.employmentType.replace('_', ' ') : '')}
+      ${field('Work Location', d.workLocation)}
+      ${field('Shift', d.shift)}
+      ${field('Cost Centre', d.costCentre)}
+      ${field('Joining Date', formatDate(d.joiningDate))}
+      ${field('Probation End Date', formatDate(d.probationEndDate))}
+      ${field('Reporting Manager', d.reportingManager)}
+      ${field('HR Business Partner', d.hrBusinessPartner)}
+      ${field('Work Email', d.workEmail)}
+      ${field('Status', d.status)}
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-university"></i> Bank Details</div>
+    <div class="form-grid">
+      ${field('Bank Name', d.bankName)}
+      ${field('Account Number', d.accountNumber)}
+      ${field('IFSC Code', d.ifscCode)}
+      ${field('Basic Salary', d.basicSalary != null ? `₹${Number(d.basicSalary).toLocaleString('en-IN')}` : '')}
+    </div>
+  </div>`;
+}
+
+function renderStep3(d) {
+  return `
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-phone"></i> Contact Information</div>
+    <div class="form-grid">
+      ${field('Personal Email', d.personalEmail)}
+      ${field('Work Email', d.workEmail)}
+      ${field('Mobile Number', d.mobileNumber)}
+      ${field('Alternate Number', d.alternateNumber)}
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-home"></i> Current Address</div>
+    <div class="form-grid">
+      ${field('Street', d.currentStreet)}
+      ${field('City', d.currentCity)}
+      ${field('State', d.currentState)}
+      ${field('PIN Code', d.currentPincode)}
+      ${field('Country', d.currentCountry)}
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-map-marker-alt"></i> Permanent Address</div>
+    <div class="form-grid">
+      ${field('Street', d.permanentStreet)}
+      ${field('City', d.permanentCity)}
+      ${field('State', d.permanentState)}
+      ${field('PIN Code', d.permanentPincode)}
+      ${field('Country', d.permanentCountry)}
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-ambulance"></i> Emergency Contact</div>
+    <div class="form-grid">
+      ${field('Name', d.emergencyName)}
+      ${field('Relationship', d.emergencyRelationship)}
+      ${field('Phone Number', d.emergencyPhone)}
+    </div>
+  </div>`;
+}
+
+function renderStep4(d) {
+  const educationList = parseJsonSafe(d.education);
+  const familyList = parseJsonSafe(d.family);
+  const expList = parseJsonSafe(d.workExperience);
+
+  const eduHtml = educationList.length
+    ? educationList.map(e => `
+      <div class="dynamic-item">
+        <div class="dynamic-item-left">
+          <strong>${e.degree || '—'}</strong>
+          <span>${e.institution || e.institute || '—'} ${e.year ? `&bull; ${e.year}` : ''}</span>
+        </div>
+      </div>`).join('')
+    : '<div class="empty-list">No education records</div>';
+
+  const familyHtml = familyList.length
+    ? familyList.map(f => `
+      <div class="dynamic-item">
+        <div class="dynamic-item-left">
+          <strong>${f.name || '—'}</strong>
+          <span>${f.relationship || '—'}${f.occupation ? ` &bull; ${f.occupation}` : ''}</span>
+        </div>
+      </div>`).join('')
+    : '<div class="empty-list">No family records</div>';
+
+  const expHtml = expList.length
+    ? expList.map(e => `
+      <div class="dynamic-item">
+        <div class="dynamic-item-left">
+          <strong>${e.company || '—'}</strong>
+          <span>${e.designation || '—'}${e.years ? ` &bull; ${e.years} yr(s)` : ''}</span>
+        </div>
+      </div>`).join('')
+    : '<div class="empty-list">No experience records</div>';
+
+  return `
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-graduation-cap"></i> Education</div>
+    <div class="dynamic-list">${eduHtml}</div>
+  </div>
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-users"></i> Family</div>
+    <div class="dynamic-list">${familyHtml}</div>
+  </div>
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-briefcase"></i> Work Experience</div>
+    <div class="dynamic-list">${expHtml}</div>
+  </div>`;
+}
+
+function renderStep5(d) {
+  const docs = [
+    { label: 'Aadhaar Card', key: 'aadhaarDocumentUrl', icon: 'fa-id-card' },
+    { label: 'PAN Card', key: 'panDocumentUrl', icon: 'fa-address-card' },
+    { label: 'Degree Certificate', key: 'degreeDocumentUrl', icon: 'fa-graduation-cap' },
+    { label: 'Experience Letter', key: 'experienceDocumentUrl', icon: 'fa-briefcase' },
+    { label: 'Offer Letter', key: 'offerLetterUrl', icon: 'fa-file-signature' },
+  ];
+
+  const cards = docs.map(doc => {
+    const rawUrl = d[doc.key];
+    const fullUrl = rawUrl ? buildDocUrl(rawUrl) : null;
+    const available = !!fullUrl;
+    return `
+    <div class="doc-card">
+      <div class="doc-card-top">
+        <div class="doc-icon-wrap ${available ? '' : 'unavailable'}">
+          <i class="fas ${doc.icon}"></i>
+        </div>
+        <div class="doc-card-info">
+          <h4>${doc.label}</h4>
+          <span class="doc-status-badge ${available ? 'available' : 'unavailable'}">
+            ${available ? 'Available' : 'Not Uploaded'}
+          </span>
+        </div>
+      </div>
+      ${available
+        ? `<button class="btn-view-doc" data-url="${fullUrl}" data-label="${doc.label}">
+             <i class="fas fa-eye"></i> View Document
+           </button>`
+        : `<button class="btn-view-doc disabled" disabled>
+             <i class="fas fa-ban"></i> Not Available
+           </button>`
+      }
+    </div>`;
+  }).join('');
+
+  // Bind after paint
+  setTimeout(() => {
+    document.querySelectorAll('.btn-view-doc[data-url]').forEach(btn => {
+      btn.addEventListener('click', () => openDocModal(btn.dataset.url, btn.dataset.label));
+    });
+  }, 0);
+
+  return `
+  <div class="form-section">
+    <div class="section-title"><i class="fas fa-file-alt"></i> Official Documents</div>
+    <div class="documents-grid">${cards}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  DOCUMENT VIEWER MODAL
+// ═══════════════════════════════════════════════════════
+function openDocModal(url, label) {
+  const overlay = document.getElementById('imgModalOverlay');
+  const content = document.getElementById('imgModalContent');
+  const title = document.getElementById('imgModalTitle');
+
+  title.textContent = label;
+  content.innerHTML = `<div class="img-modal-loading"><i class="fas fa-circle-notch"></i></div>`;
+  overlay.classList.add('active');
+
+  // Determine if PDF or image based on URL path hint
+  const isPdf = url.toLowerCase().includes('pdf') || url.endsWith('.pdf');
+
+  if (isPdf) {
+    content.innerHTML = `<iframe src="${url}" title="${label}"></iframe>`;
+  } else {
+    const img = new Image();
+    img.onload = () => { content.innerHTML = `<img src="${url}" alt="${label}" />`; };
+    img.onerror = () => {
+      // Fallback: try as iframe (for PDFs served without extension)
+      content.innerHTML = `<iframe src="${url}" title="${label}"></iframe>`;
+    };
+    img.src = url;
+  }
+}
+
+function closeDocModal() {
+  document.getElementById('imgModalOverlay').classList.remove('active');
+  document.getElementById('imgModalContent').innerHTML = '';
+}
+
+// ═══════════════════════════════════════════════════════
+//  EVENT BINDINGS
+// ═══════════════════════════════════════════════════════
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentStep > 1) {
+    currentStep--;
+    renderCurrentStep();
+    updateNavButtons();
+  }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentStep < STEPS.length) {
+    currentStep++;
+    renderCurrentStep();
+    updateNavButtons();
+  }
+});
+
+document.getElementById('imgModalClose').addEventListener('click', closeDocModal);
+document.getElementById('imgModalOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('imgModalOverlay')) closeDocModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDocModal();
+});
+
+// Sidebar collapse
+document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('mainContent').classList.toggle('sidebar-collapsed');
+});
+
+// Mobile toggle
+document.getElementById('mobileToggleBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+});
+
+// Profile dropdown
+const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+profileDropdownBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  profileDropdown.classList.toggle('active');
+});
+document.addEventListener('click', () => profileDropdown.classList.remove('active'));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') profileDropdown.classList.remove('active'); });
+
+// Logout
+function doLogout() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = '../index.html';
+  }
+}
+document.getElementById('logoutBtn').addEventListener('click', doLogout);
+document.getElementById('dropdownLogoutBtn').addEventListener('click', doLogout);
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+renderStepper();
+loadEmployee();
+</script>
 </body>
-
 </html>

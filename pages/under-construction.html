@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HRMS | Coming Soon</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:        #1f6f7f;
+      --primary-soft:   #e6f4f6;
+      --primary-dark:   #145c6b;
+      --accent:         #6faf2e;
+      --bg-body:        #f8fafc;
+      --bg-card:        #ffffff;
+      --border-color:   #e2e8f0;
+      --heading:        #0f172a;
+      --text-dark:      #334155;
+      --text-muted:     #64748b;
+      --sidebar-width:  260px;
+      --sidebar-collapsed-width: 80px;
+      --header-height:  70px;
+      --radius:         16px;
+      --shadow-sm:      0 2px 8px rgba(0,0,0,0.06);
+      --shadow-md:      0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-body);
+      color: var(--text-dark);
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    .dashboard-container { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────── */
+    .sidebar {
+      position: fixed; left: 0; top: 0;
+      width: var(--sidebar-width); height: 100vh;
+      background: linear-gradient(180deg, #1f6f7f 0%, #145c6b 100%);
+      color: #fff;
+      display: flex; flex-direction: column;
+      z-index: 1050; overflow: hidden;
+      transition: width 0.35s cubic-bezier(0.32,0.72,0,1);
+      box-shadow: 4px 0 20px rgba(0,0,0,0.12);
+    }
+    .sidebar::before, .sidebar::after {
+      content: ''; position: absolute; border-radius: 50%;
+      filter: blur(60px); opacity: 0.25; z-index: 0; pointer-events: none;
+    }
+    .sidebar::before { width:260px; height:260px; top:-80px; right:-90px; background:#5fafc2; }
+    .sidebar::after  { width:300px; height:300px; bottom:-140px; right:-120px; background:#0e3c46; opacity:.18; }
+    .sidebar-header, .sidebar-nav, .sidebar-footer { position: relative; z-index: 2; }
+
+    .sidebar-header {
+      padding: 20px 18px; display: flex;
+      justify-content: space-between; align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.12); flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo i { font-size: 26px; color: #fff; }
+    .logo-text { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 600; color: #fff; white-space: nowrap; }
+
+    .collapse-btn {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.20);
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease; flex-shrink: 0;
+    }
+    .collapse-btn:hover { background: rgba(255,255,255,0.20); transform: translateY(-1px); }
+    .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 10px; }
+    .nav-menu { list-style: none; }
+
+    .nav-link {
+      position: relative;
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 18px; margin: 3px 8px;
+      border-radius: 12px; color: rgba(255,255,255,0.90);
+      text-decoration: none; font-size: 14px; font-weight: 500;
+      white-space: nowrap; transition: all 0.25s ease;
+    }
+    .nav-link::before {
+      content: ''; position: absolute; left: 0; top: 50%;
+      transform: translateY(-50%); width: 3px; height: 0%;
+      background: #fff; border-radius: 0 4px 4px 0; transition: height 0.25s ease;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.15); transform: translateX(4px); }
+    .nav-link.active { background: rgba(255,255,255,0.18); font-weight: 600; }
+    .nav-link.active::before, .nav-link:hover::before { height: 60%; }
+    .nav-link i { font-size: 18px; min-width: 20px; text-align: center; color: rgba(255,255,255,0.75); transition: .25s; }
+    .nav-link:hover i, .nav-link.active i { color: #fff; }
+
+    .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+    .sidebar.collapsed .logo-text,
+    .sidebar.collapsed .nav-text { opacity: 0; width: 0; overflow: hidden; }
+    .sidebar.collapsed .nav-link { justify-content: center; padding: 13px 0; }
+    .sidebar.collapsed .logout-btn span { display: none; }
+    .sidebar.collapsed .logout-btn { justify-content: center; }
+
+    .sidebar-footer { margin-top: auto; padding: 20px 16px; border-top: 1px solid rgba(255,255,255,0.12); flex-shrink: 0; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; padding: 13px 16px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.20);
+      border-radius: 12px; color: #fff; cursor: pointer;
+      font-size: 14px; font-weight: 500; transition: all 0.25s ease;
+    }
+    .logout-btn:hover { background: rgba(255,80,80,0.18); transform: translateX(3px); }
+    .logout-btn i { font-size: 16px; min-width: 20px; text-align: center; }
+
+    /* ── Main content ─────────────────────────────────── */
+    .main-content {
+      flex: 1; margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      display: flex; flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.32,0.72,0,1);
+    }
+    .main-content.sidebar-collapsed {
+      margin-left: var(--sidebar-collapsed-width);
+      width: calc(100% - var(--sidebar-collapsed-width));
+    }
+
+    /* ── Header ───────────────────────────────────────── */
+    .header {
+      position: fixed; top: 0; right: 0; left: var(--sidebar-width);
+      height: var(--header-height);
+      background: var(--bg-card); border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; z-index: 1040; box-shadow: var(--shadow-sm);
+      transition: left 0.35s cubic-bezier(0.32,0.72,0,1);
+    }
+    .main-content.sidebar-collapsed .header { left: var(--sidebar-collapsed-width); }
+    .header-left { display: flex; align-items: center; gap: 20px; }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+
+    .mobile-toggle {
+      display: none; background: none; border: none;
+      font-size: 22px; color: var(--primary);
+      cursor: pointer; padding: 6px; border-radius: 8px;
+    }
+    .mobile-toggle:hover { background: var(--primary-soft); }
+
+    .page-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px; font-weight: 600; color: var(--primary-dark);
+    }
+    .icon-btn {
+      background: transparent; border: none; font-size: 20px;
+      color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover { background: var(--primary-soft); color: var(--primary); }
+    .notification-bell { position: relative; }
+    .notification-badge {
+      position: absolute; top: 2px; right: 2px;
+      background: #e56c6c; color: #fff; font-size: 10px; font-weight: 700;
+      min-width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .user-profile { position: relative; }
+    .profile-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: transparent; border: none;
+      padding: 6px 10px; border-radius: 40px; cursor: pointer; transition: all 0.2s;
+    }
+    .profile-btn:hover { background: var(--primary-soft); }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-info { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+    .user-name { font-size: 13.5px; font-weight: 600; color: var(--heading); white-space: nowrap; }
+    .user-role { font-size: 11.5px; color: var(--text-muted); }
+
+    .profile-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      min-width: 200px; padding: 6px;
+      background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color); border-radius: var(--radius);
+      box-shadow: var(--shadow-md); opacity: 0; visibility: hidden;
+      transform: translateY(-8px); transition: all 0.22s ease; z-index: 1100;
+    }
+    .profile-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
+    .dropdown-divider { height: 1px; margin: 6px 10px; background: var(--border-color); }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      padding: 10px 12px; font-size: 13.5px; font-weight: 500;
+      color: var(--text-dark); background: transparent; border: none;
+      border-radius: 10px; cursor: pointer; text-decoration: none; transition: all 0.2s;
+    }
+    .dropdown-item:hover { background: var(--primary-soft); color: var(--primary); }
+    .dropdown-item i { font-size: 15px; min-width: 18px; color: var(--primary); }
+    .logout-item { color: #e56c6c; }
+    .logout-item i { color: #e56c6c; }
+    .logout-item:hover { background: rgba(229,108,108,0.10); color: #e56c6c; }
+
+    /* ── Content wrapper ──────────────────────────────── */
+    .content-wrapper {
+      padding: calc(var(--header-height) + 32px) 28px 40px;
+      flex: 1; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Under Construction Stage ─────────────────────── */
+    .construction-stage {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; max-width: 520px; width: 100%;
+      gap: 0;
+    }
+
+    /* Illustration container */
+    .illustration-wrap {
+      width: 220px; height: 220px;
+      position: relative; margin-bottom: 32px;
+    }
+
+    /* SVG illustration base plate */
+    .illustration-wrap svg { width: 100%; height: 100%; }
+
+    /* Floating ping animation */
+    @keyframes ping {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      70%  { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-8px); }
+    }
+    @keyframes pulse-ring {
+      0%   { r: 60px; opacity: .18; }
+      100% { r: 90px; opacity: 0; }
+    }
+    @keyframes rotate-gear {
+      from { transform-origin: center; transform: rotate(0deg); }
+      to   { transform-origin: center; transform: rotate(360deg); }
+    }
+    @keyframes rotate-gear-r {
+      from { transform-origin: center; transform: rotate(0deg); }
+      to   { transform-origin: center; transform: rotate(-360deg); }
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes blink-dot {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.2; }
+    }
+
+    .gear-big   { animation: rotate-gear   8s linear infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+    .gear-small { animation: rotate-gear-r 5s linear infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+    .float-group { animation: float 3.5s ease-in-out infinite; transform-box: fill-box; }
+
+    /* Progress bar */
+    .progress-track {
+      width: 100%; height: 6px;
+      background: var(--border-color); border-radius: 10px;
+      overflow: hidden; margin-bottom: 28px;
+    }
+    .progress-bar {
+      height: 100%; width: 38%;
+      background: linear-gradient(90deg, var(--primary) 0%, #5fafc2 100%);
+      border-radius: 10px;
+      position: relative; overflow: hidden;
+    }
+    .progress-bar::after {
+      content: '';
+      position: absolute; top: 0; left: -60%;
+      width: 60%; height: 100%;
+      background: rgba(255,255,255,0.4);
+      animation: shimmer 1.8s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      from { left: -60%; } to { left: 130%; }
+    }
+
+    /* Text block */
+    .cs-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 14px; border-radius: 20px;
+      background: var(--primary-soft); color: var(--primary-dark);
+      font-size: 11.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin-bottom: 18px;
+    }
+    .cs-eyebrow i { font-size: 11px; }
+
+    .cs-heading {
+      font-family: 'Poppins', sans-serif;
+      font-size: 26px; font-weight: 700;
+      color: var(--heading); line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    .cs-heading span { color: var(--primary); }
+
+    .cs-body {
+      font-size: 14px; color: var(--text-muted); line-height: 1.7;
+      max-width: 400px; margin: 0 auto 28px;
+    }
+
+    /* Feature chips */
+    .cs-chips {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      justify-content: center; margin-bottom: 32px;
+    }
+    .cs-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: 30px;
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      font-size: 12.5px; color: var(--text-dark); font-weight: 500;
+    }
+    .cs-chip i { color: var(--primary); font-size: 12px; }
+
+    /* Back button */
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px; border-radius: 10px;
+      background: var(--primary); color: #fff;
+      border: none; font-size: 13.5px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.2s; text-decoration: none;
+    }
+    .btn-back:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(31,111,127,0.25); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px; border-radius: 10px;
+      background: transparent; color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      font-size: 13.5px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.2s; text-decoration: none; margin-left: 10px;
+    }
+    .btn-ghost:hover { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+
+    /* Dots decoration */
+    .cs-dots {
+      display: flex; gap: 6px; justify-content: center; margin-top: 28px;
+    }
+    .cs-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border-color);
+    }
+    .cs-dot.active { background: var(--primary); animation: blink-dot 1.8s ease-in-out infinite; }
+    .cs-dot:nth-child(2) { animation-delay: 0.3s; }
+    .cs-dot:nth-child(3) { animation-delay: 0.6s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); width: 260px !important; transition: transform 0.3s ease; }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content, .main-content.sidebar-collapsed { margin-left: 0 !important; width: 100% !important; }
+      .header { left: 0 !important; }
+      .mobile-toggle { display: flex; }
+      .content-wrapper { padding: calc(var(--header-height) + 20px) 20px 32px; }
+      .cs-heading { font-size: 22px; }
+      .illustration-wrap { width: 160px; height: 160px; }
+    }
+
+    .sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: var(--header-height);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+     .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px; color: var(--sidebar-text);
+      text-decoration: none; border-radius: 8px; margin: 2px 8px;
+      transition: background 0.2s, color 0.2s; white-space: nowrap; font-size: 13.5px;
+    }
+    .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
+    .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+    .nav-link.active { background: var(--sidebar-active); color: #fff; }
+        .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+         .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .logo i { font-size: 20px; color: white; min-width: 20px; }
+    .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+
+    .collapse-btn {
+      background: none; border: none; color: var(--sidebar-text);
+      cursor: pointer; padding: 6px; border-radius: 6px; display: flex;
+      align-items: center; transition: background 0.2s;
+    }
+    .collapse-btn:hover { background: var(--sidebar-hover); color: #fff; }
+    .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+
+
+  </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-briefcase"></i>
+        <span class="logo-text">Employee Portal</span>
+      </div>
+      <button class="collapse-btn" id="collapseSidebarBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <ul class="nav-menu">
+        <li><a href="../pages/dashboard.html"  class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
+        <li><a href="../pages/profile.html"    class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
+        <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
+        <li><a href="../pages/under-construction.html"   class="nav-link active"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
+        <li><a href="../pages/under-construction.html"      class="nav-link"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
+        <li><a href="../pages/under-construction.html"    class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+        <li><a href="../pages/policies.html"   class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i><span class="nav-text">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main-content" id="mainContent">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-toggle" id="mobileToggleBtn"><i class="fas fa-bars"></i></button>
+        <!-- Change page-title text per page -->
+        <div class="page-title" id="pageTitle">In-progress</div>
+      </div>
+      <div class="header-right">
+        <div class="notification-bell">
+          <button class="icon-btn"><i class="far fa-bell"></i><span class="notification-badge">3</span></button>
+        </div>
+        <div class="user-profile">
+          <button class="profile-btn" id="profileDropdownBtn">
+            <div class="avatar" id="userAvatar">AM</div>
+             <div class="user-info">
+                <div class="user-name" id="userName">Employee</div>
+                <div class="user-role" id="userRole"></div>
+            </div>
+            <i class="fas fa-chevron-down" style="font-size:11px;color:#64748b;"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a href="#" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <div class="construction-stage">
+
+        <!-- SVG Illustration -->
+        <div class="illustration-wrap">
+          <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+            <!-- Soft background circle -->
+            <circle cx="110" cy="110" r="88" fill="#e6f4f6" opacity="0.6"/>
+            <circle cx="110" cy="110" r="68" fill="#e6f4f6" opacity="0.5"/>
+
+            <!-- Pulse ring (animated) -->
+            <circle cx="110" cy="110" r="60" fill="none" stroke="#1f6f7f" stroke-width="1.5" opacity="0.12">
+              <animate attributeName="r" from="60" to="95" dur="2.4s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.18" to="0" dur="2.4s" repeatCount="indefinite"/>
+            </circle>
+
+            <!-- Floating group (whole illustration floats) -->
+            <g class="float-group">
+
+              <!-- Monitor base -->
+              <rect x="52" y="68" width="116" height="78" rx="8" fill="#ffffff" stroke="#c8dfe3" stroke-width="1.5"/>
+              <rect x="60" y="76" width="100" height="54" rx="4" fill="#f0f9fb"/>
+
+              <!-- Screen content lines -->
+              <rect x="68" y="84" width="50" height="5" rx="2.5" fill="#b5d9e0"/>
+              <rect x="68" y="94" width="72" height="4" rx="2" fill="#d1ecf0"/>
+              <rect x="68" y="103" width="60" height="4" rx="2" fill="#d1ecf0"/>
+              <rect x="68" y="112" width="40" height="4" rx="2" fill="#d1ecf0"/>
+
+              <!-- Screen highlight bar -->
+              <rect x="130" y="84" width="22" height="12" rx="4" fill="#1f6f7f" opacity="0.15"/>
+
+              <!-- Stand -->
+              <rect x="104" y="146" width="12" height="12" rx="2" fill="#c8dfe3"/>
+              <rect x="92"  y="158" width="36" height="5" rx="2.5" fill="#c8dfe3"/>
+
+              <!-- Big gear (bottom-left of screen) -->
+              <g class="gear-big" style="transform-origin:82px 136px">
+                <circle cx="82" cy="136" r="14" fill="#e6f4f6" stroke="#1f6f7f" stroke-width="1.8"/>
+                <circle cx="82" cy="136" r="5"  fill="#1f6f7f" opacity="0.25"/>
+                <!-- gear teeth -->
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(0   82 136)"/>
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(45  82 136)"/>
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(90  82 136)"/>
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(135 82 136)"/>
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(180 82 136)"/>
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(225 82 136)"/>
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(270 82 136)"/>
+                <rect x="80" y="119" width="4" height="7"  rx="2" fill="#1f6f7f" opacity="0.5" transform="rotate(315 82 136)"/>
+              </g>
+
+              <!-- Small gear (bottom-right) -->
+              <g class="gear-small" style="transform-origin:138px 140px">
+                <circle cx="138" cy="140" r="9"  fill="#e6f4f6" stroke="#6faf2e" stroke-width="1.5"/>
+                <circle cx="138" cy="140" r="3.5" fill="#6faf2e" opacity="0.25"/>
+                <rect x="136.5" y="128" width="3" height="5" rx="1.5" fill="#6faf2e" opacity="0.6" transform="rotate(0   138 140)"/>
+                <rect x="136.5" y="128" width="3" height="5" rx="1.5" fill="#6faf2e" opacity="0.6" transform="rotate(60  138 140)"/>
+                <rect x="136.5" y="128" width="3" height="5" rx="1.5" fill="#6faf2e" opacity="0.6" transform="rotate(120 138 140)"/>
+                <rect x="136.5" y="128" width="3" height="5" rx="1.5" fill="#6faf2e" opacity="0.6" transform="rotate(180 138 140)"/>
+                <rect x="136.5" y="128" width="3" height="5" rx="1.5" fill="#6faf2e" opacity="0.6" transform="rotate(240 138 140)"/>
+                <rect x="136.5" y="128" width="3" height="5" rx="1.5" fill="#6faf2e" opacity="0.6" transform="rotate(300 138 140)"/>
+              </g>
+
+              <!-- Wrench icon (top-right) -->
+              <g transform="translate(148, 58) rotate(-35)">
+                <rect x="0" y="0" width="6" height="20" rx="3" fill="#1f6f7f" opacity="0.35"/>
+                <rect x="-2" y="0" width="10" height="7" rx="3" fill="#1f6f7f" opacity="0.35"/>
+              </g>
+
+              <!-- Sparkle dots -->
+              <circle cx="46"  cy="82"  r="3" fill="#6faf2e" opacity="0.6"/>
+              <circle cx="170" cy="75"  r="2" fill="#1f6f7f" opacity="0.5"/>
+              <circle cx="160" cy="158" r="2.5" fill="#5fafc2" opacity="0.55"/>
+              <circle cx="48"  cy="160" r="2" fill="#6faf2e" opacity="0.4"/>
+
+            </g>
+          </svg>
+        </div>
+
+        <!-- Eyebrow -->
+        <div class="cs-eyebrow">
+          <i class="fas fa-hammer"></i>
+          Under Construction
+        </div>
+
+        <!-- Heading — change MODULE NAME per page -->
+        <h1 class="cs-heading">
+          <span id="moduleNameHeading">Page</span> is on its way
+        </h1>
+
+        <!-- Body copy -->
+        <!-- <p class="cs-body" id="moduleDescription">
+          We're building something great here. This module is currently under active development and will be ready for you soon. Check back shortly!
+        </p> -->
+
+        <!-- Progress -->
+        <div class="progress-track" style="width:260px;">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+    
+        <!-- CTAs -->
+        <div>
+          <a href="../pages/dashboard.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+          </a>
+          <!-- <a href="mailto:support@company.com" class="btn-ghost">
+            <i class="fas fa-bell"></i> Notify Me
+          </a> -->
+        </div>
+
+        <!-- Dots -->
+        <div class="cs-dots">
+          <div class="cs-dot active"></div>
+          <div class="cs-dot active"></div>
+          <div class="cs-dot"></div>
+          <div class="cs-dot"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Sidebar ─────────────────────────────────────── */
+document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('mainContent').classList.toggle('sidebar-collapsed');
+});
+document.getElementById('mobileToggleBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+});
+
+/* ── Profile dropdown ────────────────────────────── */
+const pBtn = document.getElementById('profileDropdownBtn');
+const pDrop = document.getElementById('profileDropdown');
+pBtn.addEventListener('click', e => { e.stopPropagation(); pDrop.classList.toggle('active'); });
+document.addEventListener('click', () => pDrop.classList.remove('active'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') pDrop.classList.remove('active'); });
+
+/* ── Logout ──────────────────────────────────────── */
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if (confirm('Are you sure you want to logout?')) window.location.href = '../index.html';
+});
+
+/* ── Auto-detect active nav link & set page title ── */
+(function() {
+  const path = window.location.pathname.toLowerCase();
+  const map = {
+    'expenses':  { name: 'Expenses',  desc: 'We\'re building a smart expense management experience — track, submit and get reimbursed without the paperwork.', chips: ['<div class="cs-chip"><i class="fas fa-receipt"></i> Expense Tracking</div>','<div class="cs-chip"><i class="fas fa-file-invoice-dollar"></i> Reimbursement</div>','<div class="cs-chip"><i class="fas fa-chart-pie"></i> Spend Analytics</div>','<div class="cs-chip"><i class="fas fa-check-circle"></i> Approval Workflow</div>'], progress: '38%' },
+    'leave':     { name: 'Leave',     desc: 'A seamless leave management experience is on its way — apply, track balances and get approvals all in one place.', chips: ['<div class="cs-chip"><i class="fas fa-calendar-plus"></i> Apply Leave</div>','<div class="cs-chip"><i class="fas fa-balance-scale"></i> Balance Tracker</div>','<div class="cs-chip"><i class="fas fa-calendar-check"></i> Approval Flow</div>','<div class="cs-chip"><i class="fas fa-history"></i> Leave History</div>'], progress: '52%' },
+    'payroll':   { name: 'Payroll',   desc: 'Your salary, payslips and tax summaries — all in one secure place. We\'re putting the finishing touches on this module.', chips: ['<div class="cs-chip"><i class="fas fa-money-check-alt"></i> Payslips</div>','<div class="cs-chip"><i class="fas fa-coins"></i> Salary Breakdown</div>','<div class="cs-chip"><i class="fas fa-file-alt"></i> Tax Summary</div>','<div class="cs-chip"><i class="fas fa-download"></i> Download PDFs</div>'], progress: '65%' },
+    'policies':  { name: 'Company Policies', desc: 'All company guidelines, handbooks and policy documents in one accessible, searchable place. Coming very soon.', chips: ['<div class="cs-chip"><i class="fas fa-book-open"></i> Policy Library</div>','<div class="cs-chip"><i class="fas fa-search"></i> Smart Search</div>','<div class="cs-chip"><i class="fas fa-file-pdf"></i> Download Docs</div>'], progress: '78%' },
+  };
+
+  let matched = null;
+  for (const [key, val] of Object.entries(map)) {
+    if (path.includes(key)) { matched = val; break; }
+  }
+
+  if (matched) {
+    document.title = `HRMS | ${matched.name}`;
+    document.getElementById('pageTitle').textContent          = matched.name;
+    document.getElementById('moduleNameHeading').textContent  = matched.name;
+    document.getElementById('moduleDescription').textContent  = matched.desc;
+    document.getElementById('featureChips').innerHTML         = matched.chips.join('');
+    document.getElementById('progressBar').style.width        = matched.progress;
+
+    // Mark active nav
+    document.querySelectorAll('.nav-link').forEach(a => {
+      a.classList.remove('active');
+      if (a.href.toLowerCase().includes(key)) a.classList.add('active');
+    });
+  }
+})();
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const firstName = localStorage.getItem('hrms_first_name') || '';
+    const lastName  = localStorage.getItem('hrms_last_name')  || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+    const designation = localStorage.getItem('hrms_designation') || '';
+    const department  = localStorage.getItem('hrms_department')  || '';
+
+    const initials = [firstName, lastName]
+      .filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
+
+    const role = designation || department || 'Employee';
+
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.innerText = initials;
+
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl) userNameEl.innerText = fullName;
+
+    const userRoleEl = document.getElementById('userRole');
+    if (userRoleEl) userRoleEl.innerText = role;
+
+    const dashNameEl = document.getElementById('dashboardUserName');
+    if (dashNameEl) dashNameEl.innerText = firstName || fullName;
+
+    const greetingEl = document.getElementById('greetingMessage');
+    if (greetingEl) {
+      const h = new Date().getHours();
+      const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+      greetingEl.innerText = g + "! Here's your dashboard overview.";
+    }
+  });
+</script>
+</body>
+</html>

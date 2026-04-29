@@ -109,7 +109,7 @@
                         </div>
                     </div>
                     <div class="detail-content">${selectedPolicy.content}</div>
-                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted);">
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #20879bcb; font-size: 0.8rem; color: var(--text-muted);">
                         <i class="far fa-calendar-alt"></i> Last updated: ${selectedPolicy.lastUpdated}
                     </div>
                 </div>

@@ -1,442 +1,491 @@
+// ============================================================
+//  HRMS — attendance.js  |  Full API Integration
+// ============================================================
 
-    // ==================== IMPROVED ATTENDANCE MODULE ====================
-    const STORAGE_RECORDS = "hrms_attendance_records_enhanced";
-    const STORAGE_TODAY_SESSION = "hrms_attendance_today_session_v2";
-    let currentSession = null;
-    let timerInterval = null;
+/* ── Config ─────────────────────────────────────────────── */
+const BASE_URL        = 'http://localhost:8086';
+const EMP_PRIME_ID    = () => parseInt(localStorage.getItem('employeePrimeId') || '1', 10);
+const PAGE_SIZE       = 10;
 
-    // Helper Functions
-    function getTodayStr() { return new Date().toISOString().split('T')[0]; }
-    function formatTimeFromDate(dateObj) { if(!dateObj) return "--:--"; return new Date(dateObj).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); }
-    function formatFullTime(dateObj) { if(!dateObj) return "--:--"; return new Date(dateObj).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' }); }
-    
-    function calcHoursDiff(checkInISO, checkOutISO) { 
-        if(!checkInISO || !checkOutISO) return 0; 
-        const diffMs = new Date(checkOutISO) - new Date(checkInISO);
-        return Math.max(0, diffMs / (1000 * 3600));
-    }
-    
-    function getStatusFromHours(hours, checkInTimeISO = null) { 
-        if(hours === 0) return "Absent"; 
-        if(hours >= 7) return "Present"; 
-        if(hours >= 3.5) return "Half Day"; 
-        return "Late"; 
-    }
-    
-    function getOvertimeHours(hours) { return hours > 8 ? (hours - 8).toFixed(1) : 0; }
+/* ── State ──────────────────────────────────────────────── */
+let allRecords        = [];   // flat array from all pages
+let currentPage       = 0;
+let totalPages        = 1;
+let timerInterval     = null;
+let sessionCheckIn    = null; // ISO string, set when live check-in happens
+let currentEditRecord = null; // record object being edited in modal
 
-    function loadRecords() { 
-        const stored = localStorage.getItem(STORAGE_RECORDS); 
-        const records = stored ? JSON.parse(stored) : [];
-        // Sort by date descending
-        return records.sort((a,b) => new Date(b.date) - new Date(a.date));
-    }
-    
-    function saveRecords(records) { localStorage.setItem(STORAGE_RECORDS, JSON.stringify(records)); }
+/* ── Utilities ──────────────────────────────────────────── */
+function getTodayStr() { return new Date().toISOString().split('T')[0]; }
 
-    function finalizeAndStoreRecord(session) {
-        if(!session || !session.checkInTimeISO) return false;
-        const records = loadRecords();
-        const existingIndex = records.findIndex(r => r.date === session.date);
-        const hours = session.checkOutTimeISO ? calcHoursDiff(session.checkInTimeISO, session.checkOutTimeISO) : 0;
-        const status = session.checkOutTimeISO ? getStatusFromHours(hours, session.checkInTimeISO) : "Absent";
-        const overtime = getOvertimeHours(hours);
-        const record = { 
-            date: session.date, 
-            checkIn: session.checkInTimeISO, 
-            checkOut: session.checkOutTimeISO || null, 
-            hours: parseFloat(hours.toFixed(2)),
-            status: status,
-            overtime: overtime
-        };
-        if(existingIndex !== -1) records[existingIndex] = record;
-        else records.push(record);
-        saveRecords(records);
-        return true;
-    }
+function fmt12(timeStr) {
+  // "09:15:00" → "09:15 AM"
+  if (!timeStr || timeStr === '--:--') return '--:--';
+  const [h, m] = timeStr.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = ((h % 12) || 12).toString().padStart(2, '0');
+  return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+}
 
-    function checkInAction() {
-        const today = getTodayStr();
-        const records = loadRecords();
-        const todayRecord = records.find(r => r.date === today);
-        
-        // Prevent multiple check-ins
-        if(todayRecord && todayRecord.checkOut) { 
-            showToast("Already checked out today! Cannot check in again.", "error"); 
-            return; 
-        }
-        if(todayRecord && todayRecord.checkIn && !todayRecord.checkOut) {
-            showToast("You have an open session from earlier! Please check out first.", "error");
-            return;
-        }
-        if(currentSession && currentSession.checkInTimeISO && !currentSession.checkOutTimeISO) { 
-            showToast("Already checked in! Please check out first.", "error"); 
-            return; 
-        }
-        
-        const nowISO = new Date().toISOString();
-        currentSession = { date: today, checkInTimeISO: nowISO, checkOutTimeISO: null };
-        localStorage.setItem(STORAGE_TODAY_SESSION, JSON.stringify(currentSession));
-        
-        // Remove any incomplete pending record
-        const idx = records.findIndex(r => r.date === today && !r.checkOut);
-        if(idx !== -1) records.splice(idx,1);
-        saveRecords(records);
-        
-        showToast(`Check-in successful at ${formatFullTime(nowISO)}!`, "success");
-        refreshUI();
-    }
+function hmsNow() {
+  // returns "HH:MM:SS" in local time
+  const n = new Date();
+  return [n.getHours(), n.getMinutes(), n.getSeconds()]
+    .map(v => String(v).padStart(2, '0')).join(':');
+}
 
-    function checkOutAction() {
-        if(!currentSession || !currentSession.checkInTimeISO || currentSession.checkOutTimeISO) { 
-            showToast("No active check-in session.", "error"); 
-            return; 
-        }
-        
-        const nowISO = new Date().toISOString();
-        const checkInTime = new Date(currentSession.checkInTimeISO);
-        const checkOutTime = new Date(nowISO);
-        const hoursWorked = (checkOutTime - checkInTime) / (1000 * 3600);
-        
-        if(hoursWorked < 0.0167) { // Less than 1 minute
-            showToast("Check-out too soon! Minimum working time required.", "error");
-            return;
-        }
-        
-        currentSession.checkOutTimeISO = nowISO;
-        finalizeAndStoreRecord(currentSession);
-        localStorage.removeItem(STORAGE_TODAY_SESSION);
-        
-        const hoursDisplay = hoursWorked.toFixed(1);
-        showToast(`Check-out successful! Total hours: ${hoursDisplay} hrs`, "success");
-        currentSession = null;
-        refreshUI();
-    }
+function dateNow() { return getTodayStr(); }
 
-    function loadTodaySession() {
-        const raw = localStorage.getItem(STORAGE_TODAY_SESSION);
-        if(raw) {
-            try {
-                const sess = JSON.parse(raw);
-                if(sess.date === getTodayStr() && !sess.checkOutTimeISO) {
-                    currentSession = sess;
-                } else if(sess.date === getTodayStr() && sess.checkOutTimeISO) {
-                    // Session has checkout but not stored? store it
-                    finalizeAndStoreRecord(sess);
-                    localStorage.removeItem(STORAGE_TODAY_SESSION);
-                    currentSession = null;
-                } else {
-                    localStorage.removeItem(STORAGE_TODAY_SESSION);
-                }
-            } catch(e) { currentSession = null; }
-        }
-        
-        // Verify consistency with stored records
-        const records = loadRecords();
-        const todayRecord = records.find(r => r.date === getTodayStr());
-        if(todayRecord && todayRecord.checkOut && currentSession) {
-            currentSession = null;
-            localStorage.removeItem(STORAGE_TODAY_SESSION);
-        }
-        refreshUI();
-    }
+function hoursLabel(h) {
+  if (h == null || isNaN(h)) return '0.0 hrs';
+  const abs = Math.abs(h);
+  return `${abs.toFixed(1)} hrs`;
+}
 
-    function updateLiveTimer() {
-        if(currentSession && currentSession.checkInTimeISO && !currentSession.checkOutTimeISO) {
-            const diffSec = Math.floor((new Date() - new Date(currentSession.checkInTimeISO)) / 1000);
-            const hrs = Math.floor(diffSec/3600), mins = Math.floor((diffSec%3600)/60), secs = diffSec%60;
-            const timerEl = document.getElementById('liveTimer');
-            if(timerEl) { 
-                timerEl.style.display = "inline-flex"; 
-                timerEl.innerText = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; 
-            }
-        } else { 
-            const timerEl = document.getElementById('liveTimer'); 
-            if(timerEl) timerEl.style.display = "none"; 
-        }
-    }
+function statusColor(status) {
+  const m = { Present: '#6faf2e', Absent: '#e56c6c', Late: '#f59e0b', 'Half Day': '#8b5cf6' };
+  return m[status] || '#64748b';
+}
 
-    function refreshUI() {
-        const today = getTodayStr();
-        const records = loadRecords();
-        const todayRecord = records.find(r => r.date === today);
-        const isCheckedIn = currentSession && currentSession.checkInTimeISO && !currentSession.checkOutTimeISO;
-        const isCheckedOut = (todayRecord && todayRecord.checkOut);
-        
-        let sessionStatus = "Not Checked In";
-        let statusBadgeClass = "badge-secondary";
-        if(isCheckedIn) { sessionStatus = "Checked In"; statusBadgeClass = "badge-warning"; }
-        else if(isCheckedOut) { sessionStatus = "Checked Out"; statusBadgeClass = "badge-success"; }
-        
-        const sessionBadge = document.getElementById('sessionBadge');
-        sessionBadge.innerText = sessionStatus;
-        sessionBadge.className = `badge ${statusBadgeClass}`;
-        document.getElementById('todayStatusText').innerText = sessionStatus;
-        
-        let checkInTimeVal = "--:--", checkOutTimeVal = "--:--", workedHours = 0;
-        if(currentSession && currentSession.checkInTimeISO) {
-            checkInTimeVal = formatTimeFromDate(currentSession.checkInTimeISO);
-            if(currentSession.checkOutTimeISO) checkOutTimeVal = formatTimeFromDate(currentSession.checkOutTimeISO);
-        } else if(todayRecord) {
-            checkInTimeVal = formatTimeFromDate(todayRecord.checkIn);
-            checkOutTimeVal = todayRecord.checkOut ? formatTimeFromDate(todayRecord.checkOut) : "--:--";
-            workedHours = todayRecord.hours || 0;
-        }
-        
-        if(currentSession && !currentSession.checkOutTimeISO && currentSession.checkInTimeISO) {
-            workedHours = calcHoursDiff(currentSession.checkInTimeISO, new Date().toISOString());
-        }
-        
-        document.getElementById('checkInTimeDisplay').innerText = checkInTimeVal;
-        document.getElementById('checkOutTimeDisplay').innerText = checkOutTimeVal;
-        document.getElementById('todayHoursDisplay').innerHTML = workedHours.toFixed(1) + " hrs";
-        
-        const canCheckIn = (!currentSession || currentSession.checkOutTimeISO) && !(todayRecord && todayRecord.checkOut) && !(todayRecord && todayRecord.checkIn && !todayRecord.checkOut);
-        const canCheckOut = (currentSession && currentSession.checkInTimeISO && !currentSession.checkOutTimeISO);
-        
-        document.getElementById('checkInBtn').disabled = !canCheckIn;
-        document.getElementById('checkOutBtn').disabled = !canCheckOut;
-        
-        if(timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => { updateLiveTimer(); }, 1000);
-        updateRunningSub(workedHours, isCheckedIn);
-        renderTable(records);
-    }
+function showToast(msg, type = 'success') {
+  Toastify({
+    text: type === 'success' ? `✓ ${msg}` : `✕ ${msg}`,
+    duration: 3500,
+    gravity: 'bottom', position: 'right',
+    backgroundColor: type === 'success' ? '#6faf2e' : '#e56c6c',
+    stopOnFocus: true,
+    style: { borderRadius: '10px', padding: '12px 16px', fontSize: '13.5px', fontWeight: '500' }
+  }).showToast();
+}
 
-    function updateRunningSub(workedHours, isCheckedIn) {
-        const sub = document.getElementById('runningTimerSub');
-        if(isCheckedIn) sub.innerHTML = `<i class="fas fa-hourglass-half"></i> Live tracking...`;
-        else sub.innerHTML = ` Total recorded today`;
-    }
+/* ── Session persistence (localStorage) ─────────────────── */
+const SESSION_KEY = 'hrms_live_session';
 
-    function renderTable(records) {
-        let fromDate = document.getElementById('filterDateFrom').value;
-        let toDate = document.getElementById('filterDateTo').value;
-        let statusFilter = document.getElementById('filterStatus').value;
-        let filtered = [...records];
-        
-        if(fromDate) filtered = filtered.filter(r => r.date >= fromDate);
-        if(toDate) filtered = filtered.filter(r => r.date <= toDate);
-        if(statusFilter !== 'all') filtered = filtered.filter(r => r.status === statusFilter);
-        
-        const tbody = document.getElementById('attendanceTableBody');
-        if(filtered.length === 0) { 
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No attendance records found</td></tr>'; 
-            return; 
-        }
-        tbody.innerHTML = filtered.map(rec => `
-            <tr>
-                <td>${rec.date}</td>
-                <td><strong>${rec.checkIn ? formatTimeFromDate(rec.checkIn) : "--:--"}</strong></td>
-                <td>${rec.checkOut ? formatTimeFromDate(rec.checkOut) : "--:--"}</td>
-                <td>${rec.hours ? rec.hours.toFixed(1) : "0.0"} hrs</td>
-                <td><span class="status-badge-table" style="background:${getStatusColor(rec.status)}20; color:${getStatusColor(rec.status)}">${rec.status}</span></td>
-            </tr>
-        `).join('');
-    }
+function saveSession(checkInTime) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ date: getTodayStr(), checkInTime }));
+}
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    return s.date === getTodayStr() ? s : null;
+  } catch { return null; }
+}
 
-    function getStatusColor(status) { 
-        if(status==="Present") return "#6faf2e"; 
-        if(status==="Absent") return "#e56c6c"; 
-        if(status==="Late") return "#f59e0b"; 
-        if(status==="Half Day") return "#8b5cf6"; 
-        return "#64748b"; 
-    }
-    
-    function resetFilters() { 
-        document.getElementById('filterDateFrom').value = ''; 
-        document.getElementById('filterDateTo').value = ''; 
-        document.getElementById('filterStatus').value = 'all'; 
-        renderTable(loadRecords()); 
-    }
-    
-    function showToast(msg, type) { 
-        Toastify({ 
-            text: type === 'success' ? `✓ ${msg}` : `✕ ${msg}`, 
-            duration: 3000, 
-            gravity: "bottom", 
-            position: "right", 
-            backgroundColor: type === 'success' ? "#6faf2e" : "#e56c6c", 
-            stopOnFocus: true,
-            style: { borderRadius: "10px", padding: "12px 16px", fontSize: "14px", fontWeight: "500" }
-        }).showToast(); 
-    }
+/* ── API calls ───────────────────────────────────────────── */
+async function apiCheckIn() {
+  const now = hmsNow();
+  const payload = {
+    employeePrimeId: EMP_PRIME_ID(),
+    attendanceDate:  dateNow(),
+    checkInTime:     now,
+    checkOutTime:    null,
+    status:          'Present',
+    notes:           'Regular working day'
+  };
+  const res = await fetch(`${BASE_URL}/api/attendance/check-in`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error(`Check-in failed (${res.status})`);
+  return now;
+}
 
-    // Event Listeners
-    document.getElementById('checkInBtn').addEventListener('click', checkInAction);
-    document.getElementById('checkOutBtn').addEventListener('click', checkOutAction);
-    document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
-    document.getElementById('filterDateFrom').addEventListener('change', () => renderTable(loadRecords()));
-    document.getElementById('filterDateTo').addEventListener('change', () => renderTable(loadRecords()));
-    document.getElementById('filterStatus').addEventListener('change', () => renderTable(loadRecords()));
+async function apiCheckOut() {
+  const res = await fetch(`${BASE_URL}/api/attendance/check-out/${EMP_PRIME_ID()}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) throw new Error(`Check-out failed (${res.status})`);
+  return hmsNow();
+}
 
-    // Sidebar Interactions
-    const sidebar = document.getElementById('sidebar');
-    document.getElementById('collapseSidebarBtn').addEventListener('click', () => { 
-        sidebar.classList.toggle('collapsed'); 
-        document.getElementById('mainContent').classList.toggle('sidebar-collapsed'); 
+async function apiUpdateNote(notes) {
+  const res = await fetch(`${BASE_URL}/api/attendance/update/${EMP_PRIME_ID()}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ notes })
+  });
+  if (!res.ok) throw new Error(`Update failed (${res.status})`);
+}
+
+async function apiFetchPage(page = 0) {
+  const url = `${BASE_URL}/api/attendance/all-attendance-employee/${EMP_PRIME_ID()}` +
+              `?page=${page}&size=${PAGE_SIZE}&sortBy=attendanceDate&sortDir=desc`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
+  return res.json();
+}
+
+async function fetchAllRecords() {
+  try {
+    allRecords = [];
+    let page = 0;
+    while (true) {
+      const data = await apiFetchPage(page);
+      allRecords = allRecords.concat(data.content || []);
+      if (data.isLast || page >= (data.totalPages - 1)) break;
+      page++;
+    }
+    // Sort newest first
+    allRecords.sort((a, b) => new Date(b.attendanceDate) - new Date(a.attendanceDate));
+  } catch (err) {
+    console.error('[Attendance] fetchAllRecords:', err);
+  }
+}
+
+/* ── Today's record from allRecords ─────────────────────── */
+function getTodayRecord() {
+  return allRecords.find(r => r.attendanceDate === getTodayStr()) || null;
+}
+
+/* ── UI — Stat cards ─────────────────────────────────────── */
+function refreshStatCards() {
+  const sess = loadSession();
+  const todayRec = getTodayRecord();
+
+  // Session badge + status
+  let sessionLabel = 'Not Checked In';
+  let badgeClass   = 'badge-secondary';
+  if (sess) { sessionLabel = 'Checked In'; badgeClass = 'badge-warning'; }
+  else if (todayRec && todayRec.checkOutTime) { sessionLabel = 'Checked Out'; badgeClass = 'badge-success'; }
+
+  document.getElementById('sessionBadge').textContent = sessionLabel;
+  document.getElementById('sessionBadge').className   = `badge ${badgeClass}`;
+  document.getElementById('todayStatusText').textContent = sessionLabel;
+
+  // Check-in / check-out times
+  const ciTime = sess ? fmt12(sess.checkInTime)
+               : (todayRec ? fmt12(todayRec.checkInTime) : '--:--');
+  const coTime = (!sess && todayRec && todayRec.checkOutTime)
+               ? fmt12(todayRec.checkOutTime) : '--:--';
+
+  document.getElementById('checkInTimeDisplay').textContent  = ciTime;
+  document.getElementById('checkOutTimeDisplay').textContent = coTime;
+
+  // Today hours
+  const hrs = todayRec ? Math.abs(todayRec.totalHours || 0) : 0;
+  document.getElementById('todayHoursDisplay').textContent = hoursLabel(hrs);
+
+  // Sub line
+  const sub = document.getElementById('runningTimerSub');
+  sub.innerHTML = sess ? '<i class="fas fa-hourglass-half"></i> Live tracking…' : 'Total recorded today';
+
+  // Buttons
+  const canIn  = !sess && !(todayRec && todayRec.checkOutTime);
+  const canOut = !!sess;
+  document.getElementById('checkInBtn').disabled  = !canIn;
+  document.getElementById('checkOutBtn').disabled = !canOut;
+
+  // Live timer
+  if (sess) {
+    document.getElementById('liveTimer').style.display = 'inline-flex';
+  } else {
+    document.getElementById('liveTimer').style.display = 'none';
+  }
+}
+
+/* ── Live timer tick ─────────────────────────────────────── */
+function tickTimer() {
+  const sess = loadSession();
+  if (!sess) { document.getElementById('liveTimer').style.display = 'none'; return; }
+  const [h, m, s] = sess.checkInTime.split(':').map(Number);
+  const start = new Date();
+  start.setHours(h, m, s, 0);
+  const diff = Math.max(0, Math.floor((new Date() - start) / 1000));
+  const hh = Math.floor(diff / 3600);
+  const mm = Math.floor((diff % 3600) / 60);
+  const ss = diff % 60;
+  document.getElementById('liveTimer').textContent =
+    `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+
+/* ── Check-in action ─────────────────────────────────────── */
+document.getElementById('checkInBtn').addEventListener('click', async () => {
+  const sess = loadSession();
+  if (sess) { showToast('Already checked in!', 'error'); return; }
+  const todayRec = getTodayRecord();
+  if (todayRec && todayRec.checkOutTime) { showToast('Already checked out today.', 'error'); return; }
+
+  document.getElementById('checkInBtn').disabled = true;
+  try {
+    const checkInTime = await apiCheckIn();
+    saveSession(checkInTime);
+    await fetchAllRecords();
+    refreshStatCards();
+    renderTable();
+    showToast(`Checked in at ${fmt12(checkInTime)}`);
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(tickTimer, 1000);
+  } catch (err) {
+    console.error('[Attendance] checkIn:', err);
+    showToast(err.message || 'Check-in failed', 'error');
+    document.getElementById('checkInBtn').disabled = false;
+  }
+});
+
+/* ── Check-out action ────────────────────────────────────── */
+document.getElementById('checkOutBtn').addEventListener('click', async () => {
+  if (!loadSession()) { showToast('No active session.', 'error'); return; }
+  document.getElementById('checkOutBtn').disabled = true;
+  try {
+    const checkOutTime = await apiCheckOut();
+    clearSession();
+    if (timerInterval) clearInterval(timerInterval);
+    await fetchAllRecords();
+    refreshStatCards();
+    renderTable();
+    showToast(`Checked out at ${fmt12(checkOutTime)}`);
+  } catch (err) {
+    console.error('[Attendance] checkOut:', err);
+    showToast(err.message || 'Check-out failed', 'error');
+    document.getElementById('checkOutBtn').disabled = false;
+  }
+});
+
+/* ── Table rendering ─────────────────────────────────────── */
+function renderTable() {
+  const fromDate    = document.getElementById('filterDateFrom').value;
+  const toDate      = document.getElementById('filterDateTo').value;
+  const statusFilter= document.getElementById('filterStatus').value;
+
+  let filtered = [...allRecords];
+  if (fromDate)              filtered = filtered.filter(r => r.attendanceDate >= fromDate);
+  if (toDate)                filtered = filtered.filter(r => r.attendanceDate <= toDate);
+  if (statusFilter !== 'all')filtered = filtered.filter(r => r.status === statusFilter);
+
+  const tbody = document.getElementById('attendanceTableBody');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">
+      <i class="fas fa-calendar-times" style="font-size:1.5rem;margin-bottom:8px;display:block;"></i>
+      No attendance records found</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(rec => {
+    const color = statusColor(rec.status);
+    const hrs   = Math.abs(rec.totalHours || 0);
+    return `
+    <tr>
+      <td><span class="date-cell">${rec.attendanceDate}</span></td>
+      <td><strong>${fmt12(rec.checkInTime)}</strong></td>
+      <td>${fmt12(rec.checkOutTime)}</td>
+      <td>${hoursLabel(hrs)}</td>
+      <td><span class="status-badge-table" style="background:${color}18;color:${color};border:1px solid ${color}33">${rec.status}</span></td>
+      <td>
+        <button class="btn-action-edit" data-id="${rec.attendanceId}" title="Edit notes">
+          <i class="fas fa-pen"></i>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Bind edit buttons
+  document.querySelectorAll('.btn-action-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id  = parseInt(btn.dataset.id);
+      const rec = allRecords.find(r => r.attendanceId === id);
+      if (rec) openEditModal(rec);
     });
-    document.getElementById('mobileToggleBtn').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
-    
-    const profileBtn = document.getElementById('profileDropdownBtn'), profileDropdown = document.getElementById('profileDropdown');
-    if(profileBtn && profileDropdown) { 
-        profileBtn.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.classList.toggle('active'); }); 
-        document.addEventListener('click', (e) => { if(!profileBtn.contains(e.target)) profileDropdown.classList.remove('active'); }); 
-    }
-    
-    document.getElementById('logoutBtn')?.addEventListener('click', () => { if(confirm("Logout?")) showToast("Logged out", "success"); });
-    
+  });
+}
 
-//table functionality 
-   // Enhanced renderTable function with view button
-                    function renderTable(records) {
-                        let fromDate = document.getElementById('filterDateFrom').value;
-                        let toDate = document.getElementById('filterDateTo').value;
-                        let statusFilter = document.getElementById('filterStatus').value;
-                        let filtered = [...records];
+/* ── Edit Modal ──────────────────────────────────────────── */
+function openEditModal(rec) {
+  currentEditRecord = rec;
+  document.getElementById('editModalDate').textContent    = rec.attendanceDate;
+  document.getElementById('editModalStatus').textContent  = rec.status;
+  document.getElementById('editModalCheckin').textContent = fmt12(rec.checkInTime);
+  document.getElementById('editModalCheckout').textContent= fmt12(rec.checkOutTime);
+  document.getElementById('editNotesInput').value         = rec.notes || '';
+  document.getElementById('editModal').classList.add('active');
+  document.getElementById('editNotesInput').focus();
+}
 
-                        if (fromDate) filtered = filtered.filter(r => r.date >= fromDate);
-                        if (toDate) filtered = filtered.filter(r => r.date <= toDate);
-                        if (statusFilter !== 'all') filtered = filtered.filter(r => r.status === statusFilter);
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('active');
+  currentEditRecord = null;
+}
 
-                        const tbody = document.getElementById('attendanceTableBody');
-                        if (filtered.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No attendance records found</td></tr>';
-                            return;
-                        }
+document.getElementById('editModalClose').addEventListener('click', closeEditModal);
+document.getElementById('editModalCancel').addEventListener('click', closeEditModal);
+document.getElementById('editModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('editModal')) closeEditModal();
+});
 
-                        tbody.innerHTML = filtered.map((rec, index) => `
-        <tr>
-            <td>${rec.date}</td>
-            <td><strong>${rec.checkIn ? formatTimeFromDate(rec.checkIn) : "--:--"}</strong></td>
-            <td>${rec.checkOut ? formatTimeFromDate(rec.checkOut) : "--:--"}</td>
-            <td>${rec.hours ? rec.hours.toFixed(1) : "0.0"} hrs</td>
-            <td><span class="status-badge-table" style="background:${getStatusColor(rec.status)}20; color:${getStatusColor(rec.status)}">${rec.status}</span></td>
-            <td><button class="btn-view-detail" data-date="${rec.date}"><i class="fas fa-eye"></i> View</button></td>
-        </tr>
-    `).join('');
+document.getElementById('editModalSave').addEventListener('click', async () => {
+  if (!currentEditRecord) return;
+  const notes = document.getElementById('editNotesInput').value.trim();
+  const btn = document.getElementById('editModalSave');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving…';
+  try {
+    await apiUpdateNote(notes);
+    // Update local record
+    const idx = allRecords.findIndex(r => r.attendanceId === currentEditRecord.attendanceId);
+    if (idx !== -1) allRecords[idx].notes = notes;
+    closeEditModal();
+    renderTable();
+    showToast('Notes updated successfully');
+  } catch (err) {
+    console.error('[Attendance] updateNote:', err);
+    showToast(err.message || 'Update failed', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+  }
+});
 
-                        // Add event listeners to view buttons
-                        document.querySelectorAll('.btn-view-detail').forEach(btn => {
-                            btn.addEventListener('click', (e) => {
-                                const date = btn.dataset.date;
-                                showMonthlyViewForDate(date);
-                            });
-                        });
-                    }
+/* ── Monthly Summary Modal ───────────────────────────────── */
+function populateYearSelect() {
+  const sel = document.getElementById('yearSelect');
+  sel.innerHTML = '';
+  const cur = new Date().getFullYear();
+  for (let y = cur - 2; y <= cur + 1; y++) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    if (y === cur) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
 
-                    // Monthly view functions
-                    let currentViewDate = null;
+function loadMonthlySummary(year, month) {
+  // month is 0-indexed
+  const paddedMonth = String(month + 1).padStart(2, '0');
+  const monthRecords = allRecords.filter(r => {
+    const [y, m] = r.attendanceDate.split('-');
+    return parseInt(y) === year && parseInt(m) === (month + 1);
+  });
 
-                    function showMonthlyViewForDate(date) {
-                        const [year, month] = date.split('-');
-                        currentViewDate = { year: parseInt(year), month: parseInt(month) };
-                        loadMonthlySummary(currentViewDate.year, currentViewDate.month);
-                    }
+  const daysInMonth   = new Date(year, month + 1, 0).getDate();
+  const presentCount  = monthRecords.filter(r => r.status === 'Present').length;
+  const absentCount   = Math.max(0, daysInMonth - monthRecords.length);
+  const lateCount     = monthRecords.filter(r => r.status === 'Late').length;
+  const totalHrs      = monthRecords.reduce((s, r) => s + Math.abs(r.totalHours || 0), 0);
+  const avgHrs        = monthRecords.length > 0 ? totalHrs / monthRecords.length : 0;
 
-                    function loadMonthlySummary(year, month) {
-                        const records = loadRecords();
-                        const monthRecords = records.filter(rec => {
-                            const [recYear, recMonth] = rec.date.split('-');
-                            return parseInt(recYear) === year && parseInt(recMonth) === (month + 1);
-                        });
+  document.getElementById('totalDays').textContent      = daysInMonth;
+  document.getElementById('presentDays').textContent    = presentCount;
+  document.getElementById('absentDays').textContent     = absentCount;
+  document.getElementById('lateDays').textContent       = lateCount;
+  document.getElementById('totalHoursMonth').textContent= hoursLabel(totalHrs);
+  document.getElementById('avgHours').textContent       = hoursLabel(avgHrs);
 
-                        // Calculate statistics
-                        const daysInMonth = new Date(year, month + 1, 0).getDate();
-                        const presentDays = monthRecords.filter(r => r.status === 'Present' && r.hours >= 4).length;
-                        const absentDays = daysInMonth - monthRecords.length;
-                        const lateDays = monthRecords.filter(r => r.status === 'Late').length;
-                        const totalHours = monthRecords.reduce((sum, r) => sum + (r.hours || 0), 0);
-                        const avgHours = monthRecords.length > 0 ? totalHours / monthRecords.length : 0;
+  // Build day rows
+  const rows = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${paddedMonth}-${String(d).padStart(2, '0')}`;
+    const rec     = monthRecords.find(r => r.attendanceDate === dateStr);
+    const dayName = new Date(year, month, d).toLocaleDateString('en-US', { weekday: 'short' });
+    const status  = rec?.status || 'Absent';
+    const color   = statusColor(status);
+    const hrs     = rec ? Math.abs(rec.totalHours || 0) : 0;
+    rows.push(`
+      <tr>
+        <td>${dateStr}</td>
+        <td>${dayName}</td>
+        <td>${rec ? fmt12(rec.checkInTime) : '--:--'}</td>
+        <td>${rec ? fmt12(rec.checkOutTime) : '--:--'}</td>
+        <td>${hoursLabel(hrs)}</td>
+        <td><span class="status-indicator" style="background:${color}18;color:${color};border:1px solid ${color}33">${status}</span></td>
+      </tr>`);
+  }
+  document.getElementById('monthlyTableBody').innerHTML = rows.join('');
+  document.getElementById('monthlyModal').style.display = 'flex';
+}
 
-                        // Update stats
-                        document.getElementById('totalDays').innerText = daysInMonth;
-                        document.getElementById('presentDays').innerText = presentDays;
-                        document.getElementById('absentDays').innerText = absentDays;
-                        document.getElementById('lateDays').innerText = lateDays;
-                        document.getElementById('totalHoursMonth').innerText = totalHours.toFixed(1) + ' hrs';
-                        document.getElementById('avgHours').innerText = avgHours.toFixed(1) + ' hrs';
+function showMonthlySummary() {
+  const now = new Date();
+  document.getElementById('monthSelect').value = now.getMonth();
+  document.getElementById('yearSelect').value  = now.getFullYear();
+  loadMonthlySummary(now.getFullYear(), now.getMonth());
+}
 
-                        // Populate monthly table
-                        const monthlyTableBody = document.getElementById('monthlyTableBody');
-                        const days = [];
-                        for (let d = 1; d <= daysInMonth; d++) {
-                            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                            const record = monthRecords.find(r => r.date === dateStr);
-                            const dayName = new Date(year, month, d).toLocaleDateString('en-US', { weekday: 'short' });
+document.getElementById('viewMonthBtn').addEventListener('click', showMonthlySummary);
+document.getElementById('closeModalBtn').addEventListener('click', () => {
+  document.getElementById('monthlyModal').style.display = 'none';
+});
+document.getElementById('monthlyModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('monthlyModal'))
+    document.getElementById('monthlyModal').style.display = 'none';
+});
+document.getElementById('monthSelect').addEventListener('change', () => {
+  loadMonthlySummary(
+    parseInt(document.getElementById('yearSelect').value),
+    parseInt(document.getElementById('monthSelect').value)
+  );
+});
+document.getElementById('yearSelect').addEventListener('change', () => {
+  loadMonthlySummary(
+    parseInt(document.getElementById('yearSelect').value),
+    parseInt(document.getElementById('monthSelect').value)
+  );
+});
 
-                            days.push({
-                                date: dateStr,
-                                day: dayName,
-                                checkIn: record?.checkIn ? formatTimeFromDate(record.checkIn) : '--:--',
-                                checkOut: record?.checkOut ? formatTimeFromDate(record.checkOut) : '--:--',
-                                hours: record?.hours ? record.hours.toFixed(1) : '0.0',
-                                status: record?.status || 'Absent',
-                                color: getStatusColor(record?.status || 'Absent')
-                            });
-                        }
+/* ── Filters ─────────────────────────────────────────────── */
+document.getElementById('filterDateFrom').addEventListener('change', renderTable);
+document.getElementById('filterDateTo').addEventListener('change', renderTable);
+document.getElementById('filterStatus').addEventListener('change', renderTable);
+document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value   = '';
+  document.getElementById('filterStatus').value   = 'all';
+  renderTable();
+});
 
-                        monthlyTableBody.innerHTML = days.map(day => `
-        <tr>
-            <td>${day.date}</td>
-            <td>${day.day}</td>
-            <td>${day.checkIn}</td>
-            <td>${day.checkOut}</td>
-            <td>${day.hours} hrs</td>
-            <td><span class="status-indicator" style="background:${day.color}20; color:${day.color}">${day.status}</span></td>
-        </tr>
-    `).join('');
+/* ── Sidebar ─────────────────────────────────────────────── */
+document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('mainContent').classList.toggle('sidebar-collapsed');
+});
+document.getElementById('mobileToggleBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+});
 
-                        document.getElementById('monthlyModal').style.display = 'flex';
-                    }
+/* ── Profile dropdown ────────────────────────────────────── */
+const profileBtn      = document.getElementById('profileDropdownBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+if (profileBtn && profileDropdown) {
+  profileBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('active');
+  });
+  document.addEventListener('click', e => {
+    if (!profileBtn.contains(e.target)) profileDropdown.classList.remove('active');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') profileDropdown.classList.remove('active');
+  });
+}
 
-                    function showMonthlySummary() {
-                        const now = new Date();
-                        loadMonthlySummary(now.getFullYear(), now.getMonth());
-                    }
+/* ── Logout ──────────────────────────────────────────────── */
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  if (confirm('Are you sure you want to logout?')) window.location.href = '../index.html';
+});
 
-                    // Populate year select
-                    function populateYears() {
-                        const yearSelect = document.getElementById('yearSelect');
-                        const currentYear = new Date().getFullYear();
-                        yearSelect.innerHTML = '';
-                        for (let y = currentYear - 2; y <= currentYear + 1; y++) {
-                            const option = document.createElement('option');
-                            option.value = y;
-                            option.textContent = y;
-                            if (y === currentYear) option.selected = true;
-                            yearSelect.appendChild(option);
-                        }
-                    }
+/* ── Init ────────────────────────────────────────────────── */
+async function init() {
+  populateYearSelect();
 
-                    // Event listeners
-                    document.getElementById('viewMonthBtn')?.addEventListener('click', showMonthlySummary);
-                    document.getElementById('closeModalBtn')?.addEventListener('click', () => {
-                        document.getElementById('monthlyModal').style.display = 'none';
-                    });
+  // Restore live session
+  const sess = loadSession();
+  if (sess) {
+    timerInterval = setInterval(tickTimer, 1000);
+  }
 
-                    document.getElementById('monthSelect')?.addEventListener('change', () => {
-                        const month = parseInt(document.getElementById('monthSelect').value);
-                        const year = parseInt(document.getElementById('yearSelect').value);
-                        loadMonthlySummary(year, month);
-                    });
+  // Show loading state
+  document.getElementById('attendanceTableBody').innerHTML =
+    '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">' +
+    '<i class="fas fa-circle-notch fa-spin" style="margin-right:8px;"></i>Loading records…</td></tr>';
 
-                    document.getElementById('yearSelect')?.addEventListener('change', () => {
-                        const month = parseInt(document.getElementById('monthSelect').value);
-                        const year = parseInt(document.getElementById('yearSelect').value);
-                        loadMonthlySummary(year, month);
-                    });
+  await fetchAllRecords();
+  refreshStatCards();
+  renderTable();
+}
 
-                    // Close modal on outside click
-                    document.getElementById('monthlyModal')?.addEventListener('click', (e) => {
-                        if (e.target === document.getElementById('monthlyModal')) {
-                            document.getElementById('monthlyModal').style.display = 'none';
-                        }
-                    });
-
-                    // Initialize
-                    populateYears();
-
-    // Initial Load
-    loadTodaySession();
-    window.addEventListener('beforeunload', () => { if(timerInterval) clearInterval(timerInterval); });
+init();
+window.addEventListener('beforeunload', () => { if (timerInterval) clearInterval(timerInterval); });

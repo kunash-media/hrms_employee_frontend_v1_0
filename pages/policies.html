@@ -19,6 +19,41 @@
 
 </head>
 
+<style>
+    .sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: var(--header-height);
+      border-bottom: 1px solid #20879bcb;
+      flex-shrink: 0;
+    }
+     .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px; color: var(--sidebar-text);
+      text-decoration: none; border-radius: 8px; margin: 2px 8px;
+      transition: background 0.2s, color 0.2s; white-space: nowrap; font-size: 13.5px;
+    }
+    .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
+    .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+    .nav-link.active { background: var(--sidebar-active); color: #fff; }
+        .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+         .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .logo i { font-size: 20px; color: white; min-width: 20px; }
+    .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+
+    .collapse-btn {
+      background: none; border: none; color: var(--sidebar-text);
+      cursor: pointer; padding: 6px; border-radius: 6px; display: flex;
+      align-items: center; transition: background 0.2s;
+    }
+    .collapse-btn:hover { background: var(--sidebar-hover); color: #fff; }
+    .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+
+
+
+</style>
+
 <body>
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -48,15 +83,15 @@
                                 class="nav-text">Attendance</span></a>
                     </li>
                     <li>
-                        <a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill"></i><span
+                        <a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill"></i><span
                                 class="nav-text">Expenses</span></a>
                     </li>
                     <li>
-                        <a href="../pages/leave.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span
+                        <a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span
                                 class="nav-text">Leave</span></a>
                     </li>
                     <li>
-                        <a href="../pages/payroll.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span
+                        <a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span
                                 class="nav-text">Payroll</span></a>
                     </li>
                     <li>
@@ -76,7 +111,9 @@
             <header class="header">
                 <div class="header-left">
                     <button class="mobile-toggle" id="mobileToggleBtn"><i class="fas fa-bars"></i></button>
-                    <div class="page-title">Policy Hub</div>
+                    <div class="page-header">
+                        <h1>Company Policies</h1>
+                    </div>                
                 </div>
                 <div class="header-right">
                     <div class="notification-bell"><button class="icon-btn"><i class="far fa-bell"></i><span
@@ -84,9 +121,9 @@
                     <div class="user-profile">
                         <button class="profile-btn" id="profileDropdownBtn">
                             <div class="avatar">AM</div>
-                            <div class="user-info">
-                                <div class="user-name">Alex Mercer</div>
-                                <div class="user-role">Senior Developer</div>
+                             <div class="user-info">
+                                <div class="user-name" id="userName">Employee</div>
+                                <div class="user-role" id="userRole"></div>
                             </div>
                             <i class="fas fa-chevron-down"></i>
                         </button>
@@ -102,9 +139,7 @@
             </header>
 
             <div class="content-wrapper">
-                <div class="page-header">
-                    <h1><i class="fas fa-file-contract"></i> Company Policies</h1>
-                </div>
+             
 
                 <div class="tabs-container">
                     <div class="tabs" id="tabsContainer"></div>
@@ -114,9 +149,41 @@
             </div>
         </div>
     </div>
-
     <script src="../js/policy.js"></script>
 
+    <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const firstName = localStorage.getItem('hrms_first_name') || '';
+    const lastName  = localStorage.getItem('hrms_last_name')  || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+    const designation = localStorage.getItem('hrms_designation') || '';
+    const department  = localStorage.getItem('hrms_department')  || '';
+
+    const initials = [firstName, lastName]
+      .filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
+
+    const role = designation || department || 'Employee';
+
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.innerText = initials;
+
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl) userNameEl.innerText = fullName;
+
+    const userRoleEl = document.getElementById('userRole');
+    if (userRoleEl) userRoleEl.innerText = role;
+
+    const dashNameEl = document.getElementById('dashboardUserName');
+    if (dashNameEl) dashNameEl.innerText = firstName || fullName;
+
+    const greetingEl = document.getElementById('greetingMessage');
+    if (greetingEl) {
+      const h = new Date().getHours();
+      const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+      greetingEl.innerText = g + "! Here's your dashboard overview.";
+    }
+  });
+</script>
 </body>
 
 </html>
