@@ -10,9 +10,20 @@
   .orb.three{width:200px;height:200px;background:#93C5FD;top:55%;left:45%;}
   @keyframes floatOrbs{0%{transform:translateY(0) scale(1);}100%{transform:translateY(-18px) scale(1.05);}}
   .login-container{position:relative;z-index:2;width:100%;max-width:400px;background:#fff;border-radius:1.5rem;box-shadow:0 20px 35px -10px rgba(15,23,42,.12),0 1px 3px rgba(0,0,0,.05);overflow:hidden;}
-  .brand-header{background:linear-gradient(135deg,#1F6F7F 0%,#145C6B 100%);padding:1.2rem 1.2rem 1rem;text-align:center;}
-  .logo-circle{background:rgba(255,255,255,.12);width:52px;height:52px;margin:0 auto .7rem;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.2);}
-  .logo-circle i{font-size:1.8rem;color:#fff;}
+  
+ .brand-header {
+    background: linear-gradient(135deg, #1F6F7F 0%, #145C6B 100%);
+    padding: 1rem 1.4rem;
+    text-align: left;
+  }
+  
+  
+    
+  .logo-circle i{
+    font-size:1.8rem;
+    color:#fff;
+  }
+  
   .brand-header h1{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.4rem;color:#fff;margin-bottom:.2rem;}
   .brand-header p{color:rgba(255,255,255,.85);font-size:.7rem;}
   .form-body{padding:1.4rem 1.6rem 1.5rem;}
@@ -21,14 +32,34 @@
   .input-group label i{color:#5FAFC2;font-size:.75rem;width:1rem;}
   .input-field{position:relative;display:flex;align-items:center;}
   .input-field i.field-icon{position:absolute;left:.9rem;color:#94A3B8;font-size:.9rem;pointer-events:none;}
-  .input-field input{width:100%;padding:.65rem .9rem .65rem 2.4rem;font-size:.85rem;font-weight:500;font-family:'Inter',sans-serif;background:#fff;border:1.5px solid #E2E8F0;border-radius:1rem;outline:none;transition:all .2s;color:#0F172A;}
+  .input-field input{width:100%;padding:.65rem .9rem .65rem 2.4rem;font-size:.85rem;font-weight:500;font-family:'Inter',sans-serif;background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;outline:none;transition:all .2s;color:#0F172A;}
   .input-field input:focus{border-color:#1F6F7F;box-shadow:0 0 0 3px rgba(31,111,127,.08);}
   .input-field input:hover{border-color:#5FAFC2;}
   .password-toggle{position:absolute;right:.9rem;background:transparent;border:none;cursor:pointer;font-size:.9rem;color:#94A3B8;transition:color .2s;display:flex;align-items:center;padding:0;}
   .password-toggle:hover{color:#1F6F7F;}
-  .login-btn{width:100%;background:linear-gradient(105deg,#1F6F7F 0%,#5FAFC2 100%);border:none;padding:.75rem 1rem;font-family:'Poppins',sans-serif;font-weight:600;font-size:.85rem;border-radius:2rem;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;transition:all .2s;box-shadow:0 4px 10px rgba(31,111,127,.2);}
-  .login-btn:hover:not(:disabled){background:linear-gradient(105deg,#145C6B 0%,#4A9BB0 100%);transform:translateY(-1px);box-shadow:0 6px 14px rgba(31,111,127,.3);}
-  .login-btn:disabled{opacity:.7;cursor:not-allowed;}
+  
+  .login-btn{
+      width:100%;background:linear-gradient(105deg,#1F6F7F 0%,#5FAFC2 100%);
+      border:none;padding:.75rem 1rem;
+      font-family:'Poppins',sans-serif;font-weight:600;
+      font-size:.85rem;
+      border-radius:10px;
+      color:#fff;
+      cursor:pointer;
+      display:flex;align-items:center;
+      justify-content:center;gap:.6rem;
+      transition:all .2s;
+      box-shadow:0 4px 10px rgba(31,111,127,.2);
+    }
+
+
+  .login-btn:hover:not(:disabled){
+    background:linear-gradient(105deg,#145C6B 0%,#4A9BB0 100%);
+    transform:translateY(-1px);
+    box-shadow:0 6px 14px rgba(31,111,127,.3);}
+  .login-btn:disabled{opacity:.7;cursor:not-allowed;
+  
+  }
   .toast{position:fixed;top:16px;right:16px;z-index:9999;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;color:#fff;opacity:0;transform:translateY(-8px);transition:opacity .3s,transform .3s;pointer-events:none;}
   .toast.show{opacity:1;transform:translateY(0);}
   .toast.error{background:#E56C6C;}
@@ -47,10 +78,13 @@
 
 <div class="login-container">
   <div class="brand-header">
-    <div class="logo-circle"><i class="fas fa-briefcase"></i></div>
-    <h1>Employee Portal</h1>
-    <p>secure dashboard access</p>
+    <div style="display:flex;align-items:center;gap:10px;padding:.2rem 0;">
+      <img src="/Images/logo.png" alt="logo" style="width:90px;height:42px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;padding:4px;">    <div style="text-align:left;">
+      <h1 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.3rem;color:#fff;margin:0;">Employee Login</h1>
+    </div>
   </div>
+  
+</div>
   <div class="form-body">
     <div class="input-group">
       <label><i class="fas fa-id-card"></i> Employee ID</label>
@@ -75,7 +109,7 @@
       </a>
     </div>
     <button class="login-btn" id="loginBtn">
-      <span id="btnText">Access Dashboard</span>
+      <span id="btnText">Login</span>
       <i class="fas fa-arrow-right-to-bracket" id="btnIcon"></i>
     </button>
   </div>
