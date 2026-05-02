@@ -13,8 +13,11 @@
 
 <style>
     .sidebar-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px; height: var(--header-height);
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      padding: 0 16px; 
+      height: var(--header-height);
       border-bottom: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
     }
@@ -42,6 +45,78 @@
     .collapse-btn:hover { background: var(--sidebar-hover); color: #fff; }
     .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
 
+
+    /* ── Check-In Status Selector ──────────────────────────── */
+.checkin-status-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.checkin-status-wrap.hidden {
+  display: none;
+}
+
+.checkin-status-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.3px;
+}
+
+.checkin-status-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-option-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 40px;
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg, #fff);
+  color: var(--text-secondary, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.status-option-btn:hover {
+  border-color: var(--primary, #1B738C);
+  color: var(--primary, #1B738C);
+  background: rgba(27, 115, 140, 0.06);
+}
+
+/* Selected state — each status gets its own accent color */
+.status-option-btn.selected[data-value="Present"] {
+  background: rgba(111, 175, 46, 0.12);
+  border-color: #6faf2e;
+  color: #6faf2e;
+}
+.status-option-btn.selected[data-value="Half Day"] {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+.status-option-btn.selected[data-value="Late"] {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+.status-option-btn.selected[data-value="WFH"] {
+  background: rgba(27, 115, 140, 0.12);
+  border-color: var(--primary, #1B738C);
+  color: var(--primary, #1B738C);
+}
 
 
 </style>
@@ -152,22 +227,45 @@
       </div>
 
       <!-- Action Card -->
-      <div class="action-card">
-        <div class="status-badge">
-          <i class="fas fa-circle" style="font-size:11px;color:var(--primary)"></i>
-          <span>Current session:</span>
-          <span class="badge" id="sessionBadge">Not Checked In</span>
-          <div id="liveTimer" class="timer-section" style="display:none">00:00:00</div>
-        </div>
-        <div class="btn-group">
-          <button class="btn btn-primary" id="checkInBtn">
-            <i class="fas fa-sign-in-alt"></i> Check In
-          </button>
-          <button class="btn btn-outline" id="checkOutBtn" disabled>
-            <i class="fas fa-sign-out-alt"></i> Check Out
-          </button>
-        </div>
-      </div>
+      <!-- Action Card -->
+<div class="action-card">
+  <div class="status-badge">
+    <i class="fas fa-circle" style="font-size:11px;color:var(--primary)"></i>
+    <span>Current session:</span>
+    <span class="badge" id="sessionBadge">Not Checked In</span>
+    <div id="liveTimer" class="timer-section" style="display:none">00:00:00</div>
+  </div>
+
+  <!-- ── Check-In Status Selector ── -->
+  <div id="checkInStatusWrap" class="checkin-status-wrap">
+    <label class="checkin-status-label">
+      <i class="fas fa-tag"></i> Select status before check-in
+    </label>
+    <div class="checkin-status-options">
+      <button type="button" class="status-option-btn" data-value="Present">
+        <i class="fas fa-user-check"></i> Present
+      </button>
+      <button type="button" class="status-option-btn" data-value="Half Day">
+        <i class="fas fa-adjust"></i> Half Day
+      </button>
+      <button type="button" class="status-option-btn" data-value="Late">
+        <i class="fas fa-clock"></i> Late
+      </button>
+      <button type="button" class="status-option-btn" data-value="WFH">
+        <i class="fas fa-house-user"></i> WFH
+      </button>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" id="checkInBtn" disabled>
+      <i class="fas fa-sign-in-alt"></i> Check In
+    </button>
+    <button class="btn btn-outline" id="checkOutBtn" disabled>
+      <i class="fas fa-sign-out-alt"></i> Check Out
+    </button>
+  </div>
+</div>
 
       <!-- Filter Bar -->
       <div class="filter-bar">

@@ -167,13 +167,10 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  /* padding: 13px 18px; */
-  /* margin: 3px 8px; */
   border-radius: 12px;
   color: rgba(255,255,255,0.90);
   text-decoration: none;
-  /* font-size: 14.5px; */
-  /* font-weight: 500; */
+
   white-space: nowrap;
   transition: all 0.25s ease;
 }
@@ -463,6 +460,7 @@ body {
   font-size: 13.5px; font-weight: 600;
   cursor: pointer; transition: all 0.25s;
   white-space: nowrap;
+  text-decoration: none;
 }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
 
@@ -484,7 +482,7 @@ body {
    ============================================================ */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 20px;
 }

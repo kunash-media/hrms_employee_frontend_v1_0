@@ -1,91 +1,344 @@
-
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:#EEF3F8;overflow:hidden;}
-  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(31,111,127,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(31,111,127,0.08) 1px,transparent 1px);background-size:42px 42px;opacity:.6;pointer-events:none;z-index:0;}
-  body::after{content:'';position:fixed;inset:0;background:radial-gradient(circle at 15% 20%,rgba(95,175,194,.10),transparent 45%),radial-gradient(circle at 85% 70%,rgba(31,111,127,.08),transparent 50%);pointer-events:none;z-index:0;}
-  .orb{position:fixed;border-radius:50%;filter:blur(70px);opacity:.22;z-index:0;pointer-events:none;animation:floatOrbs 14s ease-in-out infinite alternate;}
-  .orb.one{width:240px;height:240px;background:#5FAFC2;top:8%;left:6%;}
-  .orb.two{width:280px;height:280px;background:#1F6F7F;bottom:8%;right:10%;}
-  .orb.three{width:200px;height:200px;background:#93C5FD;top:55%;left:45%;}
-  @keyframes floatOrbs{0%{transform:translateY(0) scale(1);}100%{transform:translateY(-18px) scale(1.05);}}
-  .login-container{position:relative;z-index:2;width:100%;max-width:400px;background:#fff;border-radius:1.5rem;box-shadow:0 20px 35px -10px rgba(15,23,42,.12),0 1px 3px rgba(0,0,0,.05);overflow:hidden;}
-  
- .brand-header {
-    background: linear-gradient(135deg, #1F6F7F 0%, #145C6B 100%);
-    padding: 1rem 1.4rem;
-    text-align: left;
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
-  
-  
-    
-  .logo-circle i{
-    font-size:1.8rem;
-    color:#fff;
+
+  body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #a8e6e3 0%, #e0f2ee 100%);
+    overflow: hidden;
   }
-  
-  .brand-header h1{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.4rem;color:#fff;margin-bottom:.2rem;}
-  .brand-header p{color:rgba(255,255,255,.85);font-size:.7rem;}
-  .form-body{padding:1.4rem 1.6rem 1.5rem;}
-  .input-group{margin-bottom:1rem;}
-  .input-group label{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.75rem;margin-bottom:.4rem;color:#334155;}
-  .input-group label i{color:#5FAFC2;font-size:.75rem;width:1rem;}
-  .input-field{position:relative;display:flex;align-items:center;}
-  .input-field i.field-icon{position:absolute;left:.9rem;color:#94A3B8;font-size:.9rem;pointer-events:none;}
-  .input-field input{width:100%;padding:.65rem .9rem .65rem 2.4rem;font-size:.85rem;font-weight:500;font-family:'Inter',sans-serif;background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;outline:none;transition:all .2s;color:#0F172A;}
-  .input-field input:focus{border-color:#1F6F7F;box-shadow:0 0 0 3px rgba(31,111,127,.08);}
-  .input-field input:hover{border-color:#5FAFC2;}
-  .password-toggle{position:absolute;right:.9rem;background:transparent;border:none;cursor:pointer;font-size:.9rem;color:#94A3B8;transition:color .2s;display:flex;align-items:center;padding:0;}
-  .password-toggle:hover{color:#1F6F7F;}
-  
-  .login-btn{
-      width:100%;background:linear-gradient(105deg,#1F6F7F 0%,#5FAFC2 100%);
-      border:none;padding:.75rem 1rem;
-      font-family:'Poppins',sans-serif;font-weight:600;
-      font-size:.85rem;
-      border-radius:10px;
-      color:#fff;
-      cursor:pointer;
-      display:flex;align-items:center;
-      justify-content:center;gap:.6rem;
-      transition:all .2s;
-      box-shadow:0 4px 10px rgba(31,111,127,.2);
+
+  /* Background decorative elements */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(31, 111, 127, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(31, 111, 127, 0.06) 1px, transparent 1px);
+    background-size: 45px 45px;
+    opacity: .7;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .main-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1080px;
+    height: 520px;
+    background: white;
+    border-radius: 28px;
+    overflow: hidden;
+    /* box-shadow: 0 30px 60px -15px rgba(15, 23, 42, .18),
+      0 0 0 1px rgba(0, 0, 0, .08); */
+    display: flex;
+    border: 1px solid #1F6F7F;
+  }
+
+  /* Left Side - Illustration */
+  .illustration-side {
+    flex: 1.05;
+    background: #d5efef;
+    /* padding: 2rem; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    /* prevents overflow */
+  }
+
+  .illustration-side img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    filter: drop-shadow(0 20px 30px rgba(31, 111, 127, .15));
+  }
+
+  /* Header Row (Logo + Title) */
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 2rem;
+  }
+
+  .messimo-logo img {
+    height: 42px;
+    object-fit: contain;
+  }
+
+  /* Right Side - Form Card */
+  .form-side {
+    flex: 1;
+    background: white;
+    padding: 2.4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Title */
+  .form-side h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.6rem;
+    /* fixed */
+    font-weight: 500;
+    color: #1F6F7F;
+    margin: 0;
+  }
+
+  .form-side p {
+    color: #64748B;
+    font-size: 0.30 rem;
+    margin: 2px 0 0;
+  }
+
+  /* Inputs */
+  .input-group {
+    margin-bottom: 1rem;
+  }
+
+  .input-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    color: #334155;
+  }
+
+  .input-group label i {
+    color: #5FAFC2;
+  }
+
+  .input-field {
+    position: relative;
+  }
+
+  .input-field i.field-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 0.95rem;
+  }
+
+  .input-field input {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 3rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 1.5px solid #b2caea;
+    border-radius: 11px;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .input-field input:focus {
+    border-color: #1F6F7F;
+    box-shadow: 0 0 0 3px rgba(31, 111, 127, 0.08);
+  }
+
+  /* Password toggle */
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #03919e;
+    cursor: pointer;
+  }
+
+  /* Button */
+  .login-btn {
+    width: 100%;
+    background: linear-gradient(105deg, #1F6F7F 0%, #5FAFC2 100%);
+    border: none;
+    padding: 0.8rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 5px 14px rgba(31, 111, 127, 0.25);
+    transition: all 0.2s;
+  }
+
+  .login-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(31, 111, 127, 0.3);
+  }
+
+  /* Forgot */
+  .forgot-link {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 1.2rem;
+  }
+
+  .forgot-link a {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #1F6F7F;
+    background: #E6F4F6;
+    border-radius: 999px;
+    /* pill shape */
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  /* Hover effect */
+  .forgot-link a:hover {
+    background: #d4eef2;
+    color: #145c6b;
+    transform: translateY(-1px);
+  }
+
+  /* Footer */
+  .terms {
+    margin-top: auto;
+    text-align: center;
+    font-size: 0.7rem;
+    color: #64748B;
+    padding-top: 1rem;
+  }
+
+  .terms a {
+    color: #5FAFC2;
+    text-decoration: none;
+  }
+
+  /* ========================= */
+  /* 📱 Responsive Fix */
+  /* ========================= */
+  @media (max-width: 900px) {
+    .form-side {
+      padding: 1.4rem 1.2rem;
     }
 
+    .header-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
 
-  .login-btn:hover:not(:disabled){
-    background:linear-gradient(105deg,#145C6B 0%,#4A9BB0 100%);
-    transform:translateY(-1px);
-    box-shadow:0 6px 14px rgba(31,111,127,.3);}
-  .login-btn:disabled{opacity:.7;cursor:not-allowed;
-  
+    .messimo-logo img {
+      height: 30px;
+    }
+
+    .form-side h1 {
+      font-size: 1.4rem;
+    }
+
+    .form-side p {
+      font-size: 0.85rem;
+    }
   }
-  .toast{position:fixed;top:16px;right:16px;z-index:9999;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;color:#fff;opacity:0;transform:translateY(-8px);transition:opacity .3s,transform .3s;pointer-events:none;}
-  .toast.show{opacity:1;transform:translateY(0);}
-  .toast.error{background:#E56C6C;}
-  .toast.success{background:#6FAF2E;}
-  .toast.warning{background:#F59E0B;}
+
+  @media (max-width: 600px) {
+    .form-side {
+      padding: 1.2rem 1rem;
+    }
+
+    .login-btn {
+      font-size: 0.9rem;
+      padding: 0.75rem;
+    }
+
+    .input-field input {
+      font-size: 0.88rem;
+    }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all .3s;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .toast.error {
+    background: #E56C6C;
+  }
+
+  .toast.success {
+    background: #6FAF2E;
+  }
+
+  .toast.warning {
+    background: #F59E0B;
+  }
+  
+  
 </style>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<div class="orb one"></div>
-<div class="orb two"></div>
-<div class="orb three"></div>
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+  rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <div class="toast" id="toast"></div>
 
-<div class="login-container">
-  <div class="brand-header">
-    <div style="display:flex;align-items:center;gap:10px;padding:.2rem 0;">
-      <img src="/Images/logo.png" alt="logo" style="width:90px;height:42px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;padding:4px;">    <div style="text-align:left;">
-      <h1 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.3rem;color:#fff;margin:0;">Employee Login</h1>
-    </div>
+<div class="main-wrapper">
+
+  <!-- Left Illustration -->
+  <div class="illustration-side">
+    <img src="/Images/login.png" alt="Employee working" id="illustration">
   </div>
-  
-</div>
-  <div class="form-body">
+
+  <!-- Right Form -->
+  <div class="form-side">
+    <div class="header-row">
+      <div class="messimo-logo">
+        <img src="/Images/logo.png" alt="messimo">
+      </div>
+
+      <div class="header-text" >
+        <h1>Employee Login</h1>
+        <p>Access your HR dashboard</p>
+      </div>
+    </div>
+
     <div class="input-group">
       <label><i class="fas fa-id-card"></i> Employee ID</label>
       <div class="input-field">
@@ -93,6 +346,7 @@
         <input type="text" id="empId" placeholder="Enter your Employee ID" autocomplete="username" required>
       </div>
     </div>
+
     <div class="input-group">
       <label><i class="fas fa-lock"></i> Password</label>
       <div class="input-field">
@@ -103,118 +357,125 @@
         </button>
       </div>
     </div>
-    <div style="margin:.5rem 0 1.2rem;text-align:right;">
-      <a href="#" id="forgotLink" style="font-size:.75rem;font-weight:500;color:#5FAFC2;text-decoration:none;">
-        <i class="fas fa-question-circle"></i> Forgot password?
-      </a>
+
+    <div class="forgot-link">
+      <a href="#" id="forgotLink">Forgot password?</a>
     </div>
+
     <button class="login-btn" id="loginBtn">
-      <span id="btnText">Login</span>
+      <span id="btnText">Sign In</span>
       <i class="fas fa-arrow-right-to-bracket" id="btnIcon"></i>
     </button>
+
+    <div class="terms">
+      By signing in, you agree to Messimo's
+      <a href="#">Terms of Services</a> and
+      <a href="#">Privacy Policy</a>.
+    </div>
   </div>
 </div>
 
 <script>
-(function(){
-  const BASE_URL = 'http://localhost:8086';
-  const LOGIN_URL = BASE_URL + '/api/employees/employee-login';
+  (function () {
+    const BASE_URL = 'http://localhost:8086';
+    const LOGIN_URL = BASE_URL + '/api/employees/employee-login';
 
-  const empIdInput = document.getElementById('empId');
-  const passwordInput = document.getElementById('password');
-  const toggleBtn = document.getElementById('togglePasswordBtn');
-  const toggleIcon = document.getElementById('toggleIcon');
-  const loginBtn = document.getElementById('loginBtn');
-  const btnText = document.getElementById('btnText');
-  const btnIcon = document.getElementById('btnIcon');
-  const forgotLink = document.getElementById('forgotLink');
-  const toast = document.getElementById('toast');
+    const empIdInput = document.getElementById('empId');
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const loginBtn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const forgotLink = document.getElementById('forgotLink');
+    const toast = document.getElementById('toast');
 
-  let toastTimer;
-  function showToast(message, type='error'){
-    clearTimeout(toastTimer);
-    toast.textContent = (type==='success'?'✓ ':type==='warning'?'⚠ ':'✕ ') + message;
-    toast.className = 'toast show ' + type;
-    toastTimer = setTimeout(()=>{ toast.className='toast'; }, 3500);
-  }
+    let toastTimer;
+    function showToast(message, type = 'error') {
+      clearTimeout(toastTimer);
+      toast.textContent = (type === 'success' ? '✓ ' : type === 'warning' ? '⚠ ' : '✕ ') + message;
+      toast.className = `toast show ${type}`;
+      toastTimer = setTimeout(() => { toast.className = 'toast'; }, 4000);
+    }
 
-  toggleBtn.addEventListener('click', ()=>{
-    const isPass = passwordInput.type === 'password';
-    passwordInput.type = isPass ? 'text' : 'password';
-    toggleIcon.className = isPass ? 'far fa-eye' : 'far fa-eye-slash';
-  });
+    toggleBtn.addEventListener('click', () => {
+      const isPass = passwordInput.type === 'password';
+      passwordInput.type = isPass ? 'text' : 'password';
+      toggleIcon.className = isPass ? 'far fa-eye' : 'far fa-eye-slash';
+    });
 
-  forgotLink.addEventListener('click', e=>{
-    e.preventDefault();
-    showToast('Please contact your HR administrator to reset your password.', 'warning');
-  });
+    forgotLink.addEventListener('click', e => {
+      e.preventDefault();
+      showToast('Please contact your HR administrator to reset your password.', 'warning');
+    });
 
-  function setLoading(loading){
-    loginBtn.disabled = loading;
-    btnText.textContent = loading ? 'Signing in...' : 'Access Dashboard';
-    btnIcon.className = loading ? 'fas fa-spinner fa-pulse' : 'fas fa-arrow-right-to-bracket';
-  }
+    function setLoading(loading) {
+      loginBtn.disabled = loading;
+      btnText.textContent = loading ? 'Signing in...' : 'Sign In';
+      btnIcon.className = loading ? 'fas fa-spinner fa-pulse' : 'fas fa-arrow-right-to-bracket';
+    }
 
-  function storeSession(data){
-    localStorage.setItem('hrms_auth', 'true');
-    localStorage.setItem('hrms_employee_prime_id', data.employeePrimeId);
-    localStorage.setItem('hrms_employee_id', data.employeeId);
-    localStorage.setItem('hrms_first_name', data.firstName);
-    localStorage.setItem('hrms_last_name', data.lastName);
-    localStorage.setItem('hrms_department', data.department);
-    localStorage.setItem('hrms_designation', data.designation);
-    localStorage.setItem('hrms_work_email', data.workEmail);
-    localStorage.setItem('hrms_login_ts', Date.now().toString());
-  }
+    function storeSession(data) {
+      localStorage.setItem('hrms_auth', 'true');
+      localStorage.setItem('hrms_employee_prime_id', data.employeePrimeId);
+      localStorage.setItem('hrms_employee_id', data.employeeId);
+      localStorage.setItem('hrms_first_name', data.firstName);
+      localStorage.setItem('hrms_last_name', data.lastName);
+      localStorage.setItem('hrms_department', data.department);
+      localStorage.setItem('hrms_designation', data.designation);
+      localStorage.setItem('hrms_work_email', data.workEmail);
+      localStorage.setItem('hrms_login_ts', Date.now().toString());
+    }
 
-  loginBtn.addEventListener('click', async ()=>{
-    const employeeId = empIdInput.value.trim();
-    const password = passwordInput.value.trim();
+    loginBtn.addEventListener('click', async () => {
+      const employeeId = empIdInput.value.trim();
+      const password = passwordInput.value.trim();
 
-    if(!employeeId){ showToast('Please enter your Employee ID', 'error'); empIdInput.focus(); return; }
-    if(!password){ showToast('Password is required', 'error'); passwordInput.focus(); return; }
+      if (!employeeId) { showToast('Please enter your Employee ID', 'error'); empIdInput.focus(); return; }
+      if (!password) { showToast('Password is required', 'error'); passwordInput.focus(); return; }
 
-    setLoading(true);
+      setLoading(true);
 
-    try {
-      const res = await fetch(`${LOGIN_URL}?employeeId=${encodeURIComponent(employeeId)}&password=${encodeURIComponent(password)}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      try {
+        const res = await fetch(`${LOGIN_URL}?employeeId=${encodeURIComponent(employeeId)}&password=${encodeURIComponent(password)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
 
-      if(res.ok){
-        const data = await res.json();
-        storeSession(data);
-        showToast(`Welcome, ${data.firstName} ${data.lastName}! Redirecting...`, 'success');
-        setTimeout(()=>{ window.location.href = '/pages/dashboard.html'; }, 1200);
-      } else if(res.status === 401 || res.status === 403){
-        showToast('Invalid Employee ID or password.', 'error');
-        passwordInput.value = '';
-        passwordInput.focus();
-        setLoading(false);
-      } else if(res.status === 404){
-        showToast('Employee not found. Please check your ID.', 'error');
-        setLoading(false);
-      } else {
-        showToast('Something went wrong. Please try again.', 'error');
+        if (res.ok) {
+          const data = await res.json();
+          storeSession(data);
+          showToast(`Welcome back, ${data.firstName}!`, 'success');
+          setTimeout(() => { window.location.href = '/pages/dashboard.html'; }, 1300);
+        } else if (res.status === 401 || res.status === 403) {
+          showToast('Invalid Employee ID or password.', 'error');
+          passwordInput.value = '';
+          passwordInput.focus();
+          setLoading(false);
+        } else if (res.status === 404) {
+          showToast('Employee not found.', 'error');
+          setLoading(false);
+        } else {
+          showToast('Login failed. Please try again.', 'error');
+          setLoading(false);
+        }
+      } catch (err) {
+        showToast('Unable to connect to server.', 'error');
         setLoading(false);
       }
-    } catch(err){
-      showToast('Unable to reach server. Check your connection.', 'error');
-      setLoading(false);
-    }
-  });
+    });
 
-  document.addEventListener('keydown', e=>{ if(e.key==='Enter') loginBtn.click(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
 
-  localStorage.removeItem('hrms_auth');
-  localStorage.removeItem('hrms_employee_prime_id');
-  localStorage.removeItem('hrms_employee_id');
-  localStorage.removeItem('hrms_first_name');
-  localStorage.removeItem('hrms_last_name');
-  localStorage.removeItem('hrms_department');
-  localStorage.removeItem('hrms_designation');
-  localStorage.removeItem('hrms_work_email');
-  localStorage.removeItem('hrms_login_ts');
-})();
+    // Clear old session data
+    localStorage.removeItem('hrms_auth');
+    localStorage.removeItem('hrms_employee_prime_id');
+    localStorage.removeItem('hrms_employee_id');
+    localStorage.removeItem('hrms_first_name');
+    localStorage.removeItem('hrms_last_name');
+    localStorage.removeItem('hrms_department');
+    localStorage.removeItem('hrms_designation');
+    localStorage.removeItem('hrms_work_email');
+    localStorage.removeItem('hrms_login_ts');
+  })();
 </script>

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Opportunities | Employee Portal</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background-color: #f3eeef; }
+
+        /* ---- Sidebar (matches leave portal exactly) ---- */
+        .sidebar { width: 240px; background: #540863; min-height: 100vh; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 200; transition: transform 0.3s ease; }
+        .sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-logo .logo-text { color: white; font-size: 17px; font-weight: 700; }
+        .sidebar-logo .logo-sub  { color: rgba(255,255,255,0.55); font-size: 10px; margin-top: 2px; }
+        .sidebar-menu { flex: 1; padding: 12px 0; overflow-y: auto; }
+        .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; text-decoration: none; }
+        .sidebar-item:hover { background: rgba(255,255,255,0.08); color: white; }
+        .sidebar-item.active { background: rgba(255,255,255,0.16); color: white; border-left: 3px solid #ffc107; padding-left: 17px; }
+        .sidebar-item .icon { width: 18px; text-align: center; flex-shrink: 0; }
+        .sidebar-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .emp-badge { background: rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+        .emp-avatar { width: 34px; height: 34px; border-radius: 50%; background: #ffc107; color: #540863; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+        .emp-name { color: white; font-size: 12px; font-weight: 600; }
+        .emp-role { color: rgba(255,255,255,0.55); font-size: 10px; }
+
+        /* ---- Topbar ---- */
+        .topbar { background: white; border-bottom: 1px solid #e5e7eb; height: 56px; display: flex; align-items: center; padding: 0 20px; gap: 12px; position: fixed; top: 0; left: 240px; right: 0; z-index: 100; }
+        .topbar-title { font-size: 15px; font-weight: 700; color: #540863; }
+        .topbar-sub   { font-size: 11px; color: #92487A; margin-top: 1px; }
+        .hamburger { display: none; background: none; border: none; cursor: pointer; color: #540863; font-size: 18px; margin-right: 4px; }
+
+        /* ---- Layout ---- */
+        .main-wrap { margin-left: 240px; margin-top: 56px; padding: 20px; min-height: calc(100vh - 56px); }
+
+        /* ---- Cards ---- */
+        .section-card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 12px; border: 1px solid #5c003f; padding: 14px; transition: all 0.3s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(84,8,99,0.12); }
+
+        /* ---- Buttons ---- */
+        .btn-primary { background-color: #540863; transition: all 0.3s; color: white; padding: 9px 18px; border-radius: 8px; cursor: pointer; border: none; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary:hover { background-color: #92487A; transform: translateY(-1px); }
+        .btn-outline { border: 1px solid #540863; color: #540863; padding: 9px 18px; border-radius: 8px; background: transparent; cursor: pointer; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-outline:hover { background-color: #540863; color: white; }
+        .btn-sm { padding: 6px 12px !important; font-size: 12px !important; border-radius: 6px !important; }
+
+        /* ---- Tabs ---- */
+        .tab-nav { display: flex; gap: 6px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; transition: all 0.2s; background: transparent; color: #92487A; cursor: pointer; border: none; }
+        .tab-btn:hover { background-color: rgba(84,8,99,0.08); color: #540863; }
+        .tab-btn.active { background-color: #540863; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ---- Inputs ---- */
+        input, select, textarea { border: 1px solid #d1d5db; border-radius: 8px; padding: 9px 12px; width: 100%; font-size: 13px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #540863; box-shadow: 0 0 0 2px rgba(84,8,99,0.1); }
+        label { font-size: 12px; font-weight: 500; color: #540863; margin-bottom: 4px; display: block; }
+
+        /* ---- Badges ---- */
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-open     { background: rgba(40,167,69,0.15);  color: #155724; }
+        .badge-closed   { background: rgba(220,53,69,0.15);  color: #721c24; }
+        .badge-paused   { background: rgba(255,193,7,0.18);  color: #856404; }
+        .badge-pending  { background: rgba(255,193,7,0.18);  color: #856404; }
+        .badge-reviewed { background: rgba(23,162,184,0.18); color: #0c5460; }
+        .badge-shortlisted { background: rgba(40,167,69,0.15); color: #155724; }
+        .badge-rejected { background: rgba(220,53,69,0.15);  color: #721c24; }
+        .badge-hired    { background: rgba(84,8,99,0.15);    color: #4a0960; }
+
+        /* ---- Modal ---- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.48); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; width: 92%; max-width: 580px; max-height: 90vh; overflow-y: auto; padding: 24px; }
+
+        /* ---- Toast ---- */
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1100; animation: slideIn 0.3s ease; font-size: 13px; }
+        .toast.success { background: #28a745; }
+        .toast.error   { background: #dc3545; }
+        .toast.info    { background: #17a2b8; }
+        @keyframes slideIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+        /* ---- Job Card ---- */
+        .job-card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 18px; transition: all 0.3s; }
+        .job-card:hover { border-color: #92487A; box-shadow: 0 4px 14px rgba(84,8,99,0.1); }
+
+        /* ---- Skills Tag ---- */
+        .skills-tag { display: inline-flex; align-items: center; background: rgba(84,8,99,0.06); border: 1px solid rgba(84,8,99,0.15); color: #540863; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+
+        /* ---- My Application Card ---- */
+        .app-card { background: white; border-radius: 10px; border: 1px solid #e5e7eb; padding: 14px; transition: all 0.2s; }
+        .app-card:hover { border-color: #92487A; }
+
+        /* ---- Progress steps ---- */
+        .step-track { display: flex; align-items: center; gap: 0; }
+        .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+        .step-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; z-index: 1; }
+        .step-dot.done { background: #28a745; color: white; }
+        .step-dot.active { background: #540863; color: white; }
+        .step-dot.wait { background: #e5e7eb; color: #92487A; }
+        .step-line { position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: #e5e7eb; z-index: 0; }
+        .step-line.done { background: #28a745; }
+        .step-label { font-size: 10px; color: #92487A; margin-top: 4px; text-align: center; font-weight: 500; }
+
+        /* ---- Form grid ---- */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #92487A; border-radius: 10px; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrap { margin-left: 0; }
+            .topbar { left: 0; }
+            .hamburger { display: block; }
+            .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
+            .overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ========== SIDEBAR ========== -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;background:#ffc107;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-building" style="color:#540863;font-size:14px;"></i>
+            </div>
+            <div>
+                <div class="logo-text">HRMS Portal</div>
+                <div class="logo-sub">Employee Self-Service</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-menu">
+        <a href="#" class="sidebar-item">
+            <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+        </a>
+        <a href="#" class="sidebar-item">
+            <span class="icon"><i class="fas fa-calendar-alt"></i></span> My Leaves
+        </a>
+        <a href="#" class="sidebar-item">
+            <span class="icon"><i class="fas fa-clock"></i></span> Attendance
+        </a>
+        <a href="#" class="sidebar-item">
+            <span class="icon"><i class="fas fa-file-invoice"></i></span> Payslips
+        </a>
+        <button class="sidebar-item active">
+            <span class="icon"><i class="fas fa-briefcase"></i></span> Career
+        </button>
+        <a href="#" class="sidebar-item">
+            <span class="icon"><i class="fas fa-user"></i></span> My Profile
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="emp-badge">
+            <div class="emp-avatar" id="sidebarAvatar">RK</div>
+            <div>
+                <div class="emp-name" id="sidebarName">Rajesh Kumar</div>
+                <div class="emp-role" id="sidebarRole">IT Department · Regular</div>
+            </div>
+        </div>
+        <button onclick="showToast('Logging out...','info')" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.5);font-size:11px;margin-top:10px;width:100%;text-align:left;padding:0;">
+            <i class="mr-1 fas fa-sign-out-alt"></i> Sign Out
+        </button>
+    </div>
+</aside>
+
+<!-- ========== TOPBAR ========== -->
+<header class="topbar">
+    <button class="hamburger" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+    <div style="flex:1;">
+        <div class="topbar-title">Career Opportunities</div>
+        <div class="topbar-sub">Explore openings & refer your friends</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <div style="position:relative;cursor:pointer;">
+            <i class="fas fa-bell" style="color:#92487A;font-size:16px;"></i>
+        </div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#540863;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;" id="topbarAvatar">RK</div>
+    </div>
+</header>
+
+<!-- ========== MAIN ========== -->
+<main class="main-wrap">
+
+    <!-- Page Header -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div>
+            <h1 style="font-size:20px;font-weight:700;color:#540863;">Career Opportunities</h1>
+            <p style="font-size:12px;color:#92487A;margin-top:2px;">View open positions, apply directly, or refer someone you know</p>
+        </div>
+        <button class="btn-primary" onclick="openReferModal()">
+            <i class="fas fa-user-plus"></i> Refer a Friend
+        </button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-2 gap-4 mb-5 md:grid-cols-4">
+        <div class="stat-card">
+            <p style="font-size:11px;color:#92487A;">Open Positions</p>
+            <p style="font-size:26px;font-weight:800;color:#540863;" id="statOpen">0</p>
+            <p style="font-size:11px;color:#92487A;">hiring now</p>
+        </div>
+        <div class="stat-card">
+            <p style="font-size:11px;color:#92487A;">My Applications</p>
+            <p style="font-size:26px;font-weight:800;color:#540863;" id="statMyApps">0</p>
+            <p style="font-size:11px;color:#92487A;">submitted</p>
+        </div>
+        <div class="stat-card">
+            <p style="font-size:11px;color:#92487A;">My Referrals</p>
+            <p style="font-size:26px;font-weight:800;color:#ffc107;" id="statMyRefs">0</p>
+            <p style="font-size:11px;color:#856404;">friends referred</p>
+        </div>
+        <div class="stat-card">
+            <p style="font-size:11px;color:#92487A;">Shortlisted</p>
+            <p style="font-size:26px;font-weight:800;color:#28a745;" id="statShortlisted">0</p>
+            <p style="font-size:11px;color:#28a745;">from my applications</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="openings">🏢 Open Positions</button>
+        <button class="tab-btn" data-tab="myapps">📋 My Applications</button>
+        <button class="tab-btn" data-tab="myrefs">🔗 My Referrals</button>
+    </div>
+
+    <!-- ====== OPEN POSITIONS TAB ====== -->
+    <div id="tab-openings" class="tab-content active">
+        <!-- Filters -->
+        <div class="section-card" style="padding:14px;">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <input type="text" id="searchJob" placeholder="🔍 Search by position, skill..." onkeyup="renderOpenings()" style="max-width:250px;font-size:12px;">
+                <select id="filterDept" onchange="renderOpenings()" style="max-width:170px;font-size:12px;">
+                    <option value="all">All Departments</option>
+                    <option>Information Technology</option>
+                    <option>Human Resources</option>
+                    <option>Sales & Marketing</option>
+                    <option>Finance & Accounts</option>
+                    <option>Operations</option>
+                    <option>Design</option>
+                    <option>Product</option>
+                </select>
+                <select id="filterType" onchange="renderOpenings()" style="max-width:140px;font-size:12px;">
+                    <option value="all">All Types</option>
+                    <option>Full-Time</option>
+                    <option>Part-Time</option>
+                    <option>Contract</option>
+                    <option>Internship</option>
+                </select>
+                <div style="margin-left:auto;font-size:12px;color:#92487A;" id="openingsCount"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2" id="openingsList"></div>
+        <div id="openingsEmpty" style="display:none;text-align:center;padding:60px 20px;background:white;border-radius:12px;border:1px solid #e5e7eb;">
+            <i class="fas fa-search" style="font-size:36px;color:#e5e7eb;display:block;margin-bottom:12px;"></i>
+            <p style="font-size:14px;font-weight:600;color:#540863;margin-bottom:4px;">No positions found</p>
+            <p style="font-size:12px;color:#92487A;">Try adjusting your filters or check back later.</p>
+        </div>
+    </div>
+
+    <!-- ====== MY APPLICATIONS TAB ====== -->
+    <div id="tab-myapps" class="tab-content">
+        <div class="section-card">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h3 style="font-size:14px;font-weight:600;color:#540863;">My Applications</h3>
+                <select id="filterMyAppStatus" onchange="renderMyApplications()" style="width:140px;font-size:12px;">
+                    <option value="all">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Reviewed">Reviewed</option>
+                    <option value="Shortlisted">Shortlisted</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Hired">Hired</option>
+                </select>
+            </div>
+            <div id="myAppsList"></div>
+            <div id="myAppsEmpty" style="display:none;text-align:center;padding:50px;color:#92487A;">
+                <i class="fas fa-clipboard-list" style="font-size:32px;color:#e5e7eb;display:block;margin-bottom:10px;"></i>
+                <p style="font-size:13px;font-weight:600;color:#540863;margin-bottom:4px;">No applications yet</p>
+                <p style="font-size:12px;">Browse open positions and apply for a role that interests you!</p>
+                <button onclick="switchTab('openings')" class="btn-primary btn-sm" style="margin-top:12px;"><i class="fas fa-briefcase"></i> Browse Openings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== MY REFERRALS TAB ====== -->
+    <div id="tab-myrefs" class="tab-content">
+        <div class="section-card">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h3 style="font-size:14px;font-weight:600;color:#540863;">My Referrals</h3>
+                <button onclick="openReferModal()" class="btn-primary btn-sm"><i class="fas fa-user-plus"></i> New Referral</button>
+            </div>
+            <div id="myRefsList"></div>
+            <div id="myRefsEmpty" style="display:none;text-align:center;padding:50px;color:#92487A;">
+                <i class="fas fa-user-friends" style="font-size:32px;color:#e5e7eb;display:block;margin-bottom:10px;"></i>
+                <p style="font-size:13px;font-weight:600;color:#540863;margin-bottom:4px;">No referrals yet</p>
+                <p style="font-size:12px;">Know someone great? Refer them for an open position!</p>
+                <button onclick="openReferModal()" class="btn-primary btn-sm" style="margin-top:12px;"><i class="fas fa-user-plus"></i> Refer a Friend</button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ========== APPLY MODAL ========== -->
+<div id="applyModal" class="modal">
+    <div class="modal-content" style="max-width:600px;">
+        <!-- Header -->
+        <div style="background:#540863;margin:-24px -24px 0 -24px;border-radius:16px 16px 0 0;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-paper-plane" style="color:white;font-size:15px;"></i>
+                </div>
+                <div>
+                    <p style="color:white;font-size:15px;font-weight:700;margin:0;">Apply for Position</p>
+                    <p id="applyJobTitle" style="color:rgba(255,255,255,0.65);font-size:11px;margin:0;">Loading...</p>
+                </div>
+            </div>
+            <button onclick="closeModal('applyModal')" style="background:rgba(255,255,255,0.15);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:white;font-size:16px;">&times;</button>
+        </div>
+
+        <!-- Employee Info (read-only) -->
+        <div style="background:#f9f5fa;border:1px solid rgba(84,8,99,0.15);border-radius:10px;padding:12px 16px;margin-bottom:18px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:38px;height:38px;border-radius:50%;background:#540863;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;" id="ap-avatar">RK</div>
+                <div>
+                    <p style="margin:0;font-size:13px;font-weight:700;color:#540863;" id="ap-name">Rajesh Kumar</p>
+                    <p style="margin:0;font-size:11px;color:#92487A;" id="ap-meta">EMP001 · IT Department</p>
+                </div>
+                <span style="margin-left:auto;background:rgba(84,8,99,0.1);color:#540863;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;">Employee</span>
+            </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <p style="font-size:11px;font-weight:700;color:#540863;text-transform:uppercase;letter-spacing:0.06em;margin:0;">Application Details</p>
+            <div style="flex:1;height:1px;background:#f0e0ec;"></div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom:14px;">
+            <div><label>Full Name *</label><input id="ap-fullname" placeholder="Your full name" readonly style="background:#f9f5fa;color:#92487A;cursor:not-allowed;"></div>
+            <div><label>Email *</label><input id="ap-email" placeholder="your@email.com" readonly style="background:#f9f5fa;color:#92487A;cursor:not-allowed;"></div>
+            <div><label>Phone *</label><input id="ap-phone" placeholder="+91 XXXXX XXXXX"></div>
+            <div><label>Total Experience</label><input id="ap-exp" placeholder="e.g. 3 years 6 months"></div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+            <label>Cover Letter / Why should we consider you? *</label>
+            <textarea id="ap-cover" rows="4" placeholder="Briefly describe your experience and why you're a great fit for this role..."></textarea>
+        </div>
+
+        <div style="margin-bottom:14px;">
+            <label>Current CTC (if applicable)</label>
+            <input id="ap-ctc" placeholder="e.g. ₹8 LPA">
+        </div>
+
+        <div style="margin-bottom:14px;">
+            <label>Notice Period</label>
+            <select id="ap-notice">
+                <option value="">Select</option>
+                <option>Immediate</option>
+                <option>15 Days</option>
+                <option>30 Days</option>
+                <option>60 Days</option>
+                <option>90 Days</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom:18px;">
+            <label>Resume / Portfolio Link</label>
+            <input id="ap-resume" placeholder="Google Drive / Dropbox link to your resume">
+            <div style="font-size:11px;color:#92487A;margin-top:4px;">Share a public link to your updated resume</div>
+        </div>
+
+        <div style="background:rgba(84,8,99,0.05);border:1px solid rgba(84,8,99,0.15);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#540863;">
+            <i class="mr-1 fas fa-info-circle"></i> Your application will be reviewed by HR. As an internal applicant, your profile will be given priority consideration.
+        </div>
+
+        <div style="display:flex;justify-content:space-between;padding-top:14px;border-top:1px solid #f0e0ec;">
+            <button onclick="closeModal('applyModal')" class="btn-outline">Cancel</button>
+            <button onclick="submitApplication()" class="btn-primary"><i class="fas fa-paper-plane"></i> Submit Application</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== REFER MODAL ========== -->
+<div id="referModal" class="modal">
+    <div class="modal-content" style="max-width:560px;">
+        <!-- Header -->
+        <div style="background:#540863;margin:-24px -24px 0 -24px;border-radius:16px 16px 0 0;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-user-plus" style="color:white;font-size:15px;"></i>
+                </div>
+                <div>
+                    <p style="color:white;font-size:15px;font-weight:700;margin:0;">Refer a Friend</p>
+                    <p style="color:rgba(255,255,255,0.65);font-size:11px;margin:0;">Refer someone you know for an open position</p>
+                </div>
+            </div>
+            <button onclick="closeModal('referModal')" style="background:rgba(255,255,255,0.15);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:white;font-size:16px;">&times;</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <p style="font-size:11px;font-weight:700;color:#540863;text-transform:uppercase;letter-spacing:0.06em;margin:0;">Candidate Details</p>
+            <div style="flex:1;height:1px;background:#f0e0ec;"></div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom:14px;">
+            <div><label>Candidate Full Name *</label><input id="ref-name" placeholder="John Doe"></div>
+            <div><label>Candidate Email *</label><input id="ref-email" placeholder="john@email.com"></div>
+            <div><label>Candidate Phone *</label><input id="ref-phone" placeholder="+91 XXXXX XXXXX"></div>
+            <div><label>Your Relationship *</label>
+                <select id="ref-relation">
+                    <option value="">Select</option>
+                    <option>Ex-colleague</option>
+                    <option>Friend</option>
+                    <option>Family</option>
+                    <option>Batch-mate</option>
+                    <option>Professional Contact</option>
+                    <option>Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;margin-top:4px;">
+            <p style="font-size:11px;font-weight:700;color:#540863;text-transform:uppercase;letter-spacing:0.06em;margin:0;">Position Details</p>
+            <div style="flex:1;height:1px;background:#f0e0ec;"></div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom:14px;">
+            <div><label>Applying For *</label>
+                <select id="ref-position">
+                    <option value="">Select Position</option>
+                </select>
+            </div>
+            <div><label>Candidate's Current CTC</label><input id="ref-ctc" placeholder="e.g. ₹6 LPA"></div>
+            <div><label>Years of Experience</label><input id="ref-exp" placeholder="e.g. 3 years"></div>
+            <div><label>Notice Period</label>
+                <select id="ref-notice">
+                    <option value="">Select</option>
+                    <option>Immediate</option>
+                    <option>15 Days</option>
+                    <option>30 Days</option>
+                    <option>60 Days</option>
+                    <option>90 Days</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+            <label>Why are you referring this candidate? *</label>
+            <textarea id="ref-notes" rows="3" placeholder="Describe their strengths, how you know them, and why they'd be a great fit..."></textarea>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label>Candidate's Resume / LinkedIn (optional)</label>
+            <input id="ref-resume" placeholder="Share a link to their resume or LinkedIn profile">
+        </div>
+
+        <div style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.4);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#856404;">
+            <i class="mr-1 fas fa-star"></i> <strong>Referral Bonus:</strong> You may be eligible for a referral bonus if your referred candidate gets hired and completes 3 months.
+        </div>
+
+        <div style="display:flex;justify-content:space-between;padding-top:14px;border-top:1px solid #f0e0ec;">
+            <button onclick="closeModal('referModal')" class="btn-outline">Cancel</button>
+            <button onclick="submitReferral()" class="btn-primary"><i class="fas fa-user-plus"></i> Submit Referral</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== JD VIEW MODAL ========== -->
+<div id="jdViewModal" class="modal">
+    <div class="modal-content" style="max-width:620px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:15px;font-weight:700;color:#540863;">Job Details</h3>
+            <button onclick="closeModal('jdViewModal')" style="background:none;border:none;font-size:22px;cursor:pointer;color:#92487A;">&times;</button>
+        </div>
+        <div id="jdViewBody"></div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #f0e0ec;">
+            <button onclick="closeModal('jdViewModal')" class="btn-outline">Close</button>
+            <button id="jdApplyBtn" class="btn-primary"><i class="fas fa-paper-plane"></i> Apply Now</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════
+const BASE_URL  = 'http://localhost:8086/api';
+const CAREER_URL = `${BASE_URL}/career`;
+const LOGGED_EMP = { id:'EMP001', name:'Rajesh Kumar', email:'rajesh.kumar@company.com', dept:'Information Technology', empType:'Regular' };
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let allOpenings   = [];
+let myApplications = [];
+let myReferrals   = [];
+let activeJobId   = null;
+
+// ═══════════════════════════════════════
+//  SAMPLE OPENINGS DATA
+// ═══════════════════════════════════════
+function loadSampleData() {
+    allOpenings = [
+        { id:1, title:'Senior React Developer', dept:'Information Technology', location:'Mumbai / Hybrid', emptype:'Full-Time', exp:'3–5 years', count:2, salary:'₹10L – ₹18L', deadline:'2025-06-30', status:'Open', priority:'High', roles:'Develop scalable React components\n• Lead frontend architecture decisions\n• Conduct code reviews with team\n• Collaborate with UI/UX design team\n• Participate in agile sprints', skills:'React,TypeScript,Node.js,REST APIs,Git', qual:'B.Tech / B.E. in CS or equivalent', perks:'Health insurance, WFH 3 days/week, annual bonus, learning budget', addedOn:'2025-04-01' },
+        { id:2, title:'HR Executive', dept:'Human Resources', location:'Mumbai', emptype:'Full-Time', exp:'1–3 years', count:1, salary:'₹4L – ₹7L', deadline:'2025-05-31', status:'Open', priority:'Normal', roles:'Handle recruitment end-to-end\n• Maintain HRMS data accuracy\n• Manage payroll inputs\n• Employee onboarding & documentation\n• HR policy communication', skills:'Recruitment,HRMS,Payroll,Excel,Communication', qual:'MBA HR or BBA', perks:'Flexible hours, health cover, festive bonus', addedOn:'2025-04-05' },
+        { id:3, title:'UI/UX Designer Intern', dept:'Design', location:'Remote', emptype:'Internship', exp:'Fresher', count:2, salary:'₹15,000/month stipend', deadline:'2025-05-10', status:'Open', priority:'Normal', roles:'Assist senior designers\n• Create wireframes and prototypes\n• Conduct basic user research\n• Maintain design system documentation', skills:'Figma,Adobe XD,Wireframing,Prototyping,User Research', qual:'Pursuing / completed B.Des or equivalent', perks:'Certificate, PPO possibility, flexible hours', addedOn:'2025-04-10' },
+        { id:4, title:'Finance Analyst', dept:'Finance & Accounts', location:'Mumbai', emptype:'Full-Time', exp:'2–4 years', count:1, salary:'₹6L – ₹10L', deadline:'2025-06-15', status:'Open', priority:'Normal', roles:'Financial reporting and MIS\n• Budget preparation and variance analysis\n• Audit support\n• GST and TDS compliance assistance', skills:'Excel,Tally,SAP,Financial Analysis,GST,TDS', qual:'B.Com / M.Com / CA Inter', perks:'Performance bonus, health insurance', addedOn:'2025-04-12' },
+    ];
+
+    myApplications = [
+        { id:1, jobId:3, position:'UI/UX Designer Intern', dept:'Design', appliedOn:'2025-04-11', status:'Reviewed', cover:'Interested in exploring design challenges.', phone:'9876543210', exp:'Fresher', ctc:'', notice:'Immediate', resume:'' },
+    ];
+
+    myReferrals = [
+        { id:1, candidateName:'Rahul Mehta', candidateEmail:'rahul.m@gmail.com', candidatePhone:'9988776655', position:'Senior React Developer', dept:'Information Technology', referredOn:'2025-04-13', status:'Shortlisted', relationship:'Ex-colleague', notes:'Worked together at ABC Corp, strong React skills', resume:'', exp:'3 years', ctc:'₹7 LPA', notice:'30 Days' },
+    ];
+}
+
+// ═══════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════
+function fmtDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d.includes('T') ? d : d + 'T00:00:00');
+    return isNaN(dt) ? d : dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+function daysLeft(deadline) {
+    if (!deadline) return null;
+    const diff = Math.ceil((new Date(deadline) - new Date()) / (1000*60*60*24));
+    return diff;
+}
+function showToast(msg, type='success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(()=> t.remove(), 4000);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
+
+function statusBadge(status) {
+    const map = { 'Open':'open','Closed':'closed','Paused':'paused','Pending':'pending','Reviewed':'reviewed','Shortlisted':'shortlisted','Rejected':'rejected','Hired':'hired' };
+    return `<span class="badge badge-${map[status]||'pending'}">${status}</span>`;
+}
+
+function getStatusSteps(status) {
+    const steps = ['Pending','Reviewed','Shortlisted','Hired'];
+    const idx = steps.indexOf(status);
+    return steps.map((s, i) => ({
+        label: s,
+        state: i < idx ? 'done' : i === idx ? 'active' : 'wait'
+    }));
+}
+
+// ═══════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════
+function updateStats() {
+    document.getElementById('statOpen').textContent       = allOpenings.filter(j=>j.status==='Open').length;
+    document.getElementById('statMyApps').textContent     = myApplications.length;
+    document.getElementById('statMyRefs').textContent     = myReferrals.length;
+    document.getElementById('statShortlisted').textContent = myApplications.filter(a=>a.status==='Shortlisted'||a.status==='Hired').length;
+}
+
+// ═══════════════════════════════════════
+//  RENDER OPENINGS
+// ═══════════════════════════════════════
+function renderOpenings() {
+    const search = document.getElementById('searchJob').value.toLowerCase();
+    const deptF  = document.getElementById('filterDept').value;
+    const typeF  = document.getElementById('filterType').value;
+
+    let list = allOpenings.filter(j => j.status === 'Open');
+    if (search) list = list.filter(j => j.title.toLowerCase().includes(search) || (j.skills||'').toLowerCase().includes(search) || j.dept.toLowerCase().includes(search));
+    if (deptF !== 'all') list = list.filter(j => j.dept === deptF);
+    if (typeF !== 'all') list = list.filter(j => j.emptype === typeF);
+
+    document.getElementById('openingsCount').textContent = `${list.length} position${list.length!==1?'s':''} found`;
+
+    const container = document.getElementById('openingsList');
+    const empty     = document.getElementById('openingsEmpty');
+    if (!list.length) { container.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+
+    container.innerHTML = list.map(j => {
+        const skills   = (j.skills||'').split(',').filter(Boolean).slice(0,5);
+        const dl       = daysLeft(j.deadline);
+        const alreadyApplied = myApplications.some(a => a.jobId === j.id);
+
+        return `<div class="job-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div style="flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
+                        <span style="font-size:14px;font-weight:700;color:#540863;">${j.title}</span>
+                        ${j.priority==='High'||j.priority==='Urgent'?`<span style="font-size:10px;font-weight:700;color:#dc3545;background:rgba(220,53,69,0.08);padding:2px 8px;border-radius:20px;">🔥 ${j.priority}</span>`:''}
+                    </div>
+                    <div style="font-size:12px;color:#92487A;">
+                        <i class="mr-1 fas fa-building"></i>${j.dept} &nbsp;·&nbsp;
+                        <i class="mr-1 fas fa-map-marker-alt"></i>${j.location} &nbsp;·&nbsp;
+                        <i class="mr-1 fas fa-briefcase"></i>${j.emptype}
+                    </div>
+                </div>
+                <div style="flex-shrink:0;text-align:right;margin-left:10px;">
+                    <span style="background:rgba(84,8,99,0.08);color:#540863;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;">${j.count} Opening${j.count>1?'s':''}</span>
+                    ${dl!==null?`<div style="font-size:10px;color:${dl<7?'#dc3545':'#92487A'};margin-top:4px;">${dl>0?`${dl} days left`:'Deadline passed'}</div>`:''}
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;font-size:11px;color:#92487A;margin-bottom:10px;flex-wrap:wrap;">
+                <span><i class="mr-1 fas fa-clock"></i>${j.exp||'Any'}</span>
+                <span><i class="mr-1 fas fa-rupee-sign"></i>${j.salary||'Not disclosed'}</span>
+                <span><i class="mr-1 fas fa-calendar-alt"></i>${fmtDate(j.deadline)}</span>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+                ${skills.map(s=>`<span class="skills-tag">${s.trim()}</span>`).join('')}
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid #f0e0ec;padding-top:10px;">
+                <button onclick="viewJobDetail(${j.id})" class="btn-outline btn-sm"><i class="fas fa-eye"></i> View JD</button>
+                ${alreadyApplied
+                    ? `<button disabled style="background:rgba(40,167,69,0.1);border:1px solid rgba(40,167,69,0.3);color:#28a745;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:not-allowed;">✅ Applied</button>`
+                    : `<button onclick="openApplyFor(${j.id})" class="btn-primary btn-sm"><i class="fas fa-paper-plane"></i> Apply Now</button>`
+                }
+                <button onclick="openReferForJob(${j.id})" class="btn-outline btn-sm" style="margin-left:auto;"><i class="fas fa-user-plus"></i> Refer</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ═══════════════════════════════════════
+//  VIEW JD DETAIL
+// ═══════════════════════════════════════
+function viewJobDetail(id) {
+    const j = allOpenings.find(x => x.id === id); if (!j) return;
+    activeJobId = id;
+    const skills = (j.skills||'').split(',').filter(Boolean).map(s=>`<span class="skills-tag">${s.trim()}</span>`).join(' ');
+    const alreadyApplied = myApplications.some(a => a.jobId === id);
+
+    document.getElementById('jdViewBody').innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(84,8,99,0.08),rgba(146,72,122,0.06));border-radius:10px;padding:16px;margin-bottom:16px;">
+            <h2 style="font-size:18px;font-weight:800;color:#540863;margin:0 0 4px;">${j.title}</h2>
+            <p style="font-size:12px;color:#92487A;margin:0;">${j.dept} &nbsp;·&nbsp; ${j.location} &nbsp;·&nbsp; ${j.emptype}</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+            ${[['Experience',j.exp||'Any'],['Openings',j.count],['Salary',j.salary||'Not disclosed'],['Deadline',fmtDate(j.deadline)]].map(([k,v])=>`
+            <div style="background:#f9f5fa;border-radius:8px;padding:10px;border:1px solid rgba(84,8,99,0.1);">
+                <p style="font-size:10px;color:#92487A;margin:0 0 3px;">${k}</p>
+                <p style="font-size:13px;font-weight:600;color:#540863;margin:0;">${v}</p>
+            </div>`).join('')}
+        </div>
+        <div style="margin-bottom:12px;">
+            <p style="font-size:11px;font-weight:700;color:#92487A;margin:0 0 8px;text-transform:uppercase;">Required Skills</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">${skills}</div>
+        </div>
+        <div style="margin-bottom:12px;">
+            <p style="font-size:11px;font-weight:700;color:#92487A;margin:0 0 8px;text-transform:uppercase;">Roles & Responsibilities</p>
+            <div style="background:#f9f5fa;border-radius:8px;padding:12px;font-size:13px;color:#540863;white-space:pre-line;border:1px solid rgba(84,8,99,0.08);">• ${j.roles||'—'}</div>
+        </div>
+        ${j.qual?`<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:700;color:#92487A;margin:0 0 6px;text-transform:uppercase;">Qualifications</p><p style="font-size:13px;color:#540863;">${j.qual}</p></div>`:''}
+        ${j.perks?`<div><p style="font-size:11px;font-weight:700;color:#92487A;margin:0 0 6px;text-transform:uppercase;">Perks & Benefits</p><div style="background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.2);border-radius:8px;padding:10px;font-size:13px;color:#856404;">${j.perks}</div></div>`:''}
+    `;
+
+    const applyBtn = document.getElementById('jdApplyBtn');
+    if (alreadyApplied) {
+        applyBtn.disabled = true;
+        applyBtn.textContent = '✅ Already Applied';
+        applyBtn.style.opacity = '0.6';
+    } else {
+        applyBtn.disabled = false;
+        applyBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Apply Now';
+        applyBtn.style.opacity = '1';
+        applyBtn.onclick = () => { closeModal('jdViewModal'); openApplyFor(id); };
+    }
+
+    openModal('jdViewModal');
+}
+
+// ═══════════════════════════════════════
+//  APPLY FOR JOB
+// ═══════════════════════════════════════
+function openApplyFor(jobId) {
+    const j = allOpenings.find(x => x.id === jobId); if (!j) return;
+    activeJobId = jobId;
+    document.getElementById('applyJobTitle').textContent = `${j.title} · ${j.dept}`;
+
+    // Fill employee info
+    const ini = LOGGED_EMP.name.split(' ').filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('ap-avatar').textContent = ini;
+    document.getElementById('ap-name').textContent   = LOGGED_EMP.name;
+    document.getElementById('ap-meta').textContent   = `${LOGGED_EMP.id} · ${LOGGED_EMP.dept}`;
+    document.getElementById('ap-fullname').value = LOGGED_EMP.name;
+    document.getElementById('ap-email').value    = LOGGED_EMP.email;
+
+    // Reset editable
+    ['ap-phone','ap-exp','ap-cover','ap-ctc','ap-resume'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ap-notice').value = '';
+
+    openModal('applyModal');
+}
+
+async function submitApplication() {
+    const cover = document.getElementById('ap-cover').value.trim();
+    const phone = document.getElementById('ap-phone').value.trim();
+
+    if (!phone) { showToast('Please enter your phone number!','error'); return; }
+    if (!cover) { showToast('Please write a cover letter!','error');   return; }
+
+    const j = allOpenings.find(x => x.id === activeJobId);
+    const app = {
+        id:      Date.now(),
+        jobId:   activeJobId,
+        position: j?.title || '—',
+        dept:    j?.dept || '—',
+        appliedOn: new Date().toISOString().slice(0,10),
+        status:  'Pending',
+        cover, phone,
+        exp:     document.getElementById('ap-exp').value.trim(),
+        ctc:     document.getElementById('ap-ctc').value.trim(),
+        notice:  document.getElementById('ap-notice').value,
+        resume:  document.getElementById('ap-resume').value.trim(),
+    };
+
+    // API call
+    try {
+        await fetch(`${CAREER_URL}/applications`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+                ...app,
+                empId:   LOGGED_EMP.id,
+                empName: LOGGED_EMP.name,
+                email:   LOGGED_EMP.email,
+                type:    'Direct',
+                referredBy: null
+            })
+        });
+    } catch(e) { /* offline, use local */ }
+
+    myApplications.unshift(app);
+    closeModal('applyModal');
+    updateStats();
+    renderOpenings();
+    renderMyApplications();
+    showToast(`✅ Application submitted for "${j?.title}"!`, 'success');
+}
+
+// ═══════════════════════════════════════
+//  REFER
+// ═══════════════════════════════════════
+function openReferModal() {
+    ['ref-name','ref-email','ref-phone','ref-ctc','ref-exp','ref-notes','ref-resume'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ref-relation').value  = '';
+    document.getElementById('ref-position').value  = '';
+    document.getElementById('ref-notice').value    = '';
+    populateRefPositions();
+    openModal('referModal');
+}
+
+function openReferForJob(jobId) {
+    openReferModal();
+    setTimeout(() => { document.getElementById('ref-position').value = jobId; }, 100);
+}
+
+function populateRefPositions() {
+    const sel = document.getElementById('ref-position');
+    sel.innerHTML = `<option value="">Select Position</option>` +
+        allOpenings.filter(j=>j.status==='Open').map(j=>`<option value="${j.id}">${j.title} (${j.dept})</option>`).join('');
+}
+
+async function submitReferral() {
+    const name     = document.getElementById('ref-name').value.trim();
+    const email    = document.getElementById('ref-email').value.trim();
+    const phone    = document.getElementById('ref-phone').value.trim();
+    const relation = document.getElementById('ref-relation').value;
+    const posId    = document.getElementById('ref-position').value;
+    const notes    = document.getElementById('ref-notes').value.trim();
+
+    if (!name)     { showToast('Candidate name required!','error');     return; }
+    if (!email)    { showToast('Candidate email required!','error');     return; }
+    if (!phone)    { showToast('Candidate phone required!','error');     return; }
+    if (!relation) { showToast('Please select your relationship!','error'); return; }
+    if (!posId)    { showToast('Please select a position!','error');     return; }
+    if (!notes)    { showToast('Please add a note about the candidate!','error'); return; }
+
+    const j = allOpenings.find(x => x.id === parseInt(posId));
+    const ref = {
+        id:            Date.now(),
+        candidateName: name,
+        candidateEmail: email,
+        candidatePhone: phone,
+        position:      j?.title || '—',
+        dept:          j?.dept || '—',
+        referredOn:    new Date().toISOString().slice(0,10),
+        status:        'Pending',
+        relationship:  relation,
+        notes,
+        resume:        document.getElementById('ref-resume').value.trim(),
+        exp:           document.getElementById('ref-exp').value.trim(),
+        ctc:           document.getElementById('ref-ctc').value.trim(),
+        notice:        document.getElementById('ref-notice').value,
+    };
+
+    try {
+        await fetch(`${CAREER_URL}/referrals`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+                ...ref,
+                referredBy: LOGGED_EMP.name,
+                referrerId: LOGGED_EMP.id,
+                jobId:      parseInt(posId)
+            })
+        });
+    } catch(e) { /* offline */ }
+
+    myReferrals.unshift(ref);
+    closeModal('referModal');
+    updateStats();
+    renderMyReferrals();
+    showToast(`✅ Referral for "${name}" submitted successfully!`, 'success');
+}
+
+// ═══════════════════════════════════════
+//  MY APPLICATIONS
+// ═══════════════════════════════════════
+function renderMyApplications() {
+    const statusF = document.getElementById('filterMyAppStatus').value;
+    let list = [...myApplications].sort((a,b) => (b.appliedOn||'').localeCompare(a.appliedOn||''));
+    if (statusF !== 'all') list = list.filter(a => a.status === statusF);
+
+    const container = document.getElementById('myAppsList');
+    const empty     = document.getElementById('myAppsEmpty');
+    if (!list.length) { container.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+
+    container.innerHTML = list.map(a => {
+        const steps = getStatusSteps(a.status);
+        const showSteps = a.status !== 'Rejected';
+
+        return `<div class="mb-3 app-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                <div>
+                    <p style="font-size:14px;font-weight:700;color:#540863;margin:0 0 3px;">${a.position}</p>
+                    <p style="font-size:12px;color:#92487A;margin:0;"><i class="mr-1 fas fa-building"></i>${a.dept} &nbsp;·&nbsp; Applied: ${fmtDate(a.appliedOn)}</p>
+                </div>
+                ${statusBadge(a.status)}
+            </div>
+
+            ${showSteps && a.status !== 'Hired' ? `
+            <div style="padding:12px;background:#f9f5fa;border-radius:8px;margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;position:relative;padding:0 12px;">
+                    ${steps.map((s,i) => `
+                    <div style="display:flex;flex-direction:column;align-items:center;flex:1;position:relative;">
+                        ${i<steps.length-1?`<div style="position:absolute;top:12px;left:50%;width:100%;height:2px;background:${s.state==='done'?'#28a745':'#e5e7eb'};z-index:0;"></div>`:''}
+                        <div class="step-dot ${s.state}" style="z-index:1;">${s.state==='done'?'✓':i+1}</div>
+                        <div class="step-label">${s.label}</div>
+                    </div>`).join('')}
+                </div>
+            </div>` : ''}
+
+            ${a.status === 'Hired' ? `
+            <div style="background:rgba(40,167,69,0.08);border:1px solid rgba(40,167,69,0.2);border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#155724;font-weight:600;text-align:center;">
+                🎉 Congratulations! You've been selected for this role. HR will contact you soon.
+            </div>` : ''}
+
+            ${a.status === 'Rejected' ? `
+            <div style="background:rgba(220,53,69,0.06);border:1px solid rgba(220,53,69,0.2);border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#721c24;text-align:center;">
+                Thank you for applying. This application was not selected for the next round.
+            </div>` : ''}
+
+            <div style="display:flex;gap:12px;font-size:11px;color:#92487A;flex-wrap:wrap;">
+                ${a.exp?`<span><i class="mr-1 fas fa-clock"></i>${a.exp}</span>`:''}
+                ${a.notice?`<span><i class="mr-1 fas fa-calendar"></i>Notice: ${a.notice}</span>`:''}
+                ${a.ctc?`<span><i class="mr-1 fas fa-rupee-sign"></i>CTC: ${a.ctc}</span>`:''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ═══════════════════════════════════════
+//  MY REFERRALS
+// ═══════════════════════════════════════
+function renderMyReferrals() {
+    const list = [...myReferrals].sort((a,b) => (b.referredOn||'').localeCompare(a.referredOn||''));
+    const container = document.getElementById('myRefsList');
+    const empty     = document.getElementById('myRefsEmpty');
+    if (!list.length) { container.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+
+    container.innerHTML = list.map(r => {
+        const ini = r.candidateName.split(' ').filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+        return `<div class="mb-3 app-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <div style="width:38px;height:38px;border-radius:50%;background:#540863;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">${ini}</div>
+                <div style="flex:1;">
+                    <p style="font-size:13px;font-weight:700;color:#540863;margin:0;">${r.candidateName}</p>
+                    <p style="font-size:11px;color:#92487A;margin:0;">${r.candidateEmail} · ${r.candidatePhone}</p>
+                </div>
+                ${statusBadge(r.status)}
+            </div>
+            <div style="background:#f9f5fa;border-radius:8px;padding:10px;margin-bottom:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+                <div><span style="color:#92487A;">Position:</span> <strong style="color:#540863;">${r.position}</strong></div>
+                <div><span style="color:#92487A;">Department:</span> <strong style="color:#540863;">${r.dept}</strong></div>
+                <div><span style="color:#92487A;">Referred On:</span> <strong style="color:#540863;">${fmtDate(r.referredOn)}</strong></div>
+                <div><span style="color:#92487A;">Relationship:</span> <strong style="color:#540863;">${r.relationship}</strong></div>
+            </div>
+            ${r.notes?`<div style="background:rgba(84,8,99,0.04);border-left:3px solid #540863;border-radius:0 6px 6px 0;padding:8px 12px;margin-bottom:6px;font-size:12px;color:#540863;font-style:italic;">"${r.notes}"</div>`:''}
+            ${r.status==='Hired'?`<div style="background:rgba(40,167,69,0.08);border:1px solid rgba(40,167,69,0.2);border-radius:8px;padding:8px 12px;font-size:12px;color:#155724;font-weight:600;">🎉 Your referral was hired! You may be eligible for a referral bonus.</div>`:''}
+        </div>`;
+    }).join('');
+}
+
+// ═══════════════════════════════════════
+//  TABS & SIDEBAR
+// ═══════════════════════════════════════
+function initTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() { switchTab(this.getAttribute('data-tab')); });
+    });
+}
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+    document.getElementById(`tab-${tab}`)?.classList.add('active');
+    if (tab==='myapps') renderMyApplications();
+    if (tab==='myrefs') renderMyReferrals();
+}
+function openSidebar()  { document.getElementById('sidebar').classList.add('open');    document.getElementById('overlay').classList.add('active'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+    initTabs();
+    loadSampleData();
+
+    // Try API
+    try {
+        const res = await fetch(`${CAREER_URL}/openings`);
+        const data = await res.json();
+        if (Array.isArray(data)) allOpenings = data;
+    } catch(e) {}
+
+    try {
+        const res = await fetch(`${CAREER_URL}/applications/employee/${LOGGED_EMP.id}`);
+        const data = await res.json();
+        if (Array.isArray(data)) myApplications = data;
+    } catch(e) {}
+
+    try {
+        const res = await fetch(`${CAREER_URL}/referrals/employee/${LOGGED_EMP.id}`);
+        const data = await res.json();
+        if (Array.isArray(data)) myReferrals = data;
+    } catch(e) {}
+
+    updateStats();
+    renderOpenings();
+    populateRefPositions();
+});
+</script>
+</body>
+</html>

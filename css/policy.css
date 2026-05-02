@@ -44,7 +44,7 @@
             width: var(--sidebar-width);
             height: 100vh;
             background: linear-gradient(180deg, #1f6f7f 0%, #145c6b 100%);
-            color: white;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
             z-index: 1050;
@@ -118,7 +118,7 @@
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+            color: #ffffff;
             cursor: pointer;
             display: flex;
             align-items: center;

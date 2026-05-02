@@ -17,6 +17,10 @@
 </head>
 
 <style>
+
+    a{
+        text-decoration: none;
+    }
     .sidebar-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 16px; height: var(--header-height);
@@ -29,6 +33,7 @@
       text-decoration: none; border-radius: 8px; margin: 2px 8px;
       transition: background 0.2s, color 0.2s; white-space: nowrap; font-size: 13.5px;
     }
+
     .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
     .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
     .nav-link.active { background: var(--sidebar-active); color: #fff; }
@@ -89,6 +94,10 @@
                     <li>
                         <a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span
                                 class="nav-text">Payroll</span></a>
+                    </li>
+                    <li>
+                        <a href="../pages/careers.html" class="nav-link"><i class="fas fa-file-contract"></i><span
+                                class="nav-text">Careesrs</span></a>
                     </li>
                     <li>
                         <a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span
@@ -164,7 +173,7 @@
                 <div class="welcome-banner">
                     <div class="welcome-content">
                         <h1>
-                            Welcome back, <span id="dashboardUserName">Alex</span>!
+                            Welcome back, <span id="dashboardUserName"></span>!
                         </h1>
                         <p id="greetingMessage">
                             Good morning! Here's your dashboard overview.
@@ -174,11 +183,9 @@
                         </div>
                     </div>
                     <div class="welcome-actions">
-                        <button class="btn-primary" id="checkInBtn">
-                            <i class="fas fa-fingerprint"></i> Check In</button><button class="btn-secondary"
-                            id="requestLeaveBtn">
-                            <i class="fas fa-calendar-plus"></i> Request Leave
-                        </button>
+                        <a class="no-underline" href="/pages/attendance.html"><button class="btn-primary" id="checkInBtn">
+                            <i class="fas fa-fingerprint"></i> Check In</button>
+                        </button></a>
                     </div>
                 </div>
 
@@ -193,7 +200,7 @@
                         <div class="stat-info">
                             <h3>Today Status</h3>
                             <p class="stat-value">Present</p>
-                            <span class="stat-text">09:12 AM - 06:05 PM</span>
+                            
                         </div>
                     </div>
 
@@ -205,7 +212,6 @@
                         <div class="stat-info">
                             <h3>Working Hours</h3>
                             <p class="stat-value">7.5 hrs</p>
-                            <span class="stat-text">Target: 8 hrs</span>
                         </div>
                     </div>
 
@@ -220,31 +226,6 @@
                             <span class="stat-text">Used: 5</span>
                         </div>
                     </div>
-
-                    <!-- MONTHLY SUMMARY -->
-                    <div class="stat-card purple">
-                        <div class="stat-icon purple">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>Monthly Summary</h3>
-                            <p class="stat-value">20P / 2A / 1L</p>
-                            <span class="stat-text">Performance: Good</span>
-                        </div>
-                    </div>
-
-                    <!-- ALERTS -->
-                    <div class="stat-card red">
-                        <div class="stat-icon red">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>Alerts</h3>
-                            <p class="stat-value">1</p>
-                            <span class="stat-text">Late check-in</span>
-                        </div>
-                    </div>
-
                 </div>
 
 
@@ -262,76 +243,7 @@
                         </div>
                         <canvas id="taskChart"></canvas>
                     </div>
-                </div>
-
-                <!-- Bottom Grid -->
-                <div class="bottom-grid">
-
-                    <!-- 1. GOALS / TARGETS -->
-                    <div class="module-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-bullseye"></i> Goals & Targets</h3>
-                        </div>
-
-                        <div class="goal-item">
-                            <div class="goal-title">Assigned Goals</div>
-                            <div class="goal-bar">
-                                <div class="goal-fill" style="width: 70%"></div>
-                            </div>
-                            <div class="goal-meta">70% Completed</div>
-                        </div>
-
-                        <div class="goal-item">
-                            <div class="goal-title">Deadlines</div>
-                            <div class="goal-meta">3 Pending this week</div>
-                        </div>
-                    </div>
-
-                    <!-- 2. DOCUMENTS -->
-                    <div class="module-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-folder-open"></i> Documents & Resources</h3>
-                        </div>
-
-                        <div class="doc-item">
-                            <i class="fas fa-file-pdf"></i>
-                            <span>Payslips</span>
-                        </div>
-
-                        <div class="doc-item">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Company Policies</span>
-                        </div>
-
-                        <div class="doc-item">
-                            <i class="fas fa-file-download"></i>
-                            <span>Important Files</span>
-                        </div>
-                    </div>
-
-                    <!-- 3. QUICK INSIGHTS -->
-                    <div class="module-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-chart-pie"></i> Quick Insights</h3>
-                        </div>
-
-                        <div class="insight-row">
-                            <span>Tasks Completed</span>
-                            <b>24</b>
-                        </div>
-
-                        <div class="insight-row">
-                            <span>Leaves Used</span>
-                            <b>5</b>
-                        </div>
-
-                        <div class="insight-row">
-                            <span>Attendance</span>
-                            <b>95%</b>
-                        </div>
-                    </div>
-
-                </div>
+                </div>              
             </div>
         </div>
     </div>
