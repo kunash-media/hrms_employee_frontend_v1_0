@@ -932,125 +932,259 @@ function renderStep4(d) {
 }
 
 // ── Step 5 ──────────────────────────────────────────────
+// ── Step 5 — REPLACE ENTIRE renderStep5 function ────────
 function renderStep5(d) {
-  const cards = DOC_CONFIGS.map(doc => {
-    const serverUrl    = d[doc.serverKey] ? buildDocUrl(d[doc.serverKey]) : null;
-    const sess         = docUploads[doc.label];
-    const available    = !!(serverUrl||sess);
-    const viewUrl      = sess ? sess.url : serverUrl;
-    
-    // Determine if it's an image or PDF for the viewer
-    // const mimeIsImg    = sess ? (sess.mimeType!=='application/pdf') : (serverUrl ? !serverUrl.toLowerCase().endsWith('.pdf') : false);
-  
-    // REPLACE WITH — fetch actual content-type from server via HEAD is too slow,
-    // so detect from URL pattern instead. The real fix is the backend Content-Type header.
-    const mimeIsImg = sess
-      ? (sess.mimeType !== 'application/pdf')
-      : true; // server now sends correct Content-Type so browser handles it
+  // ── Helper: strict URL validity (string level only) ──
+  function isValidUrlString(url) {
+    return !!(url && url !== 'null' && url !== 'undefined' && url.trim().length > 5);
+  }
 
+  // ── Build card HTML after we know which server URLs actually exist ──
+  function buildCards(verifiedServerUrls) {
+    return DOC_CONFIGS.map(doc => {
+      const sess        = docUploads[doc.label];
+      const serverUrl   = verifiedServerUrls[doc.label]; // null if 404 or not uploaded
+      const viewUrl     = sess ? sess.url : serverUrl;
+      const hasValidUrl = sess ? true : isValidUrlString(serverUrl); // session upload always valid
+      const mimeIsImg   = sess ? (sess.mimeType !== 'application/pdf') : true;
+      const uploadedName = sess ? sess.name : (hasValidUrl ? 'Available' : '');
 
-    const isBase64Src  = serverUrl && !serverUrl.startsWith('blob:') && !serverUrl.startsWith('http') && !serverUrl.startsWith('/');
-    const uploadedName = sess ? sess.name : (available?'Uploaded':'');
-    return `<div class="doc-card">
+      // Icon section — fallback img when no doc
+      const iconHtml = hasValidUrl
+        ? `<i class="fas ${doc.icon}"></i>`
+        : `<img src="Images/doc.png" alt="No document"
+             style="width:40px;height:40px;object-fit:contain;opacity:0.40;border-radius:4px"
+             onerror="this.style.display='none';
+                      this.insertAdjacentHTML('afterend','<i class=\\'fas ${doc.icon} \\' style=\\'color:var(--text-muted);font-size:18px\\'></i>')"/>`;
+
+      // Action buttons — strictly guarded
+      const actionHtml = hasValidUrl
+        ? `<button class="btn-view-doc"
+             data-url="${viewUrl}" data-label="${doc.label}" data-isimg="${mimeIsImg}">
+             <i class="fas fa-eye"></i> View
+           </button>
+           <button class="btn-download-doc"
+             style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+                    background:var(--primary-light);color:var(--primary);
+                    border:1px solid #b3dde5;border-radius:8px;
+                    font-size:12.5px;font-weight:500;cursor:pointer;"
+             data-url="${viewUrl}"
+             data-filename="${doc.label.replace(/\s/g, '_')}">
+             <i class="fas fa-download"></i> Download
+           </button>`
+        : `<button class="btn-view-doc disabled" disabled>
+             <i class="fas fa-ban"></i> Not Available
+           </button>
+           <button disabled
+             style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+                    background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;
+                    border-radius:8px;font-size:12.5px;font-weight:500;
+                    cursor:not-allowed;opacity:0.55;pointer-events:none;">
+             <i class="fas fa-download"></i> Download
+           </button>`;
+
+      const uploadBtn = isEditMode
+        ? `<button class="btn-upload-doc"
+             data-doc="${doc.label}"
+             data-accept="${doc.acceptAttr}"
+             data-types='${JSON.stringify(doc.acceptTypes)}'>
+             <i class="fas fa-upload"></i> ${hasValidUrl ? 'Replace' : 'Upload'}
+           </button>`
+        : '';
+
+      return `
+        <div class="doc-card">
+          <div class="doc-card-top">
+            <div class="doc-icon-wrap ${hasValidUrl ? '' : 'unavailable'}"
+                 style="${!hasValidUrl ? 'background:#f8fafc;border:1px dashed #cbd5e1;' : ''}">
+              ${iconHtml}
+            </div>
+            <div class="doc-card-info">
+              <h4>${doc.label}</h4>
+              <span class="doc-status-badge ${hasValidUrl ? 'available' : 'unavailable'}">
+                ${hasValidUrl ? (sess ? `✓ ${uploadedName}` : 'Available') : 'Not Uploaded'}
+              </span>
+            </div>
+          </div>
+          <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-bottom:4px">
+            ${doc.note}
+          </div>
+          <div class="doc-actions-row">
+            ${actionHtml}
+            ${uploadBtn}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Verify server URLs with HEAD requests (non-blocking) ──
+  // Show skeleton cards first, then replace once verification done
+  const skeletonCards = DOC_CONFIGS.map(() => `
+    <div class="doc-card" style="opacity:0.5;pointer-events:none">
       <div class="doc-card-top">
-        <div class="doc-icon-wrap ${available?'':'unavailable'}"><i class="fas ${doc.icon}"></i></div>
+        <div class="doc-icon-wrap unavailable">
+          <i class="fas fa-circle-notch fa-spin" style="color:var(--text-muted)"></i>
+        </div>
         <div class="doc-card-info">
-          <h4>${doc.label}</h4>
-          <span class="doc-status-badge ${available?'available':'unavailable'}">
-            ${available?(sess?`✓ ${uploadedName}`:'Available'):'Not Uploaded'}
-          </span>
+          <h4 style="background:#e2e8f0;border-radius:4px;height:14px;width:120px"> </h4>
+          <span style="background:#f1f5f9;border-radius:4px;height:10px;width:70px;display:inline-block;margin-top:4px"> </span>
         </div>
       </div>
-      <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-bottom:4px">${doc.note}</div>
-      <div class="doc-actions-row">
-        ${available
-          ? `<button class="btn-view-doc" data-url="${viewUrl}" data-label="${doc.label}" data-isimg="${mimeIsImg}"><i class="fas fa-eye"></i> View</button>
-            <button class="btn-download-doc btn-view-doc"
-              style="background:var(--primary-light);color:var(--primary);border:1px solid #b3dde5"
-              data-url="${viewUrl}" data-filename="${doc.label.replace(/\s/g,'_')}">
-              <i class="fas fa-download"></i> Download
-            </button>`
-          : `<button class="btn-view-doc disabled" disabled><i class="fas fa-ban"></i> Not Available</button>`
-        }
-        ${isEditMode
-          ?`<button class="btn-upload-doc" data-doc="${doc.label}"
-              data-accept="${doc.acceptAttr}" data-types='${JSON.stringify(doc.acceptTypes)}'>
-              <i class="fas fa-upload"></i> ${available?'Replace':'Upload'}
-            </button>`:''}
-      </div>
-    </div>`;
-  }).join('');
-
-  setTimeout(()=>{
-    document.querySelectorAll('.btn-view-doc[data-url]').forEach(btn=>{
-      btn.addEventListener('click',()=>openDocModal(btn.dataset.url,btn.dataset.label,btn.dataset.isimg==='true'));
-    });
-    document.querySelectorAll('.btn-upload-doc').forEach(btn=>{
-      const types=JSON.parse(btn.dataset.types||'[]');
-      btn.addEventListener('click',()=>openFileUploadModal(btn.dataset.doc,btn.dataset.accept,types));
-    });
-
-    // ADD — force download via fetch blob
-document.querySelectorAll('.btn-download-doc').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const url      = btn.dataset.url;
-    const filename = btn.dataset.filename;
-    if (!url) return;
-    // Blob URL (session upload) — direct download
-    if (url.startsWith('blob:')) {
-      const a = document.createElement('a');
-      a.href = url; a.download = filename; a.click(); return;
-    }
-    // Server URL — fetch and force download so browser doesn't open PDF inline
-    try {
-      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-      const res  = await fetch(url);
-      const blob = await res.blob();
-      const ext  = blob.type === 'application/pdf' ? '.pdf'
-                 : blob.type === 'image/png'  ? '.png' : '.jpg';
-      const burl = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = burl; a.download = filename + ext;
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(burl), 5000);
-      btn.innerHTML = '<i class="fas fa-download"></i> Download';
-    } catch {
-      showToast('Download failed', 'error');
-      btn.innerHTML = '<i class="fas fa-download"></i> Download';
-    }
-  });
-});
-
-  },0);
+    </div>`).join('');
 
   const missingBanner = !allDocsUploaded() && !isEditMode ? `
-    <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px 16px;
-      margin-bottom:16px;font-size:13px;color:#92400e;display:flex;align-items:center;gap:10px">
+    <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;
+                padding:12px 16px;margin-bottom:16px;font-size:13px;color:#92400e;
+                display:flex;align-items:center;gap:10px">
       <i class="fas fa-exclamation-triangle" style="color:#f59e0b;flex-shrink:0"></i>
       <span>Some required documents are missing. Click <strong>Edit Profile</strong> to upload them.
-        All 5 documents must be uploaded before Final Submission.</span>
+            All 5 documents must be uploaded before Final Submission.</span>
     </div>` : '';
 
-  return `<div class="form-section">
-    <div class="doc-instructions">
-      <div class="doc-instructions-title"><i class="fas fa-exclamation-circle"></i> Document Upload Guidelines</div>
-      <div class="doc-instr-grid">
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i>All documents must be clear, legible, and not blurry.</div>
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i><strong>Aadhaar, PAN, Profile Photo:</strong> JPG/PNG only. <strong>Degree, Experience, Offer Letter:</strong> PDF or JPG/PNG.</div>
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Max file size: <strong>5 MB per file</strong>.</div>
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i>No photocopies of photocopies. Original documents only.</div>
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i>All four corners visible. No cropped edges.</div>
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Experience/Offer letters must be on company letterhead with seal.</div>
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Profile Photo: Passport-size, white background, no sunglasses.</div>
-        <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Incorrect or illegible documents will be rejected by HR.</div>
-      </div>
-    </div>
-    ${missingBanner}
-    <div class="documents-grid">${cards}</div>
-  </div>`;
-}
+  // Fire HEAD checks async — update DOM once all settled
+  setTimeout(async () => {
+    const verifiedServerUrls = {};
 
+    // await Promise.allSettled(
+    //   DOC_CONFIGS.map(async doc => {
+    //     const sess = docUploads[doc.label];
+    //     if (sess) {
+    //       // Session upload — no HEAD needed, it's a blob URL
+    //       verifiedServerUrls[doc.label] = sess.url;
+    //       return;
+    //     }
+    //     const rawUrl = d[doc.serverKey];
+    //     if (!isValidUrlString(rawUrl)) {
+    //       verifiedServerUrls[doc.label] = null;
+    //       return;
+    //     }
+    //     const fullUrl = buildDocUrl(rawUrl);
+    //     try {
+    //       const res = await fetch(fullUrl, { method: 'HEAD' });
+    //       // 200 = exists, anything else (404, 500) = treat as missing
+    //       verifiedServerUrls[doc.label] = res.ok ? fullUrl : null;
+    //     } catch {
+    //       verifiedServerUrls[doc.label] = null;
+    //     }
+    //   })
+    // );
+
+    // FINAL CORRECT REPLACE — simple GET, read status only, no body consumed
+await Promise.allSettled(
+  DOC_CONFIGS.map(async doc => {
+    const sess = docUploads[doc.label];
+    if (sess) {
+      verifiedServerUrls[doc.label] = sess.url;
+      return;
+    }
+
+    const rawUrl = d[doc.serverKey];
+    if (!isValidUrlString(rawUrl)) {
+      verifiedServerUrls[doc.label] = null;
+      return;
+    }
+
+    const fullUrl = buildDocUrl(rawUrl);
+    try {
+      const res = await fetch(fullUrl);
+      // Check status WITHOUT reading body (avoids downloading entire file)
+      // res.ok = true means 200-299, file exists on server
+      verifiedServerUrls[doc.label] = res.ok ? fullUrl : null;
+      // Consume body in background to release connection — don't await
+      res.blob().catch(() => {});
+    } catch {
+      verifiedServerUrls[doc.label] = null;
+    }
+  })
+);
+
+    // Find the documents-grid container and replace content
+    const grid = document.querySelector('#stepContainer .documents-grid');
+    if (!grid) return; // user navigated away
+
+    grid.innerHTML = buildCards(verifiedServerUrls);
+
+    // Bind events on the newly rendered cards
+    grid.querySelectorAll('.btn-view-doc[data-url]').forEach(btn => {
+      btn.addEventListener('click', () =>
+        openDocModal(btn.dataset.url, btn.dataset.label, btn.dataset.isimg === 'true')
+      );
+    });
+
+    grid.querySelectorAll('.btn-upload-doc').forEach(btn => {
+      const types = JSON.parse(btn.dataset.types || '[]');
+      btn.addEventListener('click', () =>
+        openFileUploadModal(btn.dataset.doc, btn.dataset.accept, types)
+      );
+    });
+
+    grid.querySelectorAll('.btn-download-doc').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const url      = btn.dataset.url;
+        const filename = btn.dataset.filename;
+        if (!url) return;
+
+        // Blob URL — direct anchor download
+        if (url.startsWith('blob:')) {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          a.click();
+          return;
+        }
+
+        // Server URL — fetch blob, force download (prevents browser PDF inline open)
+        const origHtml = btn.innerHTML;
+        try {
+          btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+          btn.style.pointerEvents = 'none';
+          const res  = await fetch(url);
+          if (!res.ok) throw new Error(`${res.status}`);
+          const blob = await res.blob();
+          const ext  = blob.type === 'application/pdf' ? '.pdf'
+                     : blob.type === 'image/png'       ? '.png' : '.jpg';
+          const burl = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href     = burl;
+          a.download = filename + ext;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(burl), 5000);
+        } catch (err) {
+          showToast('Download failed — file may not exist on server', 'error');
+        } finally {
+          btn.innerHTML = origHtml;
+          btn.style.pointerEvents = '';
+        }
+      });
+    });
+
+  }, 0);
+
+  // Return immediately with skeleton + instructions
+  // Grid gets filled async above
+  return `
+    <div class="form-section">
+      <div class="doc-instructions">
+        <div class="doc-instructions-title">
+          <i class="fas fa-exclamation-circle"></i> Document Upload Guidelines
+        </div>
+        <div class="doc-instr-grid">
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i>All documents must be clear, legible, and not blurry.</div>
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i><strong>Aadhaar, PAN, Profile Photo:</strong> JPG/PNG only. <strong>Degree, Experience, Offer Letter:</strong> PDF or JPG/PNG.</div>
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Max file size: <strong>5 MB per file</strong>.</div>
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i>No photocopies of photocopies. Original documents only.</div>
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i>All four corners visible. No cropped edges.</div>
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Experience/Offer letters must be on company letterhead with seal.</div>
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Profile Photo: Passport-size, white background, no sunglasses.</div>
+          <div class="doc-instr-item"><i class="fas fa-check-circle"></i>Incorrect or illegible documents will be rejected by HR.</div>
+        </div>
+      </div>
+      ${missingBanner}
+      <div class="documents-grid">${skeletonCards}</div>
+    </div>`;
+}
 // ═══════════════════════════════════════════════════════
 //  STEP EVENTS
 // ═══════════════════════════════════════════════════════
