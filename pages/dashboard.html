@@ -21,12 +21,14 @@
     a{
         text-decoration: none;
     }
+    
     .sidebar-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 16px; height: var(--header-height);
       border-bottom: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
     }
+    
      .nav-link {
       display: flex; align-items: center; gap: 12px;
       padding: 10px 18px; color: var(--sidebar-text);
@@ -38,9 +40,11 @@
     .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
     .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
     .nav-link.active { background: var(--sidebar-active); color: #fff; }
-        .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
 
-         .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    
+    .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+    .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
     .logo i { font-size: 20px; color: white; min-width: 20px; }
     .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
 
@@ -73,7 +77,7 @@
             <nav class="sidebar-nav">
                 <ul class="nav-menu">
                     <li>
-                        <a href="#" class="nav-link active"><i class="fas fa-chart-pie"></i><span
+                        <a href="../pages/dashboard.html" class="nav-link active"><i class="fas fa-chart-pie"></i><span
                                 class="nav-text">Dashboard</span></a>
                     </li>
                     <li>
@@ -100,6 +104,12 @@
                         <a href="../pages/careers.html" class="nav-link"><i class="fas fa-file-contract"></i><span
                                 class="nav-text">Careesrs</span></a>
                     </li> -->
+
+                    <li>
+                        <a href="../pages/resignation.html" class="nav-link"><i class="fas fa-sign-out-alt"></i><span
+                                class="nav-text">Resignation</span></a>
+                    </li>
+                    
                     <li>
                         <a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span
                                 class="nav-text">Company Policies</span></a>

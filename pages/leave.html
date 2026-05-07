@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Leaves | SIEC</title>
+    <title>My Leaves | Employee Portal — Nexus</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-      <link rel="stylesheet" href="../css/leave.css" />
+    <!-- <link rel="stylesheet" href="../css/leave.css" /> -->
 
-   <style>
+    <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
@@ -111,7 +111,9 @@
             white-space: nowrap;
             transition: opacity 0.2s, width 0.2s;
         }
-        .sidebar.collapsed .logo-text { opacity: 0; width: 0; overflow: hidden; }
+        
+        .sidebar.collapsed 
+        .logo-text { opacity: 0; width: 0; overflow: hidden; }
 
         .collapse-btn {
             background: none;
@@ -125,6 +127,8 @@
             flex-shrink: 0;
             transition: background 0.2s, color 0.2s;
         }
+
+        
         .collapse-btn:hover { color: #fff; }
         .collapse-btn i { font-size: 14px; transition: transform 0.3s; }
         .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
@@ -147,7 +151,8 @@
             font-size: 13.5px;
             font-weight: 500;
             white-space: nowrap;
-            transition: background 0.2s, color 0.2s;
+            transition: all 0.25s ease,
+            color 0.2s;
             overflow: hidden;
         }
         .nav-link i { font-size: 15px; min-width: 20px; text-align: center; flex-shrink: 0; }
@@ -155,6 +160,8 @@
         .nav-link.active { background: var(--sidebar-active); color: #fff; font-weight: 600; }
 
         .nav-text { transition: opacity 0.2s, width 0.2s; }
+
+        
         .sidebar.collapsed .nav-text { opacity: 0; width: 0; overflow: hidden; }
         .sidebar.collapsed .nav-link { justify-content: center; padding: 10px 0; margin: 2px 0; }
 
@@ -305,7 +312,6 @@
         /* ========== CONTENT ========== */
         .content-wrapper { padding: 24px; flex: 1; }
 
-        /* Page banner */
         .page-banner {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
             border-radius: 16px;
@@ -342,54 +348,36 @@
         .banner-text p { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 3px; }
         .banner-actions { display: flex; gap: 10px; z-index: 1; }
 
-        /* Buttons */
         .btn-primary {
             display: inline-flex; align-items: center; gap: 7px;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
+            background: var(--accent); color: #fff; border: none;
+            padding: 9px 18px; border-radius: 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
         .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(111,175,46,0.35); }
 
         .btn-secondary {
             display: inline-flex; align-items: center; gap: 7px;
-            background: rgba(255,255,255,0.15);
-            color: #fff;
+            background: rgba(255,255,255,0.15); color: #fff;
             border: 1px solid rgba(255,255,255,0.25);
-            padding: 9px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
+            padding: 9px 18px; border-radius: 8px;
+            font-size: 13px; font-weight: 500; cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.22); }
 
         .btn-outline {
             display: inline-flex; align-items: center; gap: 7px;
-            background: transparent;
-            color: var(--primary);
+            background: transparent; color: var(--primary);
             border: 1px solid var(--primary);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 13px; font-weight: 500; cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
         .btn-outline:hover { background: var(--primary); color: #fff; }
         .btn-sm { padding: 6px 12px; font-size: 12px; }
 
-        /* ========== STATS GRID ========== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -422,19 +410,17 @@
             width: 44px; height: 44px;
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
+            font-size: 18px; flex-shrink: 0;
         }
         .stat-icon.purple { background: rgba(31,111,127,0.10); color: var(--primary); }
         .stat-icon.red    { background: rgba(220,38,38,0.10);  color: #dc2626; }
         .stat-icon.green  { background: rgba(22,163,74,0.10);  color: #16a34a; }
         .stat-icon.orange { background: rgba(234,88,12,0.10);  color: #ea580c; }
 
-        .stat-info h3 { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
-        .stat-value   { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-main); line-height: 1; }
-        .stat-text    { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .stat-info h3  { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+        .stat-value    { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-main); line-height: 1; }
+        .stat-text     { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-        /* ========== TABS ========== */
         .tabs-bar {
             display: flex; gap: 4px;
             background: var(--card-bg);
@@ -445,23 +431,17 @@
             flex-wrap: wrap;
         }
         .tab-btn {
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
+            padding: 8px 18px; border-radius: 8px;
+            font-size: 13px; font-weight: 500;
+            border: none; background: transparent;
+            color: var(--text-muted); cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
         .tab-btn:hover  { color: var(--primary); background: rgba(31,111,127,0.06); }
         .tab-btn.active { background: var(--primary); color: #fff; font-weight: 600; }
-        .tab-content         { display: none; }
-        .tab-content.active  { display: block; }
+        .tab-content        { display: none; }
+        .tab-content.active { display: block; }
 
-        /* ========== CARDS ========== */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -478,14 +458,11 @@
         }
         .card-header h3 {
             font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14px; font-weight: 600;
             color: var(--primary);
             display: flex; align-items: center; gap: 8px;
         }
-        .card-header h3 i { font-size: 14px; }
 
-        /* Balance cards */
         .balance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
         .balance-card {
             background: var(--card-bg);
@@ -501,13 +478,10 @@
         .balance-fill  { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
         .balance-sub   { font-size: 10px; color: var(--text-light); }
 
-        /* Status pills */
         .pill {
             display: inline-flex; align-items: center; gap: 5px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
         }
         .pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
         .pill.pending::before   { background: var(--yellow); }
@@ -519,34 +493,27 @@
         .pill.rejected  { background: var(--red-bg);    color: var(--red); }
         .pill.cancelled { background: rgba(108,117,125,0.15); color: #495057; }
 
-        /* Table */
         table { width: 100%; border-collapse: collapse; }
         thead th {
-            text-align: left;
-            padding: 9px 10px;
-            font-size: 11px;
-            font-weight: 600;
+            text-align: left; padding: 9px 10px;
+            font-size: 11px; font-weight: 600;
             color: var(--text-muted);
             border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-            background: var(--bg);
+            white-space: nowrap; background: var(--bg);
         }
         thead th:first-child { border-radius: 6px 0 0 0; }
         thead th:last-child  { border-radius: 0 6px 0 0; }
         tbody tr {
             border-bottom: 1px solid #edf2f7;
-            cursor: pointer;
-            transition: background 0.15s;
+            cursor: pointer; transition: background 0.15s;
         }
         tbody tr:hover { background: rgba(31,111,127,0.03); }
         tbody td { padding: 10px; font-size: 12px; color: var(--text-muted); vertical-align: middle; }
         tbody td:first-child { font-weight: 600; color: var(--primary); }
 
-        /* Progress */
         .progress-bar { height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
 
-        /* ========== MODAL ========== */
         .modal {
             display: none;
             position: fixed; inset: 0;
@@ -590,7 +557,6 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* Form */
         .form-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group.full { grid-column: 1 / -1; }
@@ -626,8 +592,7 @@
             background: var(--primary); color: #fff;
             font-weight: 700; font-size: 14px;
             display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            font-family: 'Poppins', sans-serif;
+            flex-shrink: 0; font-family: 'Poppins', sans-serif;
         }
 
         .section-label {
@@ -660,10 +625,8 @@
             border: 1px solid rgba(31,111,127,0.20);
             border-radius: 8px;
             padding: 8px 14px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary);
-            white-space: nowrap;
+            font-size: 13px; font-weight: 600;
+            color: var(--primary); white-space: nowrap;
         }
 
         .alert-info {
@@ -674,6 +637,21 @@
             font-size: 12px;
             color: var(--blue);
         }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 36px;
+            color: var(--border);
+            display: block;
+            margin-bottom: 12px;
+        }
+        .empty-state p { font-size: 13px; }
+        .empty-state small { font-size: 11px; color: var(--text-light); display: block; margin-top: 4px; }
 
         /* Calendar */
         .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
@@ -697,7 +675,6 @@
         .cal-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
         .cal-legend-dot  { width: 10px; height: 10px; border-radius: 50%; }
 
-        /* Recent items */
         .recent-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; border-bottom: 1px solid #edf2f7;
@@ -708,23 +685,14 @@
         .recent-item-title { font-size: 13px; font-weight: 600; color: var(--primary); }
         .recent-item-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-        /* Policy */
         .policy-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); }
         .policy-row:last-child { border-bottom: none; }
         .policy-row span   { font-size: 12px; color: var(--text-muted); }
         .policy-row strong { font-size: 12px; color: var(--primary); }
 
-        /* Insights */
-        .insight-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
-        .insight-row:last-child { border-bottom: none; }
-        .insight-row span { font-size: 12px; color: var(--text-muted); }
-        .insight-row b    { font-size: 13px; color: var(--primary); font-weight: 700; }
-
-        /* Grid layouts */
         .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
 
-        /* ========== TOAST ========== */
         .toast {
             position: fixed; bottom: 24px; right: 24px;
             padding: 12px 20px; border-radius: 10px;
@@ -738,20 +706,16 @@
         .toast.info    { background: var(--primary); }
         @keyframes toastIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
 
-        /* Spinner */
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
 
-        /* Overlay */
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
         .overlay.active { display: block; }
 
-        /* ========== RESPONSIVE ========== */
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2,1fr); }
             .three-col  { grid-template-columns: 1fr; }
@@ -791,19 +755,19 @@
             <i class="fas fa-chevron-left"></i>
         </button>
     </div>
-
     <nav class="sidebar-nav">
         <ul class="nav-menu">
             <li><a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
-            <li><a href="../pages/profile.html" class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
+            <li><a href="../pages/profile.html"   class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
             <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
-            <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
+            <li><a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
             <li><a href="../pages/leave.html" class="nav-link active"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
             <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+            <li><a href="../pages/resignation.html" class="nav-link"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
+
             <li><a href="../pages/policies.html"  class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
         </ul>
     </nav>
-
     <div class="sidebar-footer">
         <button class="logout-btn" onclick="showToast('Logging out...','info')">
             <i class="fas fa-sign-out-alt"></i><span class="nav-text">Logout</span>
@@ -814,13 +778,11 @@
 <!-- ========== MAIN CONTENT ========== -->
 <div class="main-content" id="mainContent">
 
-    <!-- Header -->
     <header class="header">
         <div class="header-left">
             <button class="mobile-toggle" id="mobileToggleBtn"><i class="fas fa-bars"></i></button>
             <div>
                 <div class="page-title">Leave Management</div>
-                <div class="page-subtitle">Track and manage your leave requests</div>
             </div>
         </div>
         <div class="header-right">
@@ -850,14 +812,12 @@
         </div>
     </header>
 
-    <!-- Content -->
     <div class="content-wrapper">
 
         <!-- Banner -->
         <div class="page-banner">
             <div class="banner-text">
                 <h2><i class="fas fa-umbrella-beach" style="margin-right:8px;color:var(--accent);"></i>My Leave Dashboard</h2>
-                <p>Apply for leave, track approvals, and monitor your balance · FY 2025</p>
             </div>
             <div class="banner-actions">
                 <button class="btn-secondary" onclick="switchTab('calendar')"><i class="fas fa-calendar-alt"></i> Calendar</button>
@@ -912,7 +872,6 @@
         <!-- ===== OVERVIEW ===== -->
         <div id="tab-overview" class="tab-content active">
             <div class="balance-grid" id="quickBalanceCards"></div>
-
             <div class="three-col">
                 <div>
                     <div class="card">
@@ -929,7 +888,7 @@
                         <div id="policyInfo"></div>
                     </div>
                     <div class="card">
-                        <div class="card-header"><h3><i class="fas fa-chart-donut"></i> Usage Overview</h3></div>
+                        <div class="card-header"><h3><i class="fas fa-chart-pie"></i> Usage Overview</h3></div>
                         <canvas id="miniDonut" height="160"></canvas>
                     </div>
                 </div>
@@ -947,7 +906,6 @@
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
-                            <option value="cancelled">Cancelled</option>
                         </select>
                         <select id="filterType" onchange="renderApplications()" style="width:140px;font-size:12px;"></select>
                         <button onclick="exportMyLeaves()" class="btn-outline btn-sm"><i class="fas fa-download"></i> Export</button>
@@ -957,22 +915,16 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Leave Type</th>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Days</th>
-                                <th>Reason</th>
-                                <th>Applied On</th>
-                                <th>Status</th>
-                                <th>HR Remarks</th>
-                                <th>Action</th>
+                                <th>Leave Type</th><th>From</th><th>To</th><th>Days</th>
+                                <th>Reason</th><th>Applied On</th><th>Status</th>
+                                <th>HR Remarks</th><th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="appTableBody"></tbody>
                     </table>
-                    <div id="appEmpty" style="display:none;text-align:center;padding:48px;color:var(--text-muted);">
-                        <i class="fas fa-calendar-times" style="font-size:32px;color:var(--border);display:block;margin-bottom:10px;"></i>
-                        <p style="font-size:13px;">No leave applications found.</p>
+                    <div id="appEmpty" style="display:none;" class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No leave applications found.</p>
                         <button class="btn-primary btn-sm" style="margin-top:12px;" onclick="openApplyModal()"><i class="fas fa-plus"></i> Apply Now</button>
                     </div>
                 </div>
@@ -983,7 +935,7 @@
         <div id="tab-balance" class="tab-content">
             <div class="balance-grid" id="balanceCards"></div>
             <div class="card">
-                <div class="card-header"><h3><i class="fas fa-table"></i> Detailed Leave Balance · FY 2025</h3></div>
+                <div class="card-header"><h3><i class="fas fa-table"></i> Approved Leave History</h3></div>
                 <div id="balanceDetailTable"></div>
             </div>
         </div>
@@ -992,7 +944,7 @@
         <div id="tab-calendar" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-calendar-alt"></i> <span id="calTitle">April 2025</span></h3>
+                    <h3><i class="fas fa-calendar-alt"></i> <span id="calTitle"></span></h3>
                     <div style="display:flex;gap:6px;">
                         <button onclick="changeMonth(-1)" class="btn-outline btn-sm"><i class="fas fa-chevron-left"></i></button>
                         <button onclick="changeMonth(1)"  class="btn-outline btn-sm"><i class="fas fa-chevron-right"></i></button>
@@ -1009,8 +961,8 @@
             </div>
         </div>
 
-    </div><!-- /content-wrapper -->
-</div><!-- /main-content -->
+    </div>
+</div>
 
 <!-- ========== APPLY LEAVE MODAL ========== -->
 <div id="applyModal" class="modal">
@@ -1023,14 +975,13 @@
             <button class="modal-close" onclick="closeModal('applyModal')">&times;</button>
         </div>
         <div class="modal-body">
-            <!-- Employee info -->
             <div class="emp-info-bar">
-                <div class="emp-info-avatar" id="ap-avatar">RK</div>
+                <div class="emp-info-avatar" id="ap-avatar">--</div>
                 <div style="flex:1;">
-                    <div style="font-size:13px;font-weight:700;color:var(--primary);" id="ap-dispName">Rajesh Kumar</div>
-                    <div style="font-size:11px;color:var(--text-muted);" id="ap-dispMeta">EMP001 · IT Department · Regular</div>
+                    <div style="font-size:13px;font-weight:700;color:var(--primary);" id="ap-dispName">—</div>
+                    <div style="font-size:11px;color:var(--text-muted);" id="ap-dispMeta">—</div>
                 </div>
-                <span style="background:rgba(74,21,75,0.10);color:var(--primary);font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;" id="ap-dispType">Regular</span>
+                <span style="background:rgba(31,111,127,0.10);color:var(--primary);font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;" id="ap-dispType">—</span>
             </div>
 
             <div class="section-label"><span>Employee Details</span></div>
@@ -1157,65 +1108,29 @@
     </div>
 </div>
 
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const firstName = localStorage.getItem('hrms_first_name') || '';
-    const lastName  = localStorage.getItem('hrms_last_name')  || '';
-    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
-    const designation = localStorage.getItem('hrms_designation') || '';
-    const department  = localStorage.getItem('hrms_department')  || '';
-
-    const initials = [firstName, lastName]
-      .filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
-
-    const role = designation || department || 'Employee';
-
-    const avatarEl = document.getElementById('userAvatar');
-    if (avatarEl) avatarEl.innerText = initials;
-
-    const userNameEl = document.getElementById('userName');
-    if (userNameEl) userNameEl.innerText = fullName;
-
-    const userRoleEl = document.getElementById('userRole');
-    if (userRoleEl) userRoleEl.innerText = role;
-
-    const dashNameEl = document.getElementById('dashboardUserName');
-    if (dashNameEl) dashNameEl.innerText = firstName || fullName;
-
-    const greetingEl = document.getElementById('greetingMessage');
-    if (greetingEl) {
-      const h = new Date().getHours();
-      const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-      greetingEl.innerText = g + "! Here's your dashboard overview.";
-    }
-  });
-</script>
-<script>
-  // Character counter for textarea
-  document.getElementById('editNotesInput').addEventListener('input', function() {
-    document.getElementById('editCharCount').textContent = this.value.length;
-  });
-</script>
-
 <script>
 // ============================================================
 //  CONFIG
 // ============================================================
-const BASE_URL  = 'http://localhost:8086/api';
-const LEAVE_URL = `${BASE_URL}/leave`;
-const EMP_URL   = `${BASE_URL}/employees`;
-const LOGGED_EMP_ID = 'EMP001';
+const BASE_URL = 'http://localhost:8086/api';
+
+// Employee info from localStorage (set during login)
+const LOGGED_EMP_ID   = localStorage.getItem('hrms_employee_id')       || sessionStorage.getItem('employeeId')      || '';
+const EMPLOYEE_FNAME  = localStorage.getItem('hrms_first_name')        || '';
+const EMPLOYEE_LNAME  = localStorage.getItem('hrms_last_name')         || '';
+const EMPLOYEE_NAME   = (EMPLOYEE_FNAME + ' ' + EMPLOYEE_LNAME).trim() || sessionStorage.getItem('employeeName')    || '';
+const EMPLOYEE_DEPT   = localStorage.getItem('hrms_department')        || sessionStorage.getItem('department')      || '';
+const EMPLOYEE_TYPE   = localStorage.getItem('hrms_employment_type')   || sessionStorage.getItem('employmentType')  || '';
 
 // ============================================================
-//  STATE
+//  STATE  — NO FALLBACK / MOCK DATA
 // ============================================================
-let CURRENT_EMP    = {};
-let leaveTypes     = [];
-let balanceData    = {};
-let myLeaves       = [];
+let CURRENT_EMP  = {};
+let leaveTypes   = [];   // string[] — only from DB
+let balanceData  = {};   // only from DB
+let myLeaves     = [];   // only from DB
 let cancelTargetId = null;
-const YEAR  = String(new Date().getFullYear());
+const YEAR = String(new Date().getFullYear());
 let calYear  = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 let miniChart = null;
@@ -1224,142 +1139,313 @@ let miniChart = null;
 //  API UTILITY
 // ============================================================
 async function apiFetch(url, options = {}) {
-    try {
-        const res  = await fetch(url, { headers:{'Content-Type':'application/json',...options.headers}, ...options });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
-        return data;
-    } catch(err) {
-        if (err.name === 'TypeError') throw new Error('Cannot connect to server (localhost:8086). Is Spring Boot running?');
-        throw err;
+    const res = await fetch(url, {
+        headers: { 'Content-Type': 'application/json', ...options.headers },
+        ...options
+    });
+    if (!res.ok) {
+        const err = await res.text();
+        throw new Error(`HTTP ${res.status}: ${err.substring(0, 120)}`);
     }
+    return res.json();
 }
 
-// ============================================================
-//  HELPERS
-// ============================================================
-function fmtDate(d) {
-    if (!d) return '—';
-    const dt = new Date(d + (d.includes('T') ? '' : 'T00:00:00'));
-    if (isNaN(dt)) return d;
-    return dt.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
-}
-function showToast(msg, type='success') {
-    const icons = {success:'check-circle',error:'times-circle',info:'info-circle'};
+function showToast(msg, type = 'success') {
+    const icons = { success: 'check-circle', error: 'times-circle', info: 'info-circle' };
     const t = document.createElement('div');
     t.className = `toast ${type}`;
-    t.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'}"></i> ${msg}`;
+    t.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
 }
+
+function formatDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 function openModal(id)  { document.getElementById(id).classList.add('active'); }
 
-function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
-    if (tab === 'myapplications') renderApplications();
-    if (tab === 'balance')        renderBalance();
-    if (tab === 'calendar')       renderCalendar();
+function emptyState(icon, msg, sub = '') {
+    return `<div class="empty-state">
+        <i class="fas fa-${icon}"></i>
+        <p>${msg}</p>
+        ${sub ? `<small>${sub}</small>` : ''}
+    </div>`;
 }
 
 // ============================================================
-//  SIDEBAR COLLAPSE
+//  1. LOAD EMPLOYEE PROFILE  (from localStorage — set at login)
 // ============================================================
-document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
-    const sidebar = document.getElementById('sidebar');
-    const main    = document.getElementById('mainContent');
-    sidebar.classList.toggle('collapsed');
-    main.classList.toggle('collapsed');
-});
-
-// Mobile sidebar
-function openSidebar()  {
-    document.getElementById('sidebar').classList.add('mobile-open');
-    document.getElementById('overlay').classList.add('active');
-}
-function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('mobile-open');
-    document.getElementById('overlay').classList.remove('active');
-}
-document.getElementById('mobileToggleBtn').addEventListener('click', openSidebar);
-
-// Profile dropdown
-document.getElementById('profileDropdownBtn').addEventListener('click', function() {
-    const drop = document.getElementById('profileDropdown');
-    drop.classList.toggle('open');
-    this.classList.toggle('open');
-});
-document.addEventListener('click', e => {
-    if (!e.target.closest('.user-profile')) {
-        document.getElementById('profileDropdown').classList.remove('open');
-        document.getElementById('profileDropdownBtn').classList.remove('open');
-    }
-});
-
-// ============================================================
-//  1. LOAD EMPLOYEE
-// ============================================================
-async function loadEmployeeProfile() {
-    const data = await apiFetch(`${EMP_URL}/get-by-employeeId/${LOGGED_EMP_ID}`);
-    const e = data.data || data;
+function loadEmployeeProfile() {
     CURRENT_EMP = {
-        id:      e.employeeId || e.empId    || LOGGED_EMP_ID,
-        name:    ((e.firstName||'') + ' ' + (e.lastName||'')).trim() || e.empName || 'Employee',
-        dept:    e.department || e.dept     || '—',
-        empType: e.employeeType || e.empType|| '—'
+        id:      LOGGED_EMP_ID,
+        name:    EMPLOYEE_NAME,
+        dept:    EMPLOYEE_DEPT,
+        empType: EMPLOYEE_TYPE
     };
-    const initials = CURRENT_EMP.name.split(' ').filter(Boolean).map(n=>n[0]).join('').slice(0,2).toUpperCase() || '--';
+
+    const initials = CURRENT_EMP.name
+        .split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase() || '--';
+
     document.getElementById('userAvatar').textContent = initials;
-    document.getElementById('userName').textContent   = CURRENT_EMP.name;
-    document.getElementById('userRole').textContent   = CURRENT_EMP.dept;
+    document.getElementById('userName').textContent   = CURRENT_EMP.name || 'Employee';
+    document.getElementById('userRole').textContent   = CURRENT_EMP.dept  || '';
 }
 
 // ============================================================
-//  2. LOAD LEAVE TYPES
+//  2. LOAD LEAVE TYPES  — NO FALLBACK
 // ============================================================
 async function loadLeaveTypes() {
-    const data = await apiFetch(`${LEAVE_URL}/types`);
-    leaveTypes = (Array.isArray(data) ? data : []).filter(t => t.isActive).map(t => t.name);
-    const sel = document.getElementById('filterType');
-    if (sel) sel.innerHTML = '<option value="all">All Types</option>' + leaveTypes.map(lt=>`<option value="${lt}">${lt}</option>`).join('');
-    const apSel = document.getElementById('ap-type');
-    if (apSel) apSel.innerHTML = '<option value="">Select leave type</option>' + leaveTypes.map(lt=>`<option value="${lt}">${lt}</option>`).join('');
+    try {
+        const data = await apiFetch(`${BASE_URL}/leave/types`);
+        leaveTypes = Array.isArray(data)
+            ? data.filter(t => t.isActive).map(t => t.name)
+            : [];
+
+        // Populate dropdowns
+        const filterType = document.getElementById('filterType');
+        if (filterType) {
+            filterType.innerHTML = '<option value="all">All Types</option>' +
+                leaveTypes.map(lt => `<option value="${lt}">${lt}</option>`).join('');
+        }
+        const apType = document.getElementById('ap-type');
+        if (apType) {
+            apType.innerHTML = '<option value="">Select leave type</option>' +
+                leaveTypes.map(lt => `<option value="${lt}">${lt}</option>`).join('');
+        }
+    } catch (err) {
+        console.error('Leave types load failed:', err);
+        leaveTypes = [];
+        // dropdowns remain empty — no fake data
+    }
 }
 
 // ============================================================
-//  3. LOAD BALANCE
+//  3. LOAD BALANCE  — NO FALLBACK
 // ============================================================
 async function loadBalance() {
-    balanceData = await apiFetch(`${LEAVE_URL}/balance?empId=${CURRENT_EMP.id}&year=${YEAR}`);
+    if (!CURRENT_EMP.id) { balanceData = {}; return; }
+    try {
+        const data = await apiFetch(`${BASE_URL}/leave/balance?empId=${CURRENT_EMP.id}&year=${YEAR}`);
+        balanceData = data || {};
+    } catch (err) {
+        console.error('Balance load failed:', err);
+        balanceData = {};   // ✅ empty — kuch fake nahi
+        showToast('⚠️ Could not load balance. Contact HR.', 'error');
+    }
 }
 
 // ============================================================
-//  4. LOAD MY LEAVES
+//  4. LOAD MY LEAVES  — NO FALLBACK
 // ============================================================
 async function loadMyLeaves() {
-    const data = await apiFetch(`${LEAVE_URL}/requests/employee/${CURRENT_EMP.id}`);
-    myLeaves = Array.isArray(data) ? data : [];
+    if (!CURRENT_EMP.id) { myLeaves = []; return; }
+    try {
+        const data = await apiFetch(`${BASE_URL}/leave/requests/employee/${CURRENT_EMP.id}`);
+        myLeaves = Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error('My leaves load failed:', err);
+        myLeaves = [];   // ✅ empty — kuch fake nahi
+        showToast('⚠️ Could not load leave applications.', 'error');
+    }
 }
 
 // ============================================================
-//  STATS
+//  5. UPDATE STATS  — shows — when no data
 // ============================================================
 function updateStats() {
-    document.getElementById('statTotal').textContent     = balanceData.totalAllotted  ?? '—';
-    document.getElementById('statUsed').textContent      = balanceData.totalUsed      ?? '—';
-    document.getElementById('statRemaining').textContent = balanceData.totalRemaining ?? '—';
-    const pending = myLeaves.filter(r => r.status==='pending').length;
-    document.getElementById('statPending').textContent   = pending;
-    const badge = document.getElementById('notifBadge');
-    if (pending > 0) { badge.style.display='flex'; badge.textContent=pending; }
-    else { badge.style.display='none'; }
+    const hasBalance = balanceData && balanceData.totalAllotted != null;
+
+    document.getElementById('statTotal').textContent     = hasBalance ? balanceData.totalAllotted  : '—';
+    document.getElementById('statUsed').textContent      = hasBalance ? balanceData.totalUsed      : '—';
+    document.getElementById('statRemaining').textContent = hasBalance ? balanceData.totalRemaining : '—';
+    document.getElementById('statPending').textContent   = myLeaves.filter(r => r.status === 'pending').length || 0;
+
+    const pending = myLeaves.filter(r => r.status === 'pending').length;
+    const badge   = document.getElementById('notifBadge');
+    if (pending > 0) { badge.style.display = 'flex'; badge.textContent = pending; }
+    else               badge.style.display = 'none';
 }
 
 // ============================================================
-//  OVERVIEW
+//  6. SUBMIT LEAVE
+// ============================================================
+async function submitLeave() {
+    const leaveType   = document.getElementById('ap-type').value;
+    const days        = parseInt(document.getElementById('ap-days').value) || 0;
+    const fromDate    = document.getElementById('ap-from').value;
+    const toDate      = document.getElementById('ap-to').value;
+    const reason      = document.getElementById('ap-reason').value.trim();
+    const description = document.getElementById('ap-desc').value.trim();
+
+    if (!leaveType)   { showToast('Please select Leave Type!', 'error');         return; }
+    if (!fromDate)    { showToast('Please select From Date!', 'error');          return; }
+    if (!toDate)      { showToast('Please select To Date!', 'error');            return; }
+    if (days < 1)     { showToast('Number of days must be at least 1!', 'error');return; }
+    if (!reason)      { showToast('Please enter a Reason!', 'error');            return; }
+
+    const payload = {
+        empId:       CURRENT_EMP.id,
+        empName:     CURRENT_EMP.name,
+        department:  CURRENT_EMP.dept,
+        empType:     CURRENT_EMP.empType,
+        leaveType,
+        fromDate,
+        toDate,
+        numberOfDays: days,
+        reason,
+        description,
+        status: 'pending'
+    };
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+    try {
+        const saved = await apiFetch(`${BASE_URL}/leave/requests`, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+        myLeaves.unshift(saved);
+        await loadBalance();
+        updateStats();
+        closeModal('applyModal');
+        showToast('✅ Leave request submitted! Awaiting HR approval.', 'success');
+        renderApplications();
+        renderOverview();
+        renderCalendar();
+    } catch (err) {
+        showToast('❌ ' + (err.message || 'Submission failed.'), 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+    }
+}
+
+// ============================================================
+//  7. CANCEL LEAVE
+// ============================================================
+async function confirmCancel() {
+    const request = myLeaves.find(x => x.id === cancelTargetId);
+    if (!request) return;
+
+    const btn = document.getElementById('cancelConfirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Cancelling...';
+
+    try {
+        await apiFetch(`${BASE_URL}/leave/requests/${request.id}/action`, {
+            method: 'POST',
+            body: JSON.stringify({
+                action:   'reject',
+                remarks:  document.getElementById('cancelReason').value || 'Cancelled by employee',
+                actionBy: CURRENT_EMP.name
+            })
+        });
+        await loadMyLeaves();
+        await loadBalance();
+        updateStats();
+        closeModal('cancelModal');
+        renderApplications();
+        renderOverview();
+        renderCalendar();
+        showToast('Leave request cancelled.', 'info');
+    } catch (err) {
+        showToast('❌ ' + (err.message || 'Cancel failed.'), 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-trash"></i> Yes, Cancel';
+    }
+}
+
+// ============================================================
+//  8. OPEN APPLY MODAL
+// ============================================================
+function openApplyModal() {
+    document.getElementById('ap-empId').value   = CURRENT_EMP.id;
+    document.getElementById('ap-empName').value  = CURRENT_EMP.name;
+    document.getElementById('ap-dept').value     = CURRENT_EMP.dept;
+    document.getElementById('ap-empType').value  = CURRENT_EMP.empType;
+
+    const initials = CURRENT_EMP.name.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0,2).toUpperCase() || '--';
+    document.getElementById('ap-avatar').textContent   = initials;
+    document.getElementById('ap-dispName').textContent = CURRENT_EMP.name;
+    document.getElementById('ap-dispMeta').textContent = `${CURRENT_EMP.id} · ${CURRENT_EMP.dept} · ${CURRENT_EMP.empType}`;
+    document.getElementById('ap-dispType').textContent = CURRENT_EMP.empType;
+
+    apResetForm();
+    openModal('applyModal');
+}
+
+// ============================================================
+//  9. FORM HELPERS
+// ============================================================
+function apResetForm() {
+    ['ap-type','ap-mode','ap-from','ap-to','ap-reason','ap-desc'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+    });
+    document.getElementById('ap-days').value = '';
+    const panel = document.getElementById('ap-balPanel');
+    if (panel) panel.style.display = 'none';
+    const chip = document.getElementById('ap-dayChip');
+    if (chip) chip.style.display = 'none';
+}
+
+function apCalcDays() {
+    const from = document.getElementById('ap-from').value;
+    const to   = document.getElementById('ap-to').value;
+    const chip = document.getElementById('ap-dayChip');
+    if (!from || !to) { if (chip) chip.style.display = 'none'; return; }
+
+    const fd = new Date(from + 'T00:00:00');
+    const td = new Date(to   + 'T00:00:00');
+    if (td < fd) { showToast('To Date cannot be before From Date!', 'error'); return; }
+
+    let count = 0;
+    const cur = new Date(fd);
+    while (cur <= td) {
+        const d = cur.getDay();
+        if (d !== 0 && d !== 6) count++;
+        cur.setDate(cur.getDate() + 1);
+    }
+
+    document.getElementById('ap-days').value = count;
+    if (chip) {
+        document.getElementById('ap-dayText').textContent = `${count} working day${count !== 1 ? 's' : ''}`;
+        chip.style.display = 'flex';
+    }
+    apCheckBalance();
+}
+
+function apCheckBalance() {
+    const leaveType = document.getElementById('ap-type').value;
+    const days      = parseInt(document.getElementById('ap-days').value) || 0;
+    const panel     = document.getElementById('ap-balPanel');
+    if (!panel) return;
+
+    if (!leaveType || !balanceData.balances) { panel.style.display = 'none'; return; }
+
+    const bal = balanceData.balances[leaveType];
+    if (!bal) { panel.style.display = 'none'; return; }
+
+    const ok = days === 0 || bal.remaining >= days;
+    panel.style.display = 'block';
+    panel.className = `balance-panel ${ok ? 'ok' : 'warn'}`;
+    panel.innerHTML = `<i class="fas fa-${ok ? 'info-circle' : 'exclamation-triangle'}" style="margin-right:5px;"></i>
+        <strong>${leaveType}:</strong> ${bal.remaining} day(s) remaining · ${bal.used} used of ${bal.allot} allotted
+        ${!ok && days > 0 ? `<br><i class="fas fa-exclamation-triangle" style="margin-right:3px;"></i>Requested ${days} day(s) exceeds your balance of ${bal.remaining}.` : ''}`;
+}
+
+// ============================================================
+//  10. RENDER — OVERVIEW
 // ============================================================
 function renderOverview() {
     renderQuickBalanceCards();
@@ -1369,181 +1455,304 @@ function renderOverview() {
 }
 
 function renderQuickBalanceCards() {
-    const colors  = ['#4a154b','#16a34a','#1254a4','#ea580c'];
-    const fills   = ['var(--primary)','#16a34a','#1254a4','#ea580c'];
-    const bal     = balanceData.balances || {};
-    document.getElementById('quickBalanceCards').innerHTML = leaveTypes.length
-        ? leaveTypes.map((lt,i) => {
-            const b   = bal[lt] || {allot:0,used:0,remaining:0};
-            const pct = b.allot ? Math.round(b.used/b.allot*100) : 0;
-            const fc  = pct>70?'#dc2626':pct>40?'#ea580c':'#16a34a';
-            return `<div class="balance-card">
-                <div class="balance-label">${lt}</div>
-                <div class="balance-num" style="color:${colors[i%colors.length]};">${b.remaining}</div>
-                <div class="balance-bar"><div class="balance-fill" style="width:${pct}%;background:${fc};"></div></div>
-                <div class="balance-sub">${b.used} used of ${b.allot} allotted</div>
-            </div>`;
-        }).join('')
-        : `<p style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">No leave types configured.</p>`;
+    const container = document.getElementById('quickBalanceCards');
+    if (!container) return;
+
+    const balances = balanceData.balances || {};
+    const hasData  = leaveTypes.length > 0 && Object.keys(balances).length > 0;
+
+    // ✅ Agar koi data nahi toh empty state — koi fake card nahi
+    if (!hasData) {
+        container.innerHTML = `<div style="grid-column:1/-1;">
+            ${emptyState('info-circle', 'No leave balance data available.', 'Please contact HR to configure your leave policy.')}
+        </div>`;
+        return;
+    }
+
+    const colors = ['#1f6f7f','#16a34a','#1254a4','#ea580c'];
+    container.innerHTML = leaveTypes.map((type, i) => {
+        const bal = balances[type] || { allot: 0, used: 0, remaining: 0 };
+        const pct = bal.allot ? Math.round((bal.used / bal.allot) * 100) : 0;
+        const fc  = pct > 70 ? '#dc2626' : pct > 40 ? '#ea580c' : '#16a34a';
+        return `<div class="balance-card">
+            <div class="balance-label">${type}</div>
+            <div class="balance-num" style="color:${colors[i % colors.length]};">${bal.remaining}</div>
+            <div class="balance-bar"><div class="balance-fill" style="width:${pct}%;background:${fc};"></div></div>
+            <div class="balance-sub">${bal.used} used of ${bal.allot} allotted</div>
+        </div>`;
+    }).join('');
 }
 
 function renderRecentList() {
-    const icons = {approved:'✅',rejected:'❌',pending:'⏳',cancelled:'🚫'};
-    const recent = [...myLeaves].sort((a,b)=>(b.addedOn||'').localeCompare(a.addedOn||'')).slice(0,5);
-    document.getElementById('recentList').innerHTML = recent.length
-        ? recent.map(r => `
-            <div class="recent-item" onclick="viewDetail(${r.id})">
-                <div>
-                    <div class="recent-item-title">${r.leaveType} <span>${icons[r.status]||''}</span></div>
-                    <div class="recent-item-sub">${fmtDate(r.fromDate)} · ${r.numberOfDays} day(s)</div>
-                </div>
-                <span class="pill ${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span>
-            </div>`).join('')
-        : `<p style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">No applications yet.
-              <button onclick="openApplyModal()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600;text-decoration:underline;">Apply now</button>
-           </p>`;
+    const container = document.getElementById('recentList');
+    if (!container) return;
+
+    const recent = [...myLeaves]
+        .sort((a, b) => (b.addedOn || '').localeCompare(a.addedOn || ''))
+        .slice(0, 5);
+
+    if (!recent.length) {
+        container.innerHTML = `<p style="text-align:center;padding:24px;color:#64748b;font-size:13px;">
+            No applications yet.
+            <button onclick="openApplyModal()" style="background:none;border:none;color:#1f6f7f;cursor:pointer;font-weight:600;">Apply now</button>
+        </p>`;
+        return;
+    }
+
+    const icons = { approved:'✅', rejected:'❌', pending:'⏳' };
+    container.innerHTML = recent.map(r => `
+        <div class="recent-item" onclick="viewDetail(${r.id})">
+            <div>
+                <div class="recent-item-title">${r.leaveType} ${icons[r.status] || ''}</div>
+                <div class="recent-item-sub">${formatDate(r.fromDate)} · ${r.numberOfDays} day(s)</div>
+            </div>
+            <span class="pill ${r.status}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span>
+        </div>`).join('');
 }
 
 function renderPolicyInfo() {
-    const bal = balanceData.balances || {};
-    document.getElementById('policyInfo').innerHTML = leaveTypes.length
-        ? leaveTypes.map(lt => {
-            const b = bal[lt];
-            return `<div class="policy-row"><span>${lt}</span><strong>${b ? b.allot : '—'} days/yr</strong></div>`;
-        }).join('')
-        : '<p style="font-size:12px;color:var(--text-muted);">No policy configured.</p>';
+    const container = document.getElementById('policyInfo');
+    if (!container) return;
+
+    const balances = balanceData.balances || {};
+    if (!leaveTypes.length) {
+        container.innerHTML = '<p style="font-size:12px;color:#64748b;">No policy configured.</p>';
+        return;
+    }
+    container.innerHTML = leaveTypes.map(type => {
+        const bal = balances[type];
+        return `<div class="policy-row"><span>${type}</span><strong>${bal ? bal.allot + ' days/yr' : '—'}</strong></div>`;
+    }).join('');
 }
 
 function renderMiniDonut() {
-    const bal = balanceData.balances || {};
-    const ctx = document.getElementById('miniDonut').getContext('2d');
-    if (miniChart) miniChart.destroy();
-    if (!leaveTypes.length) return;
-    const colors = ['#4a154b','#16a34a','#1254a4','#ea580c'];
-    miniChart = new Chart(ctx, {
+    const ctx = document.getElementById('miniDonut');
+    if (!ctx) return;
+    if (miniChart) { miniChart.destroy(); miniChart = null; }
+
+    const balances = balanceData.balances || {};
+    const hasData  = leaveTypes.length > 0 && Object.keys(balances).length > 0;
+    if (!hasData) return;
+
+    const colors = ['#1f6f7f','#16a34a','#1254a4','#ea580c'];
+    const used   = leaveTypes.map(t => balances[t]?.used || 0);
+    const total  = used.reduce((a, b) => a + b, 0);
+    if (!total) return;  // sabka used 0 ho toh chart mat banao
+
+    miniChart = new Chart(ctx.getContext('2d'), {
         type: 'doughnut',
         data: {
             labels: leaveTypes,
             datasets: [{
-                data: leaveTypes.map(lt => bal[lt]?.used || 0),
-                backgroundColor: colors.slice(0,leaveTypes.length),
-                borderWidth: 0, hoverOffset: 8
+                data: used,
+                backgroundColor: colors.slice(0, leaveTypes.length),
+                borderWidth: 0,
+                hoverOffset: 8
             }]
         },
         options: {
-            responsive: true, cutout: '65%',
+            responsive: true,
+            cutout: '65%',
             plugins: {
-                legend: { position:'bottom', labels:{font:{size:10}, boxWidth:10, padding:8, color:'#4a154b'} },
-                tooltip: { backgroundColor:'#4a154b', callbacks:{ label: c => `${c.label}: ${c.raw} days used` } }
+                legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10, padding: 8 } },
+                tooltip: { backgroundColor: '#1f6f7f', callbacks: { label: c => `${c.label}: ${c.raw} days used` } }
             }
         }
     });
 }
 
 // ============================================================
-//  MY APPLICATIONS
+//  11. RENDER — MY APPLICATIONS
 // ============================================================
 function renderApplications() {
-    const sf = document.getElementById('filterStatus').value;
-    const tf = document.getElementById('filterType').value;
-    let list = [...myLeaves].sort((a,b)=>(b.addedOn||'').localeCompare(a.addedOn||''));
-    if (sf !== 'all') list = list.filter(r => r.status === sf);
-    if (tf !== 'all') list = list.filter(r => r.leaveType === tf);
+    const statusFilter = document.getElementById('filterStatus').value;
+    const typeFilter   = document.getElementById('filterType').value;
 
-    const tbody = document.getElementById('appTableBody');
-    const empty = document.getElementById('appEmpty');
+    let filtered = [...myLeaves];
+    if (statusFilter !== 'all') filtered = filtered.filter(r => r.status === statusFilter);
+    if (typeFilter   !== 'all') filtered = filtered.filter(r => r.leaveType === typeFilter);
+    filtered.sort((a, b) => (b.addedOn || '').localeCompare(a.addedOn || ''));
 
-    if (!list.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
-    empty.style.display = 'none';
+    const tbody    = document.getElementById('appTableBody');
+    const emptyDiv = document.getElementById('appEmpty');
 
-    tbody.innerHTML = list.map(r => `
+    if (!filtered.length) {
+        tbody.innerHTML = '';
+        if (emptyDiv) emptyDiv.style.display = 'block';
+        return;
+    }
+    if (emptyDiv) emptyDiv.style.display = 'none';
+
+    tbody.innerHTML = filtered.map(r => `
         <tr onclick="viewDetail(${r.id})">
-            <td>${r.leaveType}</td>
-            <td>${fmtDate(r.fromDate)}</td>
-            <td>${r.toDate ? fmtDate(r.toDate) : '—'}</td>
+            <td style="color:#1f6f7f;font-weight:600;">${r.leaveType}</td>
+            <td>${formatDate(r.fromDate)}</td>
+            <td>${r.toDate ? formatDate(r.toDate) : '—'}</td>
             <td>${r.numberOfDays}</td>
-            <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.reason||''}">${r.reason||'—'}</td>
-            <td>${fmtDate(r.addedOn)}</td>
-            <td><span class="pill ${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
-            <td>${r.remarks || (r.status==='pending'?'Awaiting review':'—')}</td>
+            <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;" title="${r.reason || ''}">${r.reason || '—'}</td>
+            <td>${formatDate(r.addedOn)}</td>
+            <td><span class="pill ${r.status}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span></td>
+            <td>${r.remarks || (r.status === 'pending' ? 'Awaiting review' : '—')}</td>
             <td onclick="event.stopPropagation()">
-                ${r.status==='pending'
+                ${r.status === 'pending'
                     ? `<button onclick="openCancelModal(${r.id})" style="background:#dc2626;color:white;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;"><i class="fas fa-times"></i> Cancel</button>`
-                    : `<button onclick="viewDetail(${r.id})" style="background:none;border:1px solid var(--primary);color:var(--primary);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;"><i class="fas fa-eye"></i> View</button>`}
+                    : `<button onclick="viewDetail(${r.id})" style="background:none;border:1px solid #1f6f7f;color:#1f6f7f;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;"><i class="fas fa-eye"></i> View</button>`}
             </td>
         </tr>`).join('');
 }
 
-// ============================================================
-//  BALANCE TAB
-// ============================================================
-function renderBalance() {
-    const bal    = balanceData.balances || {};
-    const colors = ['#4a154b','#16a34a','#1254a4','#ea580c'];
-    document.getElementById('balanceCards').innerHTML = leaveTypes.length
-        ? leaveTypes.map((lt,i) => {
-            const b   = bal[lt] || {allot:0,used:0,remaining:0};
-            const pct = b.allot ? Math.round(b.used/b.allot*100) : 0;
-            const fc  = pct>70?'#dc2626':pct>40?'#ea580c':'#16a34a';
-            return `<div class="card" style="border-top:3px solid ${colors[i%colors.length]};">
-                <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:12px;">${lt}</div>
-                <div style="display:flex;gap:10px;margin-bottom:10px;">
-                    <div style="flex:1;background:var(--bg);border-radius:8px;padding:10px;text-align:center;">
-                        <div style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:${colors[i%colors.length]};">${b.allot}</div>
-                        <div style="font-size:10px;color:var(--text-muted);">Allotted</div>
-                    </div>
-                    <div style="flex:1;background:var(--bg);border-radius:8px;padding:10px;text-align:center;">
-                        <div style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:#dc2626;">${b.used}</div>
-                        <div style="font-size:10px;color:var(--text-muted);">Used</div>
-                    </div>
-                    <div style="flex:1;background:var(--bg);border-radius:8px;padding:10px;text-align:center;">
-                        <div style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:#16a34a;">${b.remaining}</div>
-                        <div style="font-size:10px;color:var(--text-muted);">Left</div>
-                    </div>
-                </div>
-                <div class="balance-bar"><div class="balance-fill" style="width:${pct}%;background:${fc};"></div></div>
-                <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${pct}% used</div>
-            </div>`;
-        }).join('')
-        : '<p style="color:var(--text-muted);font-size:13px;">No balance data.</p>';
+function openCancelModal(id) {
+    cancelTargetId = id;
+    const r = myLeaves.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('cancelBody').innerHTML = `
+        <div style="background:rgba(185,28,28,0.1);border:1px solid rgba(185,28,28,0.2);border-radius:8px;padding:14px;">
+            <div style="font-size:13px;font-weight:700;color:#1f6f7f;">${r.leaveType}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">${formatDate(r.fromDate)} · ${r.numberOfDays} day(s)</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">Reason: ${r.reason}</div>
+        </div>`;
+    document.getElementById('cancelReason').value = '';
+    openModal('cancelModal');
+}
 
-    const hist = myLeaves.filter(r=>r.status==='approved').sort((a,b)=>(b.fromDate||'').localeCompare(a.fromDate||''));
-    document.getElementById('balanceDetailTable').innerHTML = hist.length
-        ? `<table><thead><tr>
-            <th>Leave Type</th><th>From</th><th>To</th><th>Days</th><th>Approved By</th><th>Action Date</th>
-           </tr></thead><tbody>
-           ${hist.map(r=>`<tr>
-            <td>${r.leaveType}</td>
-            <td style="color:var(--text-muted);font-weight:400;">${fmtDate(r.fromDate)}</td>
-            <td style="color:var(--text-muted);font-weight:400;">${r.toDate?fmtDate(r.toDate):'—'}</td>
-            <td style="color:var(--text-muted);font-weight:400;">${r.numberOfDays}</td>
-            <td style="color:var(--text-muted);font-weight:400;">${r.actionBy||'—'}</td>
-            <td style="color:var(--text-muted);font-weight:400;">${fmtDate(r.actionDate)}</td>
-           </tr>`).join('')}
-           </tbody></table>`
-        : '<p style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No approved leaves this year.</p>';
+function viewDetail(id) {
+    const r = myLeaves.find(x => x.id === id);
+    if (!r) return;
+
+    const sColors = { approved:'#16a34a', rejected:'#dc2626', pending:'#eab308' };
+    const sBg     = { approved:'rgba(22,163,74,0.1)', rejected:'rgba(220,38,38,0.1)', pending:'rgba(234,179,8,0.1)' };
+    const sMsg    = { approved:'Your leave has been approved ✅', rejected:'Your request was declined ❌', pending:'Your request is under review ⏳' };
+
+    document.getElementById('viewBody').innerHTML = `
+        <div style="background:${sBg[r.status]};border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;">
+            <div style="font-size:20px;font-weight:800;color:${sColors[r.status]};">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">${sMsg[r.status] || ''}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            ${[
+                ['Leave Type',      r.leaveType],
+                ['From Date',       formatDate(r.fromDate)],
+                ['To Date',         r.toDate ? formatDate(r.toDate) : '—'],
+                ['Number of Days',  r.numberOfDays],
+                ['Applied On',      formatDate(r.addedOn)],
+                ['Approved By',     r.actionBy || '—']
+            ].map(([k,v]) => `
+                <div style="background:#f8fafc;border-radius:8px;padding:10px;">
+                    <div style="font-size:10px;color:#64748b;font-weight:600;">${k}</div>
+                    <div style="font-size:13px;color:#1f6f7f;font-weight:600;">${v}</div>
+                </div>`).join('')}
+        </div>
+        <div style="margin-top:10px;background:#f8fafc;border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:#64748b;font-weight:600;margin-bottom:4px;">Reason</div>
+            <div style="font-size:13px;color:#1f6f7f;">${r.reason || '—'}</div>
+        </div>
+        ${r.description ? `
+        <div style="margin-top:10px;background:#f8fafc;border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:#64748b;font-weight:600;margin-bottom:4px;">Notes</div>
+            <div style="font-size:13px;color:#1f6f7f;">${r.description}</div>
+        </div>` : ''}
+        ${r.remarks ? `
+        <div style="margin-top:10px;background:rgba(31,111,127,0.05);border:1px dashed rgba(31,111,127,0.2);border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:#64748b;font-weight:600;margin-bottom:4px;">HR Remarks</div>
+            <div style="font-size:13px;color:#1f6f7f;">${r.remarks}</div>
+        </div>` : ''}`;
+    openModal('viewModal');
 }
 
 // ============================================================
-//  CALENDAR
+//  12. RENDER — BALANCE TAB
+// ============================================================
+function renderBalance() {
+    renderBalanceCards();
+    renderBalanceDetailTable();
+}
+
+function renderBalanceCards() {
+    const container = document.getElementById('balanceCards');
+    if (!container) return;
+
+    const balances = balanceData.balances || {};
+    const hasData  = leaveTypes.length > 0 && Object.keys(balances).length > 0;
+
+    if (!hasData) {
+        container.innerHTML = `<div style="grid-column:1/-1;">
+            ${emptyState('info-circle', 'No balance data available.', 'Contact HR to set up your leave policy.')}
+        </div>`;
+        return;
+    }
+
+    const colors = ['#1f6f7f','#16a34a','#1254a4','#ea580c'];
+    container.innerHTML = leaveTypes.map((type, i) => {
+        const bal = balances[type] || { allot:0, used:0, remaining:0 };
+        const pct = bal.allot ? Math.round((bal.used / bal.allot) * 100) : 0;
+        const fc  = pct > 70 ? '#dc2626' : pct > 40 ? '#ea580c' : '#16a34a';
+        return `<div class="card" style="border-top:3px solid ${colors[i % colors.length]};">
+            <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:12px;">${type}</div>
+            <div style="display:flex;gap:10px;margin-bottom:10px;">
+                ${[['Allotted', bal.allot, colors[i % colors.length]], ['Used', bal.used, '#dc2626'], ['Left', bal.remaining, '#16a34a']].map(([l,v,c]) =>
+                    `<div style="flex:1;background:#f8fafc;border-radius:8px;padding:10px;text-align:center;">
+                        <div style="font-family:Poppins,sans-serif;font-size:22px;font-weight:800;color:${c};">${v}</div>
+                        <div style="font-size:10px;color:#64748b;">${l}</div>
+                    </div>`).join('')}
+            </div>
+            <div class="balance-bar"><div class="balance-fill" style="width:${pct}%;background:${fc};"></div></div>
+            <div style="font-size:10px;color:#64748b;margin-top:4px;">${pct}% used</div>
+        </div>`;
+    }).join('');
+}
+
+function renderBalanceDetailTable() {
+    const container = document.getElementById('balanceDetailTable');
+    if (!container) return;
+
+    const approved = myLeaves
+        .filter(r => r.status === 'approved')
+        .sort((a, b) => (b.fromDate || '').localeCompare(a.fromDate || ''));
+
+    if (!approved.length) {
+        container.innerHTML = emptyState('calendar-check', 'No approved leaves this year.');
+        return;
+    }
+
+    container.innerHTML = `<table>
+        <thead><tr>
+            <th>Leave Type</th><th>From</th><th>To</th>
+            <th>Days</th><th>Approved By</th><th>Action Date</th>
+        </tr></thead>
+        <tbody>
+            ${approved.map(r => `<tr>
+                <td>${r.leaveType}</td>
+                <td>${formatDate(r.fromDate)}</td>
+                <td>${r.toDate ? formatDate(r.toDate) : '—'}</td>
+                <td>${r.numberOfDays}</td>
+                <td>${r.actionBy || '—'}</td>
+                <td>${formatDate(r.actionDate)}</td>
+            </tr>`).join('')}
+        </tbody>
+    </table>`;
+}
+
+// ============================================================
+//  13. CALENDAR
 // ============================================================
 function renderCalendar() {
-    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    document.getElementById('calTitle').textContent = `${MONTHS[calMonth]} ${calYear}`;
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('calTitle').textContent = `${months[calMonth]} ${calYear}`;
 
     const dateMap = {};
     myLeaves.forEach(r => {
         if (!r.fromDate) return;
         const start = new Date(r.fromDate + 'T00:00:00');
-        for (let i = 0; i < (r.numberOfDays||1); i++) {
+        for (let i = 0; i < (r.numberOfDays || 1); i++) {
             const d = new Date(start);
             d.setDate(d.getDate() + i);
-            if (d.getFullYear()===calYear && d.getMonth()===calMonth) dateMap[d.getDate()] = r.status;
+            if (d.getFullYear() === calYear && d.getMonth() === calMonth)
+                dateMap[d.getDate()] = r.status;
         }
     });
 
     const firstDay    = new Date(calYear, calMonth, 1).getDay();
-    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
     const today       = new Date();
     const weekDays    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -1552,276 +1761,127 @@ function renderCalendar() {
     for (let i = 0; i < firstDay; i++) html += '<div></div>';
 
     for (let d = 1; d <= daysInMonth; d++) {
-        const dow  = (d + firstDay - 1) % 7;
-        const isWe = dow===0 || dow===6;
-        const ls   = dateMap[d];
-        const isTo = d===today.getDate() && calMonth===today.getMonth() && calYear===today.getFullYear();
+        const dow       = (d + firstDay - 1) % 7;
+        const isWeekend = dow === 0 || dow === 6;
+        const status    = dateMap[d];
+        const isToday   = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+
         let cls = 'cal-day';
-        if      (ls==='approved') cls += ' approved';
-        else if (ls==='pending')  cls += ' pending';
-        else if (ls==='rejected') cls += ' rejected';
-        else if (isWe)            cls += ' weekend';
-        if (isTo) cls += ' today';
-        html += `<div class="${cls}" ${ls?`title="${ls.charAt(0).toUpperCase()+ls.slice(1)} leave"`:''}>
-                    ${d}
-                 </div>`;
+        if      (status === 'approved') cls += ' approved';
+        else if (status === 'pending')  cls += ' pending';
+        else if (status === 'rejected') cls += ' rejected';
+        else if (isWeekend)             cls += ' weekend';
+        if (isToday) cls += ' today';
+
+        html += `<div class="${cls}" ${status ? `title="${status.charAt(0).toUpperCase()+status.slice(1)} leave"` : ''}>${d}</div>`;
     }
     html += '</div>';
     document.getElementById('calGrid').innerHTML = html;
 }
-function changeMonth(dir) {
-    calMonth += dir;
-    if (calMonth < 0)  { calMonth=11; calYear--; }
-    if (calMonth > 11) { calMonth=0;  calYear++; }
+
+function changeMonth(delta) {
+    calMonth += delta;
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    if (calMonth > 11) { calMonth = 0;  calYear++; }
     renderCalendar();
 }
 
 // ============================================================
-//  APPLY MODAL
+//  14. TABS
 // ============================================================
-function openApplyModal() {
-    const apSel = document.getElementById('ap-type');
-    apSel.innerHTML = '<option value="">Select leave type</option>' + leaveTypes.map(lt=>`<option value="${lt}">${lt}</option>`).join('');
-    document.getElementById('ap-empId').value    = CURRENT_EMP.id;
-    document.getElementById('ap-empName').value  = CURRENT_EMP.name;
-    document.getElementById('ap-dept').value     = CURRENT_EMP.dept;
-    document.getElementById('ap-empType').value  = CURRENT_EMP.empType;
-    const initials = CURRENT_EMP.name.split(' ').filter(Boolean).map(n=>n[0]).join('').slice(0,2).toUpperCase()||'--';
-    document.getElementById('ap-avatar').textContent   = initials;
-    document.getElementById('ap-dispName').textContent = CURRENT_EMP.name;
-    document.getElementById('ap-dispMeta').textContent = `${CURRENT_EMP.id} · ${CURRENT_EMP.dept} Department · ${CURRENT_EMP.empType}`;
-    document.getElementById('ap-dispType').textContent = CURRENT_EMP.empType;
-    apResetForm();
-    openModal('applyModal');
-}
-
-function apResetForm() {
-    ['ap-type','ap-mode','ap-from','ap-to','ap-reason','ap-desc'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.tagName==='SELECT' ? (el.selectedIndex=0) : (el.value='');
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
     });
-    document.getElementById('ap-days').value='';
-    document.getElementById('ap-balPanel').style.display='none';
-    document.getElementById('ap-dayChip').style.display='none';
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+
+    if (tabName === 'myapplications') renderApplications();
+    if (tabName === 'balance')        renderBalance();
+    if (tabName === 'calendar')       renderCalendar();
 }
 
-function apCalcDays() {
-    const from = document.getElementById('ap-from').value;
-    const to   = document.getElementById('ap-to').value;
-    const chip = document.getElementById('ap-dayChip');
-    if (!from||!to) { chip.style.display='none'; return; }
-    const d1=new Date(from+'T00:00:00'), d2=new Date(to+'T00:00:00');
-    if (d2<d1) { chip.style.display='none'; showToast('To Date cannot be before From Date!','error'); return; }
-    let count=0;
-    const cur=new Date(d1);
-    while (cur<=d2) { const day=cur.getDay(); if(day!==0&&day!==6) count++; cur.setDate(cur.getDate()+1); }
-    document.getElementById('ap-days').value=count;
-    document.getElementById('ap-dayText').textContent=`${count} working day${count!==1?'s':''}`;
-    chip.style.display='flex';
-    apShowBalance();
-}
-
-function apCheckBalance() { apShowBalance(); }
-
-function apShowBalance() {
-    const lt   = document.getElementById('ap-type').value;
-    const days = parseInt(document.getElementById('ap-days').value)||0;
-    const panel = document.getElementById('ap-balPanel');
-    if (!lt) { panel.style.display='none'; return; }
-    const b = (balanceData.balances||{})[lt];
-    if (!b) { panel.style.display='none'; return; }
-    const ok = days===0 || b.remaining>=days;
-    panel.style.display='block';
-    panel.className = `balance-panel ${ok?'ok':'warn'}`;
-    panel.innerHTML = `<i class="fas fa-${ok?'info-circle':'exclamation-triangle'}" style="margin-right:5px;"></i>
-        <strong>${lt}:</strong>&nbsp;${b.remaining} day(s) remaining &nbsp;·&nbsp; ${b.used} used of ${b.allot} allotted
-        ${days>b.remaining&&days>0?`<br><i class="fas fa-exclamation-triangle" style="margin-right:3px;"></i>Requested ${days} day(s) exceeds your balance of ${b.remaining}.`:''}`;
-}
-
-// ============================================================
-//  SUBMIT LEAVE
-// ============================================================
-async function submitLeave() {
-    const lt     = document.getElementById('ap-type').value;
-    const days   = parseInt(document.getElementById('ap-days').value)||0;
-    const from   = document.getElementById('ap-from').value;
-    const to     = document.getElementById('ap-to').value;
-    const reason = document.getElementById('ap-reason').value.trim();
-    const desc   = document.getElementById('ap-desc').value.trim();
-
-    if (!lt)     { showToast('Please select Leave Type!','error'); return; }
-    if (!from)   { showToast('Please select From Date!','error'); return; }
-    if (!to)     { showToast('Please select To Date!','error'); return; }
-    if (days<1)  { showToast('Number of days must be at least 1!','error'); return; }
-    if (!reason) { showToast('Please enter a Reason!','error'); return; }
-
-    const b = (balanceData.balances||{})[lt];
-    if (b && days > b.remaining) {
-        if (!confirm(`You are requesting ${days} day(s) but only have ${b.remaining} remaining for "${lt}". Submit anyway?`)) return;
-    }
-
-    const payload = {
-        empId: CURRENT_EMP.id, empName: CURRENT_EMP.name,
-        department: CURRENT_EMP.dept, empType: CURRENT_EMP.empType,
-        leaveType: lt, fromDate: from, toDate: to,
-        numberOfDays: days, reason, description: desc, status: 'pending'
-    };
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled=true;
-    btn.innerHTML='<span class="spinner"></span> Submitting...';
-
-    try {
-        const saved = await apiFetch(`${LEAVE_URL}/requests`, {method:'POST',body:JSON.stringify(payload)});
-        myLeaves.unshift(saved);
-        closeModal('applyModal');
-        await loadBalance();
-        updateStats();
-        renderOverview();
-        showToast('✅ Leave request submitted! Awaiting HR approval.','success');
-    } catch(err) {
-        showToast('❌ ' + (err.message||'Submission failed. Please try again.'),'error');
-    } finally {
-        btn.disabled=false;
-        btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Request';
-    }
-}
-
-// ============================================================
-//  CANCEL
-// ============================================================
-function openCancelModal(id) {
-    cancelTargetId = id;
-    const r = myLeaves.find(x=>x.id===id);
-    if (!r) return;
-    document.getElementById('cancelBody').innerHTML = `
-        <div style="background:var(--red-bg);border:1px solid rgba(185,28,28,0.2);border-radius:8px;padding:14px;">
-            <div style="font-size:13px;font-weight:700;color:var(--primary);">${r.leaveType}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${fmtDate(r.fromDate)} · ${r.numberOfDays} day(s)</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Reason: ${r.reason}</div>
-        </div>`;
-    document.getElementById('cancelReason').value='';
-    openModal('cancelModal');
-}
-
-async function confirmCancel() {
-    const r = myLeaves.find(x=>x.id===cancelTargetId);
-    if (!r) return;
-    const btn = document.getElementById('cancelConfirmBtn');
-    btn.disabled=true;
-    btn.innerHTML='<span class="spinner"></span> Cancelling...';
-    try {
-        await apiFetch(`${LEAVE_URL}/requests/${r.id}/action`, {
-            method:'POST',
-            body:JSON.stringify({action:'reject',remarks:document.getElementById('cancelReason').value||'Cancelled by employee',actionBy:CURRENT_EMP.name})
-        });
-        await loadMyLeaves();
-        await loadBalance();
-        updateStats();
-        closeModal('cancelModal');
-        renderOverview();
-        renderApplications();
-        showToast('Leave request cancelled.','info');
-    } catch(err) {
-        showToast('❌ ' + (err.message||'Cancel failed.'),'error');
-    } finally {
-        btn.disabled=false;
-        btn.innerHTML='<i class="fas fa-trash"></i> Yes, Cancel';
-    }
-}
-
-// ============================================================
-//  VIEW DETAIL
-// ============================================================
-function viewDetail(id) {
-    const r = myLeaves.find(x=>x.id===id);
-    if (!r) return;
-    const statusColors = {approved:'var(--green)',rejected:'var(--red)',pending:'var(--yellow)',cancelled:'#495057'};
-    const statusBg     = {approved:'var(--green-bg)',rejected:'var(--red-bg)',pending:'var(--yellow-bg)',cancelled:'rgba(108,117,125,0.12)'};
-    const statusMsg    = {approved:'Your leave has been approved ✅',rejected:'Your request was declined ❌',pending:'Your request is under review ⏳',cancelled:'This request was cancelled 🚫'};
-    const fields = [
-        ['Employee ID',r.empId||CURRENT_EMP.id],['Employee Name',r.empName||CURRENT_EMP.name],
-        ['Department',r.department||CURRENT_EMP.dept],['Employee Type',r.empType||CURRENT_EMP.empType],
-        ['Leave Type',r.leaveType],['From Date',fmtDate(r.fromDate)],['To Date',r.toDate?fmtDate(r.toDate):'—'],
-        ['Number of Days',`${r.numberOfDays} day(s)`],['Applied On',fmtDate(r.addedOn)],
-        ['Approved By',r.actionBy||'—'],['Action Date',r.actionDate?fmtDate(r.actionDate):'—'],
-        ['Status',(r.status||'').charAt(0).toUpperCase()+(r.status||'').slice(1)]
-    ];
-    document.getElementById('viewBody').innerHTML = `
-        <div style="background:${statusBg[r.status]||'var(--bg)'};border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;">
-            <div style="font-size:20px;font-weight:800;color:${statusColors[r.status]||'var(--primary)'};">${(r.status||'').charAt(0).toUpperCase()+(r.status||'').slice(1)}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${statusMsg[r.status]||''}</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        ${fields.map(([k,v])=>`<div style="background:var(--bg);border-radius:8px;padding:10px;">
-            <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:2px;">${k}</div>
-            <div style="font-size:13px;color:var(--primary);font-weight:600;">${v}</div>
-        </div>`).join('')}
-        </div>
-        <div style="margin-top:10px;background:var(--bg);border-radius:8px;padding:10px;">
-            <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Reason</div>
-            <div style="font-size:13px;color:var(--primary);">${r.reason||'—'}</div>
-        </div>
-        ${r.description?`<div style="margin-top:10px;background:var(--bg);border-radius:8px;padding:10px;">
-            <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Description / Notes</div>
-            <div style="font-size:13px;color:var(--primary);">${r.description}</div>
-        </div>`:''}
-        ${r.remarks?`<div style="margin-top:10px;background:rgba(74,21,75,0.05);border:1px dashed rgba(74,21,75,0.2);border-radius:8px;padding:10px;">
-            <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">HR Remarks</div>
-            <div style="font-size:13px;color:var(--primary);">${r.remarks}</div>
-        </div>`:''}`;
-    openModal('viewModal');
-}
-
-// ============================================================
-//  EXPORT
-// ============================================================
-function exportMyLeaves() {
-    const headers=['Employee ID','Employee Name','Department','Employee Type','Leave Type','From Date','To Date','Number of Days','Reason','Description','Applied On','Status','Approved By','Action Date','HR Remarks'];
-    const rows=myLeaves.map(r=>[
-        r.empId||CURRENT_EMP.id,r.empName||CURRENT_EMP.name,r.department||CURRENT_EMP.dept,r.empType||CURRENT_EMP.empType,
-        r.leaveType,r.fromDate,r.toDate||'',r.numberOfDays,
-        `"${(r.reason||'').replace(/"/g,'""')}"`,
-        `"${(r.description||'').replace(/"/g,'""')}"`,
-        r.addedOn,r.status,r.actionBy||'',r.actionDate||'',
-        `"${(r.remarks||'').replace(/"/g,'""')}"`
-    ]);
-    const csv=[headers,...rows].map(r=>r.join(',')).join('\n');
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-    a.download=`my_leaves_${CURRENT_EMP.id}_${YEAR}.csv`;
-    a.click();
-    showToast('Exported successfully!','success');
-}
-
-// ============================================================
-//  TABS INIT
-// ============================================================
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() { switchTab(this.getAttribute('data-tab')); });
 });
 
 // ============================================================
-//  INIT
+//  15. EXPORT
+// ============================================================
+function exportMyLeaves() {
+    if (!myLeaves.length) { showToast('Nothing to export!', 'error'); return; }
+    const headers = ['ID','Leave Type','From Date','To Date','Days','Reason','Status','Applied On','Remarks'];
+    const rows = myLeaves.map(r => [
+        r.id, r.leaveType, r.fromDate, r.toDate || '', r.numberOfDays,
+        `"${(r.reason  || '').replace(/"/g,'""')}"`,
+        r.status, r.addedOn || '',
+        `"${(r.remarks || '').replace(/"/g,'""')}"`
+    ]);
+    const csv  = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `my_leaves_${CURRENT_EMP.id}_${YEAR}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Exported successfully!', 'success');
+}
+
+// ============================================================
+//  16. SIDEBAR & DROPDOWN
+// ============================================================
+document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+    document.getElementById('mainContent').classList.toggle('collapsed');
+});
+
+document.getElementById('mobileToggleBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.add('mobile-open');
+    document.getElementById('overlay').classList.add('active');
+});
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('overlay').classList.remove('active');
+}
+
+document.getElementById('profileDropdownBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('profileDropdown').classList.toggle('open');
+    this.classList.toggle('open');
+});
+
+document.addEventListener('click', () => {
+    document.getElementById('profileDropdown').classList.remove('open');
+    document.getElementById('profileDropdownBtn').classList.remove('open');
+});
+
+// ============================================================
+//  17. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Employee Leave page initializing...');
+
+    // Stats ko — set karo jab tak load hota hai
     ['statTotal','statUsed','statRemaining','statPending'].forEach(id => {
-        document.getElementById(id).textContent='...';
+        const el = document.getElementById(id);
+        if (el) el.textContent = '...';
     });
 
     try {
-        await loadEmployeeProfile();
-        await Promise.all([loadLeaveTypes(), loadBalance(), loadMyLeaves()]);
+        loadEmployeeProfile();          // sync — localStorage se
+        await loadLeaveTypes();         // DB se — no fallback
+        await loadBalance();            // DB se — no fallback
+        await loadMyLeaves();           // DB se — no fallback
+
         updateStats();
         renderOverview();
+        renderApplications();
         renderCalendar();
-    } catch(err) {
-        showToast('⚠️ ' + err.message, 'error');
+
+        console.log('Initialization complete.');
+    } catch (err) {
         console.error('Init failed:', err);
-        ['statTotal','statUsed','statRemaining','statPending'].forEach(id => {
-            document.getElementById(id).textContent='Err';
-        });
+        showToast('⚠️ ' + err.message, 'error');
     }
 });
 </script>

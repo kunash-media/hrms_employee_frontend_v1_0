@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Expense | SIEC</title>
+    <title>HRMS | Expense Management Portal</title>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
@@ -16,10 +16,63 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="../css/expenses.css">
-</head>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 24px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .modal-body { padding: 22px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 6px; }
+        .form-group input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e0;
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+        .pagination { display: flex; justify-content: flex-end; margin-top: 20px; gap: 8px; }
+        .action-icons i {
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-pending { background: #fef3c7; color: #b45309; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-paid { background: #dbeafe; color: #1e40af; }
+        .receipt-preview { margin-top: 10px; }
+        .receipt-preview img { max-width: 100%; max-height: 250px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .receipt-section { margin-top: 15px; }
 
-<style>
-      a{
+         a{
         text-decoration: none;
     }
     .sidebar-header {
@@ -28,18 +81,19 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
     }
-
-    
-     .nav-link {
+    .nav-link {
       display: flex; align-items: center; gap: 12px;
       padding: 10px 18px; color: var(--sidebar-text);
       text-decoration: none; border-radius: 8px; margin: 2px 8px;
-      transition: background 0.2s, color 0.2s; white-space: nowrap; font-size: 13.5px;
+      transition: all 0.25s ease;
+      white-space: nowrap; font-size: 13.5px;
     }
 
     .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
     .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
     .nav-link.active { background: var(--sidebar-active); color: #fff; }
+
+    
         .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
 
          .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
@@ -55,7 +109,9 @@
     .collapse-btn:hover { background: var(--sidebar-hover); color: #fff; }
     .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
 
-</style>
+
+    </style>
+</head>
 
 <body>
     <div class="dashboard-container">
@@ -70,26 +126,45 @@
             </div>
             <nav class="sidebar-nav">
                 <ul class="nav-menu">
-                    <li><a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span
-                                class="nav-text">Dashboard</span></a></li>
-                    <li><a href="../pages/profile.html" class="nav-link"><i class="fas fa-user"></i><span
-                                class="nav-text">Profile</span></a></li>
-                    <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span
-                                class="nav-text">Attendance</span></a></li>
-                    <li><a href="../pages/expenses.html" class="nav-link active"><i class="fas fa-money-bill"></i><span
-                                class="nav-text">Expenses</span></a></li>
-                    <li><a href="../pages/leave.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span
-                                class="nav-text">Leave</span></a></li>
-                    <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span
-                                class="nav-text">Payroll</span></a></li>
+                     <li>
+                        <a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span
+                                class="nav-text">Dashboard</span></a>
+                    </li>
+                    <li>
+                        <a href="../pages/profile.html" class="nav-link"><i class="fas fa-user"></i><span
+                                class="nav-text">Profile</span></a>
+                    </li>
+                    <li>
+                        <a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span
+                                class="nav-text">Attendance</span></a>
+                    </li>
+                    <li>
+                        <a href="../pages/expenses.html" class="nav-link active"><i class="fas fa-money-bill"></i><span
+                                class="nav-text">Expenses</span></a>
+                    </li>
+                    <li>
+                        <a href="../pages/leave.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span
+                                class="nav-text">Leave</span></a>
+                    </li>
+                    <li>
+                        <a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span
+                                class="nav-text">Payroll</span></a>
+                    </li>
+                    <!-- <li>
+                        <a href="../pages/careers.html" class="nav-link"><i class="fas fa-file-contract"></i><span
+                                class="nav-text">Careesrs</span></a>
+                    </li> -->
 
-                    <li><a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span
-                                class="nav-text">Company Policies</span></a></li>
+                    <li><a href="../pages/resignation.html" class="nav-link "><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
+
+                    <li>
+                        <a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span
+                                class="nav-text">Company Policies</span></a>
+                    </li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span
-                        class="nav-text">Logout</span></button>
+                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Logout</span></button>
             </div>
         </aside>
 
@@ -101,8 +176,7 @@
                 </div>
                 <div class="header-right">
                     <div class="notification-bell">
-                        <button class="icon-btn"><i class="far fa-bell"></i><span class="notification-badge"
-                                id="pendingBadge">0</span></button>
+                        <button class="icon-btn"><i class="far fa-bell"></i><span class="notification-badge" id="pendingBadge">0</span></button>
                     </div>
                     <div class="user-profile">
                         <button class="profile-btn" id="profileDropdownBtn">
@@ -114,10 +188,8 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="profile-dropdown" id="profileDropdown">
-                            <button class="dropdown-item"><i class="fas fa-user-circle"></i><span>My
-                                    Profile</span></button>
-                            <button class="dropdown-item logout-item"><i
-                                    class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+                            <button class="dropdown-item"><i class="fas fa-user-circle"></i><span>My Profile</span></button>
+                            <button class="dropdown-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
                         </div>
                     </div>
                 </div>
@@ -156,15 +228,14 @@
 
                 <!-- Actions & Filters -->
                 <div class="table-actions">
-                    <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput"
-                            placeholder="Search by title..."></div>
+                    <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search by title..."></div>
                     <div class="filters">
+                        <input type="date" id="filterFrom" class="filter-date" placeholder="From">
+                        <input type="date" id="filterTo" class="filter-date" placeholder="To">
+                        <button class="btn-primary" id="addExpenseBtn"><i class="fas fa-plus"></i> Add Expense</button>
+                        <button class="btn-primary btn-outline" id="exportBtn"><i class="fas fa-file-csv"></i> Export CSV</button>
                         <select id="filterCategory" class="filter-select">
                             <option value="">All Categories</option>
-                            <option>Travel</option>
-                            <option>Food</option>
-                            <option>Office</option>
-                            <option>Other</option>
                         </select>
                         <select id="filterStatus" class="filter-select">
                             <option value="">All Status</option>
@@ -172,11 +243,6 @@
                             <option>Approved</option>
                             <option>Rejected</option>
                         </select>
-                        <input type="date" id="filterFrom" class="filter-date" placeholder="From">
-                        <input type="date" id="filterTo" class="filter-date" placeholder="To">
-                        <button class="btn-primary" id="addExpenseBtn"><i class="fas fa-plus"></i> Add Expense</button>
-                        <button class="btn-primary btn-outline" id="exportBtn"><i class="fas fa-file-csv"></i> Export
-                            CSV</button>
                     </div>
                 </div>
 
@@ -211,27 +277,30 @@
             <div class="modal-body">
                 <form id="expenseForm">
                     <input type="hidden" id="expenseId">
-                    <div class="form-group"><label>Expense Title *</label><input type="text" id="title"
-                            placeholder="e.g., Flight ticket, Office supplies" required></div>
-                    <div class="form-group"><label>Amount (₹) *</label><input type="number" id="amount" step="0.01"
-                            placeholder="0.00" required></div>
+                    <div class="form-group"><label>Expense Title *</label><input type="text" id="title" placeholder="e.g., Flight ticket, Office supplies" required></div>
+                    <div class="form-group"><label>Amount (₹) *</label><input type="number" id="amount" step="0.01" placeholder="0.00" required></div>
                     <div class="form-group"><label>Category</label><select id="category">
-                            <option>Travel</option>
-                            <option>Food</option>
-                            <option>Office</option>
-                            <option>Other</option>
-                        </select></div>
+                        <option>Travel</option>
+                        <option>Food</option>
+                        <option>Office</option>
+                        <option>Other</option>
+                    </select></div>
                     <div class="form-group"><label>Date *</label><input type="date" id="expenseDate" required></div>
-                    <div class="form-group"><label>Description</label><textarea id="description" rows="2"
-                            placeholder="Optional details..."></textarea></div>
-                    <div class="form-group"><label>Upload Receipt</label><input type="file" id="receiptFile"
-                            accept="image/*"></div>
+                    <div class="form-group"><label>Description</label><textarea id="description" rows="2" placeholder="Optional details..."></textarea></div>
+                    <div class="form-group"><label>Upload Receipt</label><input type="file" id="receiptFile" accept="image/*"></div>
+                    
+                    <!-- Receipt Preview Section -->
+                    <div class="receipt-section" id="currentReceiptSection" style="display:none;">
+                        <label>Current Receipt</label>
+                        <div id="currentReceiptPreview" class="receipt-preview"></div>
+                    </div>
+                    
                     <div id="receiptPreview" class="receipt-preview"></div>
+                    
                     <div class="modal-actions">
                         <button type="button" class="btn-primary btn-outline" id="cancelModalBtn">Cancel</button>
                         <button type="submit" class="btn-primary" id="submitExpenseBtn">Submit</button>
-                        <button type="button" class="btn-primary" id="draftBtn" style="background:#6c757d;">Save as
-                            Draft</button>
+                        <button type="button" class="btn-primary" id="draftBtn" style="background:#6c757d;">Save as Draft</button>
                     </div>
                 </form>
             </div>
@@ -249,9 +318,628 @@
         </div>
     </div>
 
+    <script>
+        // ============================================================
+        // BACKEND API INTEGRATION (SPRING BOOT CONTROLLER)
+        // ============================================================
+        
+        const API_BASE = "http://localhost:8086/api/expenses";
+        const CURRENT_EMPLOYEE_ID = 1;
+        
+        let allExpenses = [];
+        let expenseChart = null;
 
+        // FIX 1: Store the actual local blob URL of a newly uploaded receipt per
+        // expense id. When the user opens View right after editing and uploading,
+        // we show the local blob directly instead of hitting the server (which
+        // would serve the browser-cached old image regardless of cache-busting).
+        const receiptBlobUrls = {};
+        
+        function showToast(message, type = "success") {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: type === "success" ? "#2c5282" : "#e53e3e",
+                stopOnFocus: true
+            }).showToast();
+        }
+        
+        // ========== API CALLS ==========
+        
+        async function getAllExpenses() {
+            try {
+                const response = await fetch(`${API_BASE}/get-all-expenses`);
+                if (!response.ok) throw new Error("Failed to fetch expenses");
+                allExpenses = await response.json();
+                populateCategoryDropdown();
+                renderTableAndStats();
+                updateChart();
+                updatePendingBadge();
+            } catch (error) {
+                console.error("Error fetching expenses:", error);
+                showToast("Failed to load expenses", "error");
+            }
+        }
+
+        function populateCategoryDropdown() {
+            const select = document.getElementById("filterCategory");
+            const currentVal = select.value;
+            // Get unique expenseType values from server data
+            const uniqueTypes = [...new Set(allExpenses.map(e => e.expenseType).filter(Boolean))].sort();
+            select.innerHTML = '<option value="">All Categories</option>';
+            uniqueTypes.forEach(type => {
+                const opt = document.createElement("option");
+                opt.value = type;
+                opt.textContent = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize display
+                select.appendChild(opt);
+            });
+            // Restore previously selected value if still valid
+            if (currentVal && uniqueTypes.includes(currentVal)) {
+                select.value = currentVal;
+            }
+        }
+        
+        async function createExpense(expenseData, receiptFile) {
+            const formData = new FormData();
+            formData.append("employeePrimeId", CURRENT_EMPLOYEE_ID);
+            formData.append("expenseType", expenseData.expenseType);
+            formData.append("expenseDate", expenseData.expenseDate);
+            formData.append("amount", expenseData.amount);
+            if (expenseData.description) formData.append("description", expenseData.description);
+            if (expenseData.billNumber) formData.append("billNumber", expenseData.billNumber);
+            if (receiptFile) formData.append("receipts", receiptFile);
+            
+            const response = await fetch(`${API_BASE}/create-expense`, {
+                method: "POST",
+                body: formData
+            });
+            if (!response.ok) throw new Error("Failed to create expense");
+            return await response.json();
+        }
+        
+        async function updateExpense(id, expenseData, receiptFile) {
+            const formData = new FormData();
+            if (expenseData.employeeId) formData.append("employeePrimeId", expenseData.employeeId);
+            if (expenseData.expenseType) formData.append("expenseType", expenseData.expenseType);
+            if (expenseData.expenseDate) formData.append("expenseDate", expenseData.expenseDate);
+            if (expenseData.amount) formData.append("amount", expenseData.amount);
+            if (expenseData.description) formData.append("description", expenseData.description);
+            if (expenseData.billNumber) formData.append("billNumber", expenseData.billNumber);
+            if (receiptFile) formData.append("receipts", receiptFile);
+            
+            const response = await fetch(`${API_BASE}/update-expense/${id}`, {
+                method: "PUT",
+                body: formData
+            });
+            if (!response.ok) throw new Error("Failed to update expense");
+            return await response.json();
+        }
+        
+        async function deleteExpense(id) {
+            const response = await fetch(`${API_BASE}/delete-expense/${id}`, {
+                method: "DELETE"
+            });
+            if (!response.ok) throw new Error("Failed to delete expense");
+            return true;
+        }
+        
+        async function approveExpense(id) {
+            const response = await fetch(`${API_BASE}/approve-expense/${id}/approve`, {
+                method: "PATCH"
+            });
+            if (!response.ok) throw new Error("Failed to approve expense");
+            return await response.json();
+        }
+        
+        async function rejectExpense(id) {
+            const response = await fetch(`${API_BASE}/reject-expense/${id}/reject`, {
+                method: "PATCH"
+            });
+            if (!response.ok) throw new Error("Failed to reject expense");
+            return await response.json();
+        }
+        
+        async function markAsPaid(id) {
+            const response = await fetch(`${API_BASE}/mark-as-paid/${id}/paid`, {
+                method: "PATCH"
+            });
+            if (!response.ok) throw new Error("Failed to mark as paid");
+            return await response.json();
+        }
+        
+        async function getExpenseById(id) {
+            const response = await fetch(`${API_BASE}/${id}`);
+            if (!response.ok) throw new Error("Failed to fetch expense details");
+            return await response.json();
+        }
+
+        // FIX 2: getMonthlyTotal — safely parse the response whether the server
+        // returns a plain number, a JSON number, or a JSON object with a value field.
+        async function getMonthlyTotal(month, year) {
+            try {
+                const response = await fetch(`${API_BASE}/get-monthly-total/stats/monthly?month=${month}&year=${year}`);
+                if (!response.ok) return 0;
+                const text = await response.text();
+                if (!text || text.trim() === "") return 0;
+                try {
+                    const parsed = JSON.parse(text);
+                    // If server returns a plain number: 12345.67
+                    if (typeof parsed === "number") return parsed;
+                    // If server returns an object like { total: 12345.67 } or { amount: 12345.67 }
+                    if (typeof parsed === "object" && parsed !== null) {
+                        const val = parsed.total ?? parsed.amount ?? parsed.value ?? Object.values(parsed)[0] ?? 0;
+                        return typeof val === "number" ? val : parseFloat(val) || 0;
+                    }
+                    return parseFloat(parsed) || 0;
+                } catch {
+                    return parseFloat(text) || 0;
+                }
+            } catch {
+                return 0;
+            }
+        }
+        
+        // ========== RENDER FUNCTIONS ==========
+        
+        let currentFilters = {
+            category: "",
+            status: "",
+            from: "",
+            to: ""
+        };
+        
+        // Returns filtered array based on all current filters
+        function getFilteredExpenses() {
+            let filtered = [...allExpenses];
+
+            // Log ALL fields of first expense so we can see exact server field names
+            if (allExpenses.length > 0) {
+                console.log("[DEBUG] Sample expense object (all fields):", JSON.stringify(allExpenses[0], null, 2));
+                console.log("[DEBUG] Unique expenseType values:", [...new Set(allExpenses.map(e => e.expenseType))]);
+                console.log("[DEBUG] Unique category values:", [...new Set(allExpenses.map(e => e.category))]);
+            }
+            console.log("[DEBUG] currentFilters.category:", currentFilters.category);
+
+            if (currentFilters.category) {
+                const cat = currentFilters.category.toString().trim().toLowerCase();
+                filtered = filtered.filter(exp => {
+                    // Check every possible field the server might use for category
+                    const fields = [exp.expenseType, exp.category, exp.expenseCategory, exp.type];
+                    return fields.some(f => f != null && f.toString().trim().toLowerCase() === cat);
+                });
+            }
+            if (currentFilters.status) {
+                filtered = filtered.filter(exp =>
+                    exp.status != null &&
+                    exp.status.toString().trim().toLowerCase() === currentFilters.status.toString().trim().toLowerCase()
+                );
+            }
+            if (currentFilters.from) {
+                filtered = filtered.filter(exp => exp.expenseDate >= currentFilters.from);
+            }
+            if (currentFilters.to) {
+                filtered = filtered.filter(exp => exp.expenseDate <= currentFilters.to);
+            }
+
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
+            if (searchTerm) {
+                filtered = filtered.filter(exp =>
+                    (exp.expenseType && exp.expenseType.toLowerCase().includes(searchTerm)) ||
+                    (exp.description && exp.description.toLowerCase().includes(searchTerm))
+                );
+            }
+            return filtered;
+        }
+
+        // Renders only the table rows — sync, no awaits
+        function renderTable(filtered) {
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = "";
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">No expenses found</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(exp => {
+                const statusClass = exp.status ? `status-${exp.status.toLowerCase()}` : "status-pending";
+                const statusText = exp.status || "Pending";
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${exp.expenseDate || ""}</td>
+                    <td>${exp.expenseType || ""}</td>
+                    <td>${exp.expenseType || "Other"}</td>
+                    <td>&#8377;${exp.amount ? exp.amount.toFixed(2) : "0"}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td class="action-icons">
+                        <i class="fas fa-eye" onclick="viewExpense(${exp.id})" title="View"></i>
+                        <i class="fas fa-edit" onclick="editExpense(${exp.id})" title="Edit"></i>
+                        <i class="fas fa-trash-alt" onclick="deleteExpenseHandler(${exp.id})" title="Delete"></i>
+                        ${exp.status !== "Approved" ? `<i class="fas fa-check-circle" onclick="approveExpenseHandler(${exp.id})" title="Approve"></i>` : ""}
+                        ${exp.status !== "Rejected" ? `<i class="fas fa-times-circle" onclick="rejectExpenseHandler(${exp.id})" title="Reject"></i>` : ""}
+                        ${exp.status === "Approved" ? `<i class="fas fa-rupee-sign" onclick="markAsPaidHandler(${exp.id})" title="Mark Paid"></i>` : ""}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function renderTableAndStats() {
+            // Filter & render table FIRST (sync) — no await blocking
+            const filtered = getFilteredExpenses();
+            renderTable(filtered);
+
+            // Then update stats async
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+            const monthlyTotal = await getMonthlyTotal(currentMonth, currentYear);
+            document.getElementById("totalMonthly").innerHTML = `&#8377;${Number(monthlyTotal).toFixed(2)}`;
+
+            const pendingSum = allExpenses.filter(e => e.status === "Pending").reduce((sum, e) => sum + (e.amount || 0), 0);
+            const approvedSum = allExpenses.filter(e => e.status === "Approved").reduce((sum, e) => sum + (e.amount || 0), 0);
+            const rejectedSum = allExpenses.filter(e => e.status === "Rejected").reduce((sum, e) => sum + (e.amount || 0), 0);
+
+            document.getElementById("pendingAmount").innerHTML = `&#8377;${pendingSum.toFixed(2)}`;
+            document.getElementById("approvedAmount").innerHTML = `&#8377;${approvedSum.toFixed(2)}`;
+            document.getElementById("rejectedAmount").innerHTML = `&#8377;${rejectedSum.toFixed(2)}`;
+        }
+        
+        function updatePendingBadge() {
+            const pendingCount = allExpenses.filter(e => e.status === "Pending").length;
+            document.getElementById("pendingBadge").innerText = pendingCount;
+        }
+        
+        function updateChart() {
+            const monthlyData = {};
+            
+            allExpenses.forEach(exp => {
+                if (exp.expenseDate && exp.amount) {
+                    const monthYear = exp.expenseDate.substring(0, 7);
+                    monthlyData[monthYear] = (monthlyData[monthYear] || 0) + exp.amount;
+                }
+            });
+            
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const amounts = sortedMonths.map(month => monthlyData[month]);
+            
+            if (expenseChart) {
+                expenseChart.destroy();
+            }
+            
+            const ctx = document.getElementById("expenseChart").getContext("2d");
+            expenseChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: sortedMonths,
+                    datasets: [{
+                        label: "Expenses (₹)",
+                        data: amounts,
+                        borderColor: "#2c5282",
+                        backgroundColor: "rgba(44, 82, 130, 0.1)",
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true
+                }
+            });
+        }
+        
+        // ========== EVENT HANDLERS ==========
+        
+        window.viewExpense = async function(id) {
+            try {
+                const expense = await getExpenseById(id);
+                const detailContent = document.getElementById("detailContent");
+                
+                let receiptHTML = '';
+                if (expense.id) {
+                    // FIX 1: If user just uploaded a new receipt during edit,
+                    // use the local blob URL directly — this is guaranteed fresh
+                    // and bypasses all browser/server caching completely.
+                    // Otherwise fall back to the server URL with a fresh timestamp.
+                    const receiptUrl = receiptBlobUrls[expense.id]
+                        ? receiptBlobUrls[expense.id]
+                        : `${API_BASE}/get-receipt/${expense.id}/receipts/0?t=${new Date().getTime()}`;
+                    receiptHTML = `
+                        <div class="receipt-section">
+                            <strong>Receipt:</strong><br>
+                            <img src="${receiptUrl}" 
+                                 alt="Receipt" style="max-width:100%; max-height:300px; border-radius:12px; margin-top:10px;"
+                                 onerror="this.style.display='none'">
+                        </div>`;
+                }
+                
+                detailContent.innerHTML = `
+                    <p><strong>ID:</strong> ${expense.id}</p>
+                    <p><strong>Title:</strong> ${expense.expenseType || "-"}</p>
+                    <p><strong>Amount:</strong> ₹${expense.amount ? expense.amount.toFixed(2) : "0"}</p>
+                    <p><strong>Date:</strong> ${expense.expenseDate || "-"}</p>
+                    <p><strong>Status:</strong> ${expense.status || "Pending"}</p>
+                    <p><strong>Description:</strong> ${expense.description || "-"}</p>
+                    <p><strong>Bill Number:</strong> ${expense.billNumber || "-"}</p>
+                    ${receiptHTML}
+                `;
+                document.getElementById("detailModal").style.display = "flex";
+            } catch (error) {
+                showToast("Failed to load expense details", "error");
+            }
+        };
+        
+        window.editExpense = async function(id) {
+            try {
+                const expense = await getExpenseById(id);
+                document.getElementById("expenseId").value = expense.id;
+                document.getElementById("title").value = expense.expenseType || "";
+                document.getElementById("amount").value = expense.amount || "";
+                document.getElementById("category").value = expense.expenseType || "Travel";
+                document.getElementById("expenseDate").value = expense.expenseDate || "";
+                document.getElementById("description").value = expense.description || "";
+                document.getElementById("modalTitle").innerText = "Edit Expense";
+                
+                const receiptSection = document.getElementById("currentReceiptSection");
+                const receiptPreview = document.getElementById("currentReceiptPreview");
+                receiptPreview.innerHTML = '';
+                
+                if (expense.id) {
+                    const timestamp = receiptBlobUrls[expense.id]
+                        ? ""
+                        : `?t=${new Date().getTime()}`;
+                    const previewUrl = receiptBlobUrls[expense.id]
+                        ? receiptBlobUrls[expense.id]
+                        : `${API_BASE}/get-receipt/${expense.id}/receipts/0${timestamp}`;
+                    receiptPreview.innerHTML = `
+                        <img src="${previewUrl}" 
+                             alt="Current Receipt" style="max-width:100%; border-radius:8px;"
+                             onerror="this.style.display='none'">
+                    `;
+                    receiptSection.style.display = "block";
+                } else {
+                    receiptSection.style.display = "none";
+                }
+                
+                document.getElementById("receiptPreview").innerHTML = '';
+                document.getElementById("expenseModal").style.display = "flex";
+            } catch (error) {
+                showToast("Failed to load expense for editing", "error");
+            }
+        };
+        
+        window.deleteExpenseHandler = async function(id) {
+            if (confirm("Are you sure you want to delete this expense?")) {
+                try {
+                    await deleteExpense(id);
+                    showToast("Expense deleted successfully");
+                    getAllExpenses();
+                } catch (error) {
+                    showToast("Failed to delete expense", "error");
+                }
+            }
+        };
+        
+        window.approveExpenseHandler = async function(id) {
+            try {
+                await approveExpense(id);
+                showToast("Expense approved");
+                getAllExpenses();
+            } catch (error) {
+                showToast("Failed to approve expense", "error");
+            }
+        };
+        
+        window.rejectExpenseHandler = async function(id) {
+            try {
+                await rejectExpense(id);
+                showToast("Expense rejected");
+                getAllExpenses();
+            } catch (error) {
+                showToast("Failed to reject expense", "error");
+            }
+        };
+        
+        window.markAsPaidHandler = async function(id) {
+            try {
+                await markAsPaid(id);
+                showToast("Expense marked as paid");
+                getAllExpenses();
+            } catch (error) {
+                showToast("Failed to mark as paid", "error");
+            }
+        };
+        
+        // ========== FORM SUBMIT ==========
+        
+        document.getElementById("expenseForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            
+            const expenseId = document.getElementById("expenseId").value;
+            const expenseData = {
+                expenseType: document.getElementById("title").value,
+                amount: parseFloat(document.getElementById("amount").value),
+                expenseDate: document.getElementById("expenseDate").value,
+                description: document.getElementById("description").value,
+                billNumber: "",
+                employeeId: CURRENT_EMPLOYEE_ID
+            };
+            
+            const receiptFile = document.getElementById("receiptFile").files[0];
+            
+            try {
+                if (expenseId) {
+                    await updateExpense(expenseId, expenseData, receiptFile);
+                    showToast("Expense updated successfully");
+                    
+                    // FIX 1: After a successful update with a new receipt,
+                    // create a permanent blob URL and store it keyed by expense id.
+                    // viewExpense will use this blob URL directly, bypassing server cache entirely.
+                    if (receiptFile) {
+                        // Revoke any previous blob URL for this expense to avoid memory leaks
+                        if (receiptBlobUrls[expenseId]) {
+                            URL.revokeObjectURL(receiptBlobUrls[expenseId]);
+                        }
+                        const blobUrl = URL.createObjectURL(receiptFile);
+                        receiptBlobUrls[expenseId] = blobUrl;
+
+                        const receiptPreview = document.getElementById("currentReceiptPreview");
+                        receiptPreview.innerHTML = `
+                            <img src="${blobUrl}" alt="Updated Receipt" style="max-width:100%; border-radius:8px;">
+                        `;
+                        document.getElementById("currentReceiptSection").style.display = "block";
+                    }
+                } else {
+                    await createExpense(expenseData, receiptFile);
+                    showToast("Expense created successfully");
+                }
+                closeModals();
+                getAllExpenses();
+                document.getElementById("expenseForm").reset();
+                document.getElementById("expenseId").value = "";
+            } catch (error) {
+                showToast(error.message || "Operation failed", "error");
+            }
+        });
+        
+        document.getElementById("draftBtn").addEventListener("click", async function() {
+            const expenseData = {
+                expenseType: document.getElementById("title").value,
+                amount: parseFloat(document.getElementById("amount").value),
+                expenseDate: document.getElementById("expenseDate").value,
+                description: document.getElementById("description").value,
+                billNumber: "",
+                employeeId: CURRENT_EMPLOYEE_ID
+            };
+            
+            const receiptFile = document.getElementById("receiptFile").files[0];
+            
+            try {
+                await createExpense(expenseData, receiptFile);
+                showToast("Draft saved successfully");
+                closeModals();
+                getAllExpenses();
+                document.getElementById("expenseForm").reset();
+            } catch (error) {
+                showToast("Failed to save draft", "error");
+            }
+        });
+        
+        // ========== MODAL CONTROLS ==========
+        
+        function closeModals() {
+            document.getElementById("expenseModal").style.display = "none";
+            document.getElementById("detailModal").style.display = "none";
+            document.getElementById("currentReceiptSection").style.display = "none";
+            document.getElementById("receiptPreview").innerHTML = '';
+        }
+        
+        document.getElementById("addExpenseBtn").onclick = function() {
+            document.getElementById("expenseForm").reset();
+            document.getElementById("expenseId").value = "";
+            document.getElementById("modalTitle").innerText = "Add New Expense";
+            document.getElementById("currentReceiptSection").style.display = "none";
+            document.getElementById("receiptPreview").innerHTML = '';
+            document.getElementById("expenseModal").style.display = "flex";
+        };
+        
+        document.getElementById("closeModalBtn").onclick = closeModals;
+        document.getElementById("cancelModalBtn").onclick = closeModals;
+        document.getElementById("closeDetailBtn").onclick = closeModals;
+        
+        window.onclick = function(event) {
+            if (event.target.classList.contains("modal")) {
+                event.target.style.display = "none";
+            }
+        };
+        
+        // ========== FILTERS ==========
+        
+        document.getElementById("filterCategory").onchange = function(e) {
+            currentFilters.category = e.target.value;
+            renderTableAndStats();
+        };
+        
+        document.getElementById("filterStatus").onchange = function(e) {
+            currentFilters.status = e.target.value;
+            renderTableAndStats();
+        };
+        
+        document.getElementById("filterFrom").onchange = function(e) {
+            currentFilters.from = e.target.value;
+            renderTableAndStats();
+        };
+        
+        document.getElementById("filterTo").onchange = function(e) {
+            currentFilters.to = e.target.value;
+            renderTableAndStats();
+        };
+        
+        document.getElementById("searchInput").oninput = function() {
+            renderTableAndStats();
+        };
+        
+        // ========== EXPORT CSV ==========
+        
+        document.getElementById("exportBtn").onclick = function() {
+            // Reuse getFilteredExpenses so export always matches what table shows
+            const filtered = getFilteredExpenses();
+            
+            let csvContent = "ID,Date,Category,Amount,Status,Description,Bill Number\n";
+            
+            filtered.forEach(exp => {
+                const row = [
+                    exp.id || "",
+                    exp.expenseDate || "",
+                    exp.expenseType || "",
+                    exp.amount || "",
+                    exp.status || "",
+                    (exp.description || "").replace(/,/g, " "),
+                    exp.billNumber || ""
+                ].join(",");
+                csvContent += row + "\n";
+            });
+            
+            const blob = new Blob([csvContent], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `expenses_${new Date().toISOString().split("T")[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Export complete");
+        };
+        
+        // ========== SIDEBAR CONTROLS ==========
+        
+        document.getElementById("collapseSidebarBtn").onclick = function() {
+            document.getElementById("sidebar").classList.toggle("collapsed");
+        };
+        
+        document.getElementById("mobileToggleBtn").onclick = function() {
+            document.getElementById("sidebar").classList.toggle("mobile-open");
+        };
+        
+        document.getElementById("profileDropdownBtn").onclick = function() {
+            document.getElementById("profileDropdown").classList.toggle("show");
+        };
+        
+        document.getElementById("logoutBtn").onclick = function() {
+            showToast("Logout functionality will be implemented");
+        };
+        
+        window.onclick = function(event) {
+            if (!event.target.closest(".user-profile")) {
+                document.getElementById("profileDropdown").classList.remove("show");
+            }
+        };
+        
+        // ========== INITIALIZE ==========
+        
+        getAllExpenses();
+    </script>
 </body>
-
-<script src="../js/expenses.js"></script>
 
 </html>

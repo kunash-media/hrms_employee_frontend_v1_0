@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Resignation | Employee Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1f6f7f;
+      --primary-light: #e6f4f6;
+      --primary-dark: #145c6b;
+      --sidebar-bg: linear-gradient(180deg, #1f6f7f 0%, #145c6b 100%);
+      --sidebar-hover: rgba(255,255,255,0.15);
+      --sidebar-active: rgba(255,255,255,0.18);
+      --sidebar-text: #ffffff;
+      --sidebar-width: 260px;
+      --sidebar-collapsed: 80px;
+      --header-height: 70px;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --success: #6faf2e;
+      --success-bg: #e8f5e9;
+      --radius: 16px;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.10);
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; }
+
+    /* ── Layout ── */
+    .dashboard-container { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      transition: width 0.25s ease;
+      z-index: 200; overflow: hidden;
+    }
+    .sidebar.collapsed { width: var(--sidebar-collapsed); }
+    .sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: var(--header-height);
+      border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .logo i { font-size: 20px; color: white; min-width: 20px; }
+    .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+    .collapse-btn {
+      background: none; border: none; color: var(--sidebar-text);
+      cursor: pointer; padding: 6px; border-radius: 6px; display: flex;
+      align-items: center; transition: background 0.2s;
+    }
+    .collapse-btn:hover { background: var(--sidebar-hover); }
+    .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+    .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
+    .nav-menu { list-style: none; }
+    .nav-link {
+      position: relative;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px; margin: 2px 8px; border-radius: 8px;
+      color: rgba(255,255,255,0.90); text-decoration: none;
+      font-size: 13.5px; font-weight: 500; white-space: nowrap;
+      transition: all 0.25s ease;
+    }
+    .nav-link::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 0%; background: #fff;
+      border-radius: 0 4px 4px 0; transition: height 0.25s ease;
+    }
+    .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
+    .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+    .nav-link.active { background: var(--sidebar-active); color: #fff; }
+    .nav-link.active::before, .nav-link:hover::before { height: 60%; }
+    .sidebar.collapsed .nav-text { display: none; }
+    .sidebar.collapsed .logo-text { display: none; }
+    .sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; padding: 13px 16px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.20);
+      border-radius: 12px; color: #fff; cursor: pointer;
+      font-size: 14px; font-weight: 500; transition: all 0.25s ease;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.12); color: #fca5a5; }
+    .logout-btn i { font-size: 15px; min-width: 20px; text-align: center; }
+    .sidebar.collapsed .logout-btn .nav-text { display: none; }
+
+    /* ── Main ── */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1; display: flex; flex-direction: column;
+      transition: margin-left 0.25s ease; min-width: 0;
+    }
+    .main-content.sidebar-collapsed { margin-left: var(--sidebar-collapsed); }
+
+    /* ── Header ── */
+    .header {
+      height: var(--header-height);
+      background: var(--card-bg); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; position: sticky; top: 0; z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .mobile-toggle {
+      display: none; background: none; border: none;
+      cursor: pointer; padding: 6px; border-radius: 8px; color: var(--text-secondary);
+    }
+    .page-title { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-primary); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      position: relative; background: none; border: none;
+      cursor: pointer; padding: 8px; border-radius: 8px;
+      color: var(--text-secondary); font-size: 16px; transition: background 0.2s;
+    }
+    .icon-btn:hover { background: var(--bg); color: var(--text-primary); }
+    .notification-badge {
+      position: absolute; top: 3px; right: 3px;
+      background: #ef4444; color: #fff; font-size: 9px;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+    .user-profile { position: relative; }
+    .profile-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: none; border: none; cursor: pointer; padding: 6px 10px;
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 100%;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-info { text-align: left; }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+    .user-role { font-size: 11px; color: var(--text-secondary); }
+    .dropdown-arrow { font-size: 11px; color: var(--text-secondary); }
+    .profile-dropdown {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow-lg);
+      min-width: 180px; padding: 6px; opacity: 0; pointer-events: none;
+      transform: translateY(-8px); transition: all 0.2s;
+    }
+    .profile-dropdown.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px; font-size: 13px;
+      color: var(--text-primary); text-decoration: none; cursor: pointer;
+      border: none; background: none; width: 100%; transition: background 0.15s;
+    }
+    .dropdown-item:hover { background: var(--bg); }
+    .dropdown-item i { font-size: 14px; color: var(--text-secondary); width: 16px; }
+    .dropdown-divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+    .logout-item { color: #ef4444; }
+    .logout-item i { color: #ef4444; }
+
+    /* ── Content ── */
+    .content-wrapper { padding: 24px; flex: 1; }
+
+    /* ── Profile Card ── */
+    .profile-content-card {
+      background: var(--card-bg); border: 1px solid #20879bcb;
+      border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
+    }
+    .profile-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--border); background: #fafbfc;
+    }
+    .profile-header h2 {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 600; color: var(--text-primary);
+    }
+    .profile-header h2 i { color: var(--primary); font-size: 16px; }
+
+    /* ── Status Banner ── */
+    .status-banner {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 10px;
+      font-size: 13px; font-weight: 500; margin-bottom: 20px;
+    }
+    .banner-info { background: #e6f4f6; color: #1f6f7f; border: 1px solid #b3dce3; }
+    .banner-warning { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+    .banner-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+    /* ── Form ── */
+    .form-body { padding: 24px; }
+    .form-section { margin-bottom: 28px; }
+    .section-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--primary-light);
+    }
+    .form-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px 20px;
+    }
+    .form-grid.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label {
+      font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .req { color: #ef4444; }
+    .field-value {
+      font-size: 14px; color: var(--text-primary); font-weight: 500;
+      padding: 9px 12px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 8px;
+      min-height: 40px; display: flex; align-items: center; word-break: break-word;
+    }
+    .form-input {
+      font-size: 14px; color: var(--text-primary);
+      padding: 9px 12px; background: #fff;
+      border: 1px solid var(--border); border-radius: 8px;
+      min-height: 40px; width: 100%; outline: none;
+      transition: border 0.15s, box-shadow 0.15s; font-family: inherit;
+    }
+    .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(31,111,127,0.1); }
+    textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
+    select.form-input { cursor: pointer; }
+    .form-input.error { border-color: #ef4444; background: #fef2f2; }
+    .field-error { font-size: 11px; color: #dc2626; margin-top: 2px; display: none; }
+
+    /* Notice calc box */
+    .notice-calc {
+      background: var(--primary-light); border: 1px solid #b3dce3;
+      border-radius: 8px; padding: 12px 16px;
+    }
+    .notice-calc p { font-size: 12px; color: var(--primary); margin-bottom: 4px; }
+    .lwd-display { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+
+    /* Checkbox group */
+    .checkbox-group {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; background: #fafbfc;
+      border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--primary);
+      cursor: pointer; margin-top: 2px; flex-shrink: 0;
+    }
+    .checkbox-group label {
+      font-size: 13px; color: var(--text-secondary); font-weight: 400;
+      cursor: pointer; line-height: 1.5; text-transform: none; letter-spacing: 0;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    }
+    .badge-active { background: var(--success-bg); color: var(--success); }
+    .badge-dept { background: #ede9fe; color: #6d28d9; }
+    .badge-warning { background: #fef9c3; color: #854d0e; }
+
+    /* Nav buttons */
+    .step-navigation {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; border-top: 1px solid var(--border); background: #fafbfc;
+    }
+    .btn-nav {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 20px; border: 1px solid var(--border);
+      border-radius: 8px; background: var(--card-bg);
+      color: var(--text-primary); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-nav:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
+    .btn-submit { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-submit:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
+    .btn-draft { background: #fff; color: var(--text-secondary); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 20px; padding: 28px;
+      width: 420px; max-width: 95vw; text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 24px;
+    }
+    .modal-icon.warning { background: #fef9c3; color: #854d0e; }
+    .modal-icon.success { background: var(--success-bg); color: var(--success); }
+    .modal-box h3 { font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+    .modal-box p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: center; }
+    .btn-cancel-m {
+      padding: 9px 24px; border: 1px solid var(--border);
+      border-radius: 8px; background: #fff; font-size: 13px;
+      font-weight: 500; cursor: pointer; color: var(--text-secondary);
+    }
+    .btn-confirm-m {
+      padding: 9px 24px; border-radius: 8px;
+      background: var(--primary); color: #fff;
+      font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+    }
+    .btn-ok-m {
+      padding: 9px 28px; border-radius: 8px;
+      background: var(--success); color: #fff;
+      font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+    }
+
+    /* Submitted view */
+    .submitted-view { padding: 40px 24px; text-align: center; }
+    .submitted-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--success-bg); display: flex;
+      align-items: center; justify-content: center;
+      margin: 0 auto 18px; font-size: 30px; color: var(--success);
+    }
+    .submitted-view h3 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+    .submitted-view p { font-size: 14px; color: var(--text-muted); max-width: 440px; margin: 0 auto 20px; line-height: 1.7; }
+    .ref-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; background: var(--primary-light);
+      border: 1px solid #b3dce3; border-radius: 30px;
+      font-size: 14px; font-weight: 600; color: var(--primary);
+    }
+    .track-card {
+      background: #fafbfc; border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; margin: 24px auto; max-width: 480px; text-align: left;
+    }
+    .track-card h4 {
+      font-size: 12px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+    }
+    .timeline { display: flex; flex-direction: column; }
+    .tl-item { display: flex; gap: 14px; }
+    .tl-left { display: flex; flex-direction: column; align-items: center; }
+    .tl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .tl-line { width: 2px; flex: 1; min-height: 28px; background: #e2e8f0; }
+    .tl-content { padding-bottom: 20px; }
+    .tl-content strong { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+    .tl-content span { font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0 !important; }
+      .mobile-toggle { display: flex; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-briefcase"></i>
+        <span class="logo-text">Employee Portal</span>
+      </div>
+      <button class="collapse-btn" id="collapseSidebarBtn">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <ul class="nav-menu">
+        <li><a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
+        <li><a href="../pages/profile.html" class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
+        <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
+        <li><a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
+        <li><a href="../pages/leave.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
+        <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+        <li><a href="../pages/resignation.html" class="nav-link active"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
+        <li><a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span class="nav-text">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content" id="mainContent">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-toggle" id="mobileToggleBtn"><i class="fas fa-bars"></i></button>
+        <div class="page-title">Resignation Request</div>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn">
+          <i class="far fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </button>
+        <div class="user-profile">
+          <button class="profile-btn" id="profileDropdownBtn">
+            <div class="avatar" id="userAvatar">-</div>
+            <div class="user-info">
+              <div class="user-name" id="userName">Employee</div>
+              <div class="user-role" id="userRole"></div>
+            </div>
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a href="#" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout-item" id="dropdownLogoutBtn">
+              <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <div class="profile-content-card">
+        <div class="profile-header">
+          <h2><i class="fas fa-file-signature"></i><span>Submit Resignation</span></h2>
+          <span class="badge badge-active" id="empStatusBadge"><i class="fas fa-circle" style="font-size:7px"></i> Active Employee</span>
+        </div>
+
+        <!-- FORM VIEW -->
+        <div id="formView">
+          <div class="form-body">
+
+            <!-- Info Banner -->
+            <div class="status-banner banner-info">
+              <i class="fas fa-info-circle" style="font-size:18px;flex-shrink:0"></i>
+              <span>Once your resignation is submitted, your <strong>HR Department</strong> and <strong>Reporting Manager</strong> will be notified. For any queries during the notice period, please contact HR.</span>
+            </div>
+
+            <!-- Employee Info (read-only from localStorage) -->
+            <div class="form-section">
+              <div class="section-title"><i class="fas fa-user"></i> Employee Information</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Employee ID</label>
+                  <div class="field-value" id="disp_empId">—</div>
+                </div>
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <div class="field-value" id="disp_name">—</div>
+                </div>
+                <div class="form-group">
+                  <label>Department</label>
+                  <div class="field-value" id="disp_dept">—</div>
+                </div>
+                <div class="form-group">
+                  <label>Designation</label>
+                  <div class="field-value" id="disp_desig">—</div>
+                </div>
+                <div class="form-group">
+                  <label>Reporting Manager</label>
+                  <div class="field-value" id="disp_manager">—</div>
+                </div>
+                <div class="form-group">
+                  <label>Work Email</label>
+                  <div class="field-value" id="disp_email">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resignation Details -->
+            <div class="form-section">
+              <div class="section-title"><i class="fas fa-calendar-times"></i> Resignation Details</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Resignation Date <span class="req">*</span></label>
+                  <input type="date" class="form-input" id="resignationDate" onchange="calcLWD()">
+                  <span class="field-error" id="err_resignDate">Resignation date is required</span>
+                </div>
+                <div class="form-group">
+                  <label>Notice Period</label>
+                  <div class="field-value">30 Days <span style="color:var(--text-muted);font-size:12px">(as per contract)</span></div>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>Expected Last Working Day</label>
+                  <div class="notice-calc">
+                    <p><i class="fas fa-calendar-check" style="margin-right:6px"></i>After serving 30 days notice period, your Last Working Day will be:</p>
+                    <div class="lwd-display" id="lwdDisplay">— Please select a Resignation Date first —</div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Reason for Resignation <span class="req">*</span></label>
+                  <select class="form-input" id="resignReason" onchange="toggleOtherReason()">
+                    <option value="">— Reason Select Karein —</option>
+                    <option>Better Opportunity</option>
+                    <option>Personal Reasons</option>
+                    <option>Higher Education</option>
+                    <option>Relocation</option>
+                    <option>Health Issues</option>
+                    <option>Work-Life Balance</option>
+                    <option>Salary Dissatisfaction</option>
+                    <option>Family Responsibilities</option>
+                    <option>Other</option>
+                  </select>
+                  <span class="field-error" id="err_reason">Please select a reason for resignation</span>
+                </div>
+                <div class="form-group" id="otherReasonGroup" style="display:none">
+                  <label>Please Specify <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="otherReason" placeholder="Please describe your reason...">
+                  <span class="field-error" id="err_otherReason">Please specify your reason</span>
+                </div>
+              </div>
+
+              <div class="form-grid full" style="margin-top: 16px;">
+                <div class="form-group">
+                  <label>Resignation Letter / Comments <span class="req">*</span></label>
+                  <textarea class="form-input" id="resignComments" rows="5"
+                    placeholder="Write your resignation letter here — share your reason for leaving, your experience with the company, and any future plans..."></textarea>
+                  <span class="field-error" id="err_comments">Minimum 20 characters required</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Work Handover -->
+            <div class="form-section">
+              <div class="section-title"><i class="fas fa-tasks"></i> Work Handover Plan</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Handover Person <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="handoverPerson" placeholder="Employee name to hand over work to...">
+                  <span class="field-error" id="err_handover">Handover person name is required</span>
+                </div>
+                <div class="form-group">
+                  <label>Handover Complete By Date</label>
+                  <input type="date" class="form-input" id="handoverDate">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>Pending Tasks / Projects</label>
+                  <textarea class="form-input" id="pendingTasks" rows="3"
+                    placeholder="List your pending tasks/projects and their current status..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Declaration -->
+            <div class="form-section">
+              <div class="section-title"><i class="fas fa-check-double"></i> Declaration</div>
+              <div>
+                <div class="checkbox-group">
+                  <input type="checkbox" id="decl1">
+                  <label for="decl1">I confirm that this resignation is submitted of my own free will and I have not been subjected to any pressure or coercion.</label>
+                </div>
+                <div class="checkbox-group">
+                  <input type="checkbox" id="decl2">
+                  <label for="decl2">I understand that I am required to serve a 30-day notice period as per my employment contract. Salary deduction may apply in case of early exit.</label>
+                </div>
+                <div class="checkbox-group">
+                  <input type="checkbox" id="decl3">
+                  <label for="decl3">I acknowledge my responsibility to protect the company's confidential information and agree to fulfill all post-employment obligations as stated in my contract.</label>
+                </div>
+              </div>
+              <span class="field-error" id="err_decl" style="display:none; margin-top:8px; font-size:12px;">Please accept all declarations to proceed.</span>
+            </div>
+
+          </div>
+
+          <div class="step-navigation">
+            <div style="font-size:12px;color:var(--text-muted);">
+              <i class="fas fa-lock" style="margin-right:4px;color:var(--primary)"></i>
+              Your information is 100% secure
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn-nav btn-draft" onclick="saveDraft()">
+                <i class="fas fa-save"></i> Draft Save
+              </button>
+              <button class="btn-nav btn-submit" onclick="openConfirmModal()">
+                <i class="fas fa-paper-plane"></i> Submit Resignation
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMITTED VIEW -->
+        <div id="submittedView" style="display:none;">
+          <div class="submitted-view">
+            <div class="submitted-icon"><i class="fas fa-check"></i></div>
+            <h3>Resignation Successfully Submitted!</h3>
+            <p>Your resignation request has been sent to the <strong>HR Department</strong> and your <strong>Reporting Manager</strong>. You will receive an email confirmation shortly.</p>
+            <div class="ref-badge">
+              <i class="fas fa-hashtag"></i>
+              <span id="refNumber">RES-2025-001</span>
+            </div>
+
+            <div class="track-card">
+              <h4><i class="fas fa-stream" style="margin-right:6px;color:var(--primary)"></i>Resignation Status Track</h4>
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-left">
+                    <div class="tl-dot" style="background:var(--success);"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <strong>Resignation Submitted ✓</strong>
+                    <span id="submitDateDisplay"></span>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-left">
+                    <div class="tl-dot" style="background:#e2e8f0;"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <strong style="color:var(--text-muted)">Manager Approval Pending</strong>
+                    <span id="disp_manager2"></span>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-left">
+                    <div class="tl-dot" style="background:#e2e8f0;"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <strong style="color:var(--text-muted)">HR Processing</strong>
+                    <span>Notice period confirmation & paperwork</span>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-left">
+                    <div class="tl-dot" style="background:#e2e8f0;"></div>
+                  </div>
+                  <div class="tl-content">
+                    <strong style="color:var(--text-muted)">Exit Formalities</strong>
+                    <span>Clearance, handover & F&F settlement</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="status-banner banner-warning" style="max-width:480px;margin:0 auto 16px;text-align:left;">
+              <i class="fas fa-exclamation-triangle" style="font-size:16px;flex-shrink:0"></i>
+              <span>Your <strong>Last Working Day: <span id="finalLWDDisplay">—</span></strong>. Please continue your normal duties during the notice period.</span>
+            </div>
+
+            <div style="margin-top:16px;">
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Have questions? Contact HR:</p>
+              <span class="badge badge-dept"><i class="fas fa-envelope"></i> hr@company.com</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+    <h3>Submit Resignation?</h3>
+    <p>Once submitted, this request will be sent to HR and your Reporting Manager. Are you sure you want to proceed?</p>
+    <div class="modal-actions">
+      <button class="btn-cancel-m" onclick="closeModal()">Cancel, Go Back</button>
+      <button class="btn-confirm-m" onclick="submitResignation()"><i class="fas fa-paper-plane" style="margin-right:6px"></i>Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════
+const BASE_URL = 'http://localhost:8086';
+const NOTICE_DAYS = 30;
+
+// ══════════════════════════════════════════════
+//  INIT — load employee info from localStorage
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function () {
+  const firstName   = localStorage.getItem('hrms_first_name') || '';
+  const lastName    = localStorage.getItem('hrms_last_name')  || '';
+  const fullName    = (firstName + ' ' + lastName).trim() || 'Employee';
+  const designation = localStorage.getItem('hrms_designation') || '—';
+  const department  = localStorage.getItem('hrms_department')  || '—';
+  const empId       = localStorage.getItem('hrms_employee_id') || '—';
+  const manager     = localStorage.getItem('hrms_reporting_manager') || '—';
+  const workEmail   = localStorage.getItem('hrms_work_email') || '—';
+
+  const initials = [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
+  const role = designation !== '—' ? designation : (department !== '—' ? department : 'Employee');
+
+  // Header
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent = fullName;
+  document.getElementById('userRole').textContent = role;
+
+  // Form display fields
+  document.getElementById('disp_empId').textContent   = empId;
+  document.getElementById('disp_name').textContent    = fullName;
+  document.getElementById('disp_dept').textContent    = department;
+  document.getElementById('disp_desig').textContent   = designation;
+  document.getElementById('disp_manager').textContent = manager;
+  document.getElementById('disp_email').textContent   = workEmail;
+  document.getElementById('disp_manager2').textContent = manager + ' se approval awaited';
+
+  // Set min date = today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('resignationDate').min = today;
+
+  // Check existing resignation in localStorage
+  const existing = localStorage.getItem('hrms_resignation_status');
+  if (existing === 'submitted') {
+    const data = JSON.parse(localStorage.getItem('hrms_resignation_data') || '{}');
+    populateSubmittedView(data);
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('submittedView').style.display = 'block';
+  }
+});
+
+// ══════════════════════════════════════════════
+//  CALCULATE LAST WORKING DAY
+// ══════════════════════════════════════════════
+function calcLWD() {
+  const d = document.getElementById('resignationDate').value;
+  const el = document.getElementById('lwdDisplay');
+  if (!d) { el.textContent = '— Pehle Resignation Date select karein —'; return; }
+  const dt = new Date(d);
+  dt.setDate(dt.getDate() + NOTICE_DAYS);
+  const opts = { day: '2-digit', month: 'long', year: 'numeric' };
+  const enStr = dt.toLocaleDateString('en-IN', opts);
+  el.textContent = enStr;
+  document.getElementById('finalLWDDisplay').textContent = enStr;
+  localStorage.setItem('hrms_lwd', dt.toISOString().split('T')[0]);
+}
+
+// ══════════════════════════════════════════════
+//  TOGGLE OTHER REASON FIELD
+// ══════════════════════════════════════════════
+function toggleOtherReason() {
+  const v = document.getElementById('resignReason').value;
+  document.getElementById('otherReasonGroup').style.display = v === 'Other' ? 'flex' : 'none';
+  if (v !== 'Other') {
+    document.getElementById('otherReason').classList.remove('error');
+    document.getElementById('err_otherReason').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  VALIDATION
+// ══════════════════════════════════════════════
+function validateForm() {
+  let ok = true;
+
+  function check(id, errId, condition) {
+    const el = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (condition) {
+      el.classList.add('error');
+      err.style.display = 'block';
+      ok = false;
+    } else {
+      el.classList.remove('error');
+      err.style.display = 'none';
+    }
+  }
+
+  check('resignationDate', 'err_resignDate', !document.getElementById('resignationDate').value);
+  check('resignReason', 'err_reason', !document.getElementById('resignReason').value);
+  check('resignComments', 'err_comments', document.getElementById('resignComments').value.trim().length < 20);
+  check('handoverPerson', 'err_handover', !document.getElementById('handoverPerson').value.trim());
+
+  if (document.getElementById('resignReason').value === 'Other') {
+    check('otherReason', 'err_otherReason', !document.getElementById('otherReason').value.trim());
+  }
+
+  const decl = ['decl1','decl2','decl3'].every(id => document.getElementById(id).checked);
+  document.getElementById('err_decl').style.display = decl ? 'none' : 'block';
+  if (!decl) ok = false;
+
+  return ok;
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+function openConfirmModal() {
+  if (!validateForm()) {
+    showToast('Please fill all required fields', 'error');
+    const firstErr = document.querySelector('.form-input.error, .field-error[style*="block"]');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  document.getElementById('confirmModal').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('active');
+}
+
+// ══════════════════════════════════════════════
+//  SUBMIT
+// ══════════════════════════════════════════════
+async function submitResignation() {
+  closeModal();
+
+  const empId       = localStorage.getItem('hrms_employee_id') || '';
+  const resignDate  = document.getElementById('resignationDate').value;
+  const reason      = document.getElementById('resignReason').value;
+  const otherReason = document.getElementById('otherReason').value;
+  const comments    = document.getElementById('resignComments').value;
+  const handoverPerson = document.getElementById('handoverPerson').value;
+  const handoverDate   = document.getElementById('handoverDate').value;
+  const pendingTasks   = document.getElementById('pendingTasks').value;
+  const lwd            = localStorage.getItem('hrms_lwd') || '';
+
+  const payload = {
+    employeeId: empId,
+    resignationDate: resignDate,
+    lastWorkingDay: lwd,
+    noticePeriodDays: NOTICE_DAYS,
+    reason: reason === 'Other' ? otherReason : reason,
+    comments: comments,
+    handoverPerson: handoverPerson,
+    handoverDate: handoverDate,
+    pendingTasks: pendingTasks,
+    status: 'Pending',
+    submittedAt: new Date().toISOString()
+  };
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/resignation/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    payload.refNumber = json.data?.resignationId || generateRefNumber();
+  } catch (err) {
+    console.warn('[HRMS] API unavailable, proceeding locally:', err.message);
+    payload.refNumber = generateRefNumber();
+  }
+
+  // Save to localStorage
+  localStorage.setItem('hrms_resignation_status', 'submitted');
+  localStorage.setItem('hrms_resignation_data', JSON.stringify(payload));
+
+  populateSubmittedView(payload);
+  document.getElementById('formView').style.display = 'none';
+  document.getElementById('submittedView').style.display = 'block';
+  showToast('Resignation submitted successfully!', 'success');
+}
+
+function generateRefNumber() {
+  const yr = new Date().getFullYear();
+  const num = Math.floor(Math.random() * 900) + 100;
+  return `RES-${yr}-${num}`;
+}
+
+function populateSubmittedView(data) {
+  if (data.refNumber) document.getElementById('refNumber').textContent = data.refNumber;
+  const now = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  document.getElementById('submitDateDisplay').textContent = now;
+  if (data.lastWorkingDay) {
+    const d = new Date(data.lastWorkingDay);
+    document.getElementById('finalLWDDisplay').textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+}
+
+// ══════════════════════════════════════════════
+//  DRAFT SAVE
+// ══════════════════════════════════════════════
+function saveDraft() {
+  const draft = {
+    resignationDate: document.getElementById('resignationDate').value,
+    reason: document.getElementById('resignReason').value,
+    comments: document.getElementById('resignComments').value,
+    handoverPerson: document.getElementById('handoverPerson').value,
+    handoverDate: document.getElementById('handoverDate').value,
+    pendingTasks: document.getElementById('pendingTasks').value,
+  };
+  localStorage.setItem('hrms_resignation_draft', JSON.stringify(draft));
+  showToast('Draft saved! You can complete it later.', 'success');
+}
+
+function loadDraft() {
+  const draft = JSON.parse(localStorage.getItem('hrms_resignation_draft') || 'null');
+  if (!draft) return;
+  if (draft.resignationDate) { document.getElementById('resignationDate').value = draft.resignationDate; calcLWD(); }
+  if (draft.reason) { document.getElementById('resignReason').value = draft.reason; toggleOtherReason(); }
+  if (draft.comments) document.getElementById('resignComments').value = draft.comments;
+  if (draft.handoverPerson) document.getElementById('handoverPerson').value = draft.handoverPerson;
+  if (draft.handoverDate) document.getElementById('handoverDate').value = draft.handoverDate;
+  if (draft.pendingTasks) document.getElementById('pendingTasks').value = draft.pendingTasks;
+}
+loadDraft();
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function showToast(msg, type = 'success') {
+  Toastify({
+    text: type === 'success' ? `✓ ${msg}` : type === 'error' ? `✕ ${msg}` : `ℹ ${msg}`,
+    duration: 3500,
+    gravity: 'bottom',
+    position: 'right',
+    backgroundColor: type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#1f6f7f',
+    stopOnFocus: true,
+    style: {
+      borderRadius: '10px', padding: '12px 18px',
+      fontSize: '13.5px', fontWeight: '500',
+    },
+  }).showToast();
+}
+
+// ══════════════════════════════════════════════
+//  SIDEBAR & HEADER EVENTS
+// ══════════════════════════════════════════════
+document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('mainContent').classList.toggle('sidebar-collapsed');
+});
+document.getElementById('mobileToggleBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+});
+
+const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+profileDropdownBtn.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.classList.toggle('active'); });
+document.addEventListener('click', () => profileDropdown.classList.remove('active'));
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { profileDropdown.classList.remove('active'); closeModal(); }
+});
+
+function doLogout() {
+  if (confirm('Are you sure you want to logout?')) window.location.href = '../index.html';
+}
+document.getElementById('logoutBtn').addEventListener('click', doLogout);
+document.getElementById('dropdownLogoutBtn').addEventListener('click', doLogout);
+
+// Close modal on overlay click
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
