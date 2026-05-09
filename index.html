@@ -1,15 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Login | SIEC</title>
-</head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<title>Login | SIEC</title>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+  rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Inter', sans-serif;
@@ -22,12 +24,12 @@
     overflow: hidden;
   }
 
-  /* Background decorative elements */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: linear-gradient(rgba(31, 111, 127, 0.06) 1px, transparent 1px),
+    background-image:
+      linear-gradient(rgba(31, 111, 127, 0.06) 1px, transparent 1px),
       linear-gradient(90deg, rgba(31, 111, 127, 0.06) 1px, transparent 1px);
     background-size: 45px 45px;
     opacity: .7;
@@ -44,12 +46,11 @@
     background: white;
     border-radius: 28px;
     overflow: hidden;
-
     display: flex;
     border: 1px solid #1F6F7F;
   }
 
-  /* Left Side - Illustration */
+  /* Left Side */
   .illustration-side {
     flex: 1.05;
     background: #d5efef;
@@ -61,57 +62,39 @@
     overflow: hidden;
   }
 
-  /* Logo + Address on illustration side */
   .illustration-top {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding-top: 18px;
-    z-index: 3;
-    width: 100%;
-  }
-
-  .illustration-top {
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 20px 24px 0;
-}
+    padding: 2px 24px 0;
+  }
 
-.illustration-top img.side-logo {
-    height: 50px;
+  .illustration-top img.side-logo {
+    height: 90px;
     width: 100px;
     object-fit: contain;
     flex-shrink: 0;
-}
+  }
 
-.illustration-address {
+  .illustration-address {
     font-family: 'Inter', sans-serif;
     font-size: 0.72rem;
     color: #1F6F7F;
     line-height: 1.5;
     font-weight: 500;
-}
+  }
 
-.illustration-side img.main-illustration {
+  .illustration-side img.main-illustration {
     width: 100%;
     flex: 1;
     object-fit: cover;
     object-position: center top;
     filter: drop-shadow(0 20px 30px rgba(31, 111, 127, .15));
     margin-top: -10px;
-}
-
-  /* Header Row (Logo + Title) */
-  .header-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 2rem;
   }
 
-  /* Right Side - Form Card */
+  /* Right Side */
   .form-side {
     flex: 1;
     background: white;
@@ -121,11 +104,16 @@
     justify-content: center;
   }
 
-  /* Title */
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 2rem;
+  }
+
   .form-side h1 {
     font-family: 'Poppins', sans-serif;
     font-size: 1.6rem;
-    /* fixed */
     font-weight: 500;
     color: #1F6F7F;
     margin: 0;
@@ -133,14 +121,11 @@
 
   .form-side p {
     color: #64748B;
-    font-size: 0.30 rem;
+    font-size: 0.85rem;
     margin: 2px 0 0;
   }
 
-  /* Inputs */
-  .input-group {
-    margin-bottom: 1rem;
-  }
+  .input-group { margin-bottom: 1rem; }
 
   .input-group label {
     display: flex;
@@ -152,13 +137,9 @@
     color: #334155;
   }
 
-  .input-group label i {
-    color: #5FAFC2;
-  }
+  .input-group label i { color: #5FAFC2; }
 
-  .input-field {
-    position: relative;
-  }
+  .input-field { position: relative; }
 
   .input-field i.field-icon {
     position: absolute;
@@ -185,7 +166,6 @@
     box-shadow: 0 0 0 3px rgba(31, 111, 127, 0.08);
   }
 
-  /* Password toggle */
   .password-toggle {
     position: absolute;
     right: 10px;
@@ -198,7 +178,6 @@
     cursor: pointer;
   }
 
-  /* Button */
   .login-btn {
     width: 100%;
     background: linear-gradient(105deg, #1F6F7F 0%, #5FAFC2 100%);
@@ -224,7 +203,8 @@
     box-shadow: 0 8px 18px rgba(31, 111, 127, 0.3);
   }
 
-  /* Forgot */
+  .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
   .forgot-link {
     display: flex;
     justify-content: flex-end;
@@ -239,19 +219,16 @@
     color: #1F6F7F;
     background: #E6F4F6;
     border-radius: 999px;
-    /* pill shape */
     text-decoration: none;
     transition: all 0.2s ease;
   }
 
-  /* Hover effect */
   .forgot-link a:hover {
     background: #d4eef2;
     color: #145c6b;
     transform: translateY(-1px);
   }
 
-  /* Footer */
   .terms {
     margin-top: auto;
     text-align: center;
@@ -260,47 +237,19 @@
     padding-top: 1rem;
   }
 
-  .terms a {
-    color: #5FAFC2;
-    text-decoration: none;
-  }
+  .terms a { color: #5FAFC2; text-decoration: none; }
 
-  /* ========================= */
-  /* 📱 Responsive Fix */
-  /* ========================= */
   @media (max-width: 900px) {
-    .form-side {
-      padding: 1.4rem 1.2rem;
-    }
-
-    .header-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-    }
-
-    .form-side h1 {
-      font-size: 1.4rem;
-    }
-
-    .form-side p {
-      font-size: 0.85rem;
-    }
+    .illustration-side { display: none; }
+    .form-side { padding: 1.4rem 1.2rem; }
+    .form-side h1 { font-size: 1.4rem; }
   }
 
   @media (max-width: 600px) {
-    .form-side {
-      padding: 1.2rem 1rem;
-    }
-
-    .login-btn {
-      font-size: 0.9rem;
-      padding: 0.75rem;
-    }
-
-    .input-field input {
-      font-size: 0.88rem;
-    }
+    .main-wrapper { height: auto; }
+    .form-side { padding: 1.2rem 1rem; }
+    .login-btn { font-size: 0.9rem; padding: 0.75rem; }
+    .input-field input { font-size: 0.88rem; }
   }
 
   /* Toast */
@@ -320,30 +269,14 @@
     pointer-events: none;
   }
 
-  .toast.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .toast.error {
-    background: #E56C6C;
-  }
-
-  .toast.success {
-    background: #6FAF2E;
-  }
-
-  .toast.warning {
-    background: #F59E0B;
-  }
-
-
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { background: #E56C6C; }
+  .toast.success { background: #6FAF2E; }
+  .toast.warning { background: #F59E0B; }
 </style>
+</head>
 
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
-  rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<body>
 
 <div class="toast" id="toast"></div>
 
@@ -351,16 +284,13 @@
 
   <!-- Left Illustration -->
   <div class="illustration-side">
-
-    <!-- Logo + Address at top center -->
     <div class="illustration-top">
       <img src="/Images/logo.png" alt="SIEC Logo" class="side-logo">
       <div class="illustration-address">
         Address : Office-401, Sanskriti Arcade, Kaspate Wasti, Wakad, Pune - 411057
       </div>
     </div>
-
-    <img src="/Images/login.png" alt="Employee working" id="illustration" class="main-illustration">
+    <img src="/Images/login.png" alt="Employee working" class="main-illustration">
   </div>
 
   <!-- Right Form -->
@@ -400,7 +330,7 @@
     </button>
 
     <div class="terms">
-      By signing in, you agree to Messimo's
+      By signing in, you agree to SIEC's
       <a href="#">Terms of Services</a> and
       <a href="#">Privacy Policy</a>.
     </div>
@@ -408,106 +338,150 @@
 </div>
 
 <script>
-  (function () {
-    const BASE_URL = 'http://localhost:8086';
-    const LOGIN_URL = BASE_URL + '/api/employees/employee-login';
+(function () {
+  'use strict';
 
-    const empIdInput = document.getElementById('empId');
-    const passwordInput = document.getElementById('password');
-    const toggleBtn = document.getElementById('togglePasswordBtn');
-    const toggleIcon = document.getElementById('toggleIcon');
-    const loginBtn = document.getElementById('loginBtn');
-    const btnText = document.getElementById('btnText');
-    const btnIcon = document.getElementById('btnIcon');
-    const forgotLink = document.getElementById('forgotLink');
-    const toast = document.getElementById('toast');
+  /* ── CONFIG ─────────────────────────────────────────── */
+  const BASE_URL    = 'http://localhost:8086';
+  const LOGIN_URL   = BASE_URL + '/api/employee/auth/login';
+  const DASHBOARD   = '/pages/dashboard.html';
 
-    let toastTimer;
-    function showToast(message, type = 'error') {
-      clearTimeout(toastTimer);
-      toast.textContent = (type === 'success' ? '✓ ' : type === 'warning' ? '⚠ ' : '✕ ') + message;
-      toast.className = `toast show ${type}`;
-      toastTimer = setTimeout(() => { toast.className = 'toast'; }, 4000);
+  /* ── ELEMENTS ───────────────────────────────────────── */
+  const empIdInput  = document.getElementById('empId');
+  const pwdInput    = document.getElementById('password');
+  const toggleBtn   = document.getElementById('togglePasswordBtn');
+  const toggleIcon  = document.getElementById('toggleIcon');
+  const loginBtn    = document.getElementById('loginBtn');
+  const btnText     = document.getElementById('btnText');
+  const btnIcon     = document.getElementById('btnIcon');
+  const forgotLink  = document.getElementById('forgotLink');
+  const toast       = document.getElementById('toast');
+
+  /* ── CLEAR STALE SESSION on page load ───────────────── */
+  // If user lands back on login, their session is gone
+  const SESSION_DISPLAY_KEYS = [
+    'hrms_authenticated',
+    'hrms_employee_id', 'hrms_employee_prime_id',
+    'hrms_first_name',  'hrms_full_name',
+    'hrms_designation', 'hrms_department',
+    'hrms_work_email',  'hrms_login_ts',
+  ];
+  SESSION_DISPLAY_KEYS.forEach(k => localStorage.removeItem(k));
+
+  /* ── TOAST ──────────────────────────────────────────── */
+  let toastTimer;
+  function showToast(message, type = 'error') {
+    clearTimeout(toastTimer);
+    const prefix = type === 'success' ? '✓ ' : type === 'warning' ? '⚠ ' : '✕ ';
+    toast.textContent = prefix + message;
+    toast.className = `toast show ${type}`;
+    toastTimer = setTimeout(() => { toast.className = 'toast'; }, 4000);
+  }
+
+  /* ── PASSWORD TOGGLE ────────────────────────────────── */
+  toggleBtn.addEventListener('click', () => {
+    const isPass = pwdInput.type === 'password';
+    pwdInput.type = isPass ? 'text' : 'password';
+    toggleIcon.className = isPass ? 'far fa-eye' : 'far fa-eye-slash';
+  });
+
+  /* ── FORGOT PASSWORD ────────────────────────────────── */
+  forgotLink.addEventListener('click', e => {
+    e.preventDefault();
+    showToast('Please contact your HR administrator to reset your password.', 'warning');
+  });
+
+  /* ── LOADING STATE ──────────────────────────────────── */
+  function setLoading(loading) {
+    loginBtn.disabled = loading;
+    btnText.textContent = loading ? 'Signing in…' : 'Sign In';
+    btnIcon.className = loading
+      ? 'fas fa-spinner fa-pulse'
+      : 'fas fa-arrow-right-to-bracket';
+  }
+
+  /* ── STORE DISPLAY DATA (no tokens — those are HttpOnly cookies) ── */
+  function storeDisplaySession(data) {
+    localStorage.setItem('hrms_authenticated',      'true');
+    localStorage.setItem('hrms_employee_prime_id',  String(data.employeePrimeId ?? ''));
+    localStorage.setItem('hrms_employee_id',        data.employeeId    ?? '');
+    // Server returns fullName; split for firstName
+    const fullName  = data.fullName ?? '';
+    const firstName = fullName.split(' ')[0] ?? '';
+    localStorage.setItem('hrms_full_name',    fullName);
+    localStorage.setItem('hrms_first_name',   firstName);
+    localStorage.setItem('hrms_designation',  data.designation ?? '');
+    localStorage.setItem('hrms_department',   data.department  ?? '');
+    localStorage.setItem('hrms_login_ts',     String(Date.now()));
+  }
+
+  /* ── LOGIN HANDLER ──────────────────────────────────── */
+  async function handleLogin() {
+    const employeeId = empIdInput.value.trim();
+    const password   = pwdInput.value;           // do NOT trim passwords
+
+    if (!employeeId) {
+      showToast('Please enter your Employee ID', 'error');
+      empIdInput.focus();
+      return;
+    }
+    if (!password) {
+      showToast('Password is required', 'error');
+      pwdInput.focus();
+      return;
     }
 
-    toggleBtn.addEventListener('click', () => {
-      const isPass = passwordInput.type === 'password';
-      passwordInput.type = isPass ? 'text' : 'password';
-      toggleIcon.className = isPass ? 'far fa-eye' : 'far fa-eye-slash';
-    });
+    setLoading(true);
 
-    forgotLink.addEventListener('click', e => {
-      e.preventDefault();
-      showToast('Please contact your HR administrator to reset your password.', 'warning');
-    });
+    try {
+      const res = await fetch(LOGIN_URL, {
+        method: 'POST',
+        credentials: 'include',                  // ← lets browser receive + store HttpOnly cookies
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employeeId, password }),
+      });
 
-    function setLoading(loading) {
-      loginBtn.disabled = loading;
-      btnText.textContent = loading ? 'Signing in...' : 'Sign In';
-      btnIcon.className = loading ? 'fas fa-spinner fa-pulse' : 'fas fa-arrow-right-to-bracket';
-    }
-
-    function storeSession(data) {
-      localStorage.setItem('hrms_auth', 'true');
-      localStorage.setItem('hrms_employee_prime_id', data.employeePrimeId);
-      localStorage.setItem('hrms_employee_id', data.employeeId);
-      localStorage.setItem('hrms_first_name', data.firstName);
-      localStorage.setItem('hrms_last_name', data.lastName);
-      localStorage.setItem('hrms_department', data.department);
-      localStorage.setItem('hrms_designation', data.designation);
-      localStorage.setItem('hrms_work_email', data.workEmail);
-      localStorage.setItem('hrms_login_ts', Date.now().toString());
-    }
-
-    loginBtn.addEventListener('click', async () => {
-      const employeeId = empIdInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      if (!employeeId) { showToast('Please enter your Employee ID', 'error'); empIdInput.focus(); return; }
-      if (!password) { showToast('Password is required', 'error'); passwordInput.focus(); return; }
-
-      setLoading(true);
-
-      try {
-        const res = await fetch(`${LOGIN_URL}?employeeId=${encodeURIComponent(employeeId)}&password=${encodeURIComponent(password)}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          storeSession(data);
-          showToast(`Welcome back, ${data.firstName}!`, 'success');
-          setTimeout(() => { window.location.href = '/pages/dashboard.html'; }, 1300);
-        } else if (res.status === 401 || res.status === 403) {
-          showToast('Invalid Employee ID or password.', 'error');
-          passwordInput.value = '';
-          passwordInput.focus();
-          setLoading(false);
-        } else if (res.status === 404) {
-          showToast('Employee not found.', 'error');
-          setLoading(false);
-        } else {
-          showToast('Login failed. Please try again.', 'error');
-          setLoading(false);
-        }
-      } catch (err) {
-        showToast('Unable to connect to server.', 'error');
-        setLoading(false);
+      if (res.ok) {
+        const data = await res.json();
+        storeDisplaySession(data);
+        showToast(`Welcome back, ${data.fullName?.split(' ')[0] || 'there'}!`, 'success');
+        setTimeout(() => { window.location.href = DASHBOARD; }, 1300);
+        // Don't call setLoading(false) — page is navigating away
+        return;
       }
-    });
 
-    document.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
+      // Handle specific HTTP error codes
+      if (res.status === 401 || res.status === 403) {
+        showToast('Invalid Employee ID or password.', 'error');
+        pwdInput.value = '';
+        pwdInput.focus();
+      } else if (res.status === 404) {
+        showToast('Employee not found. Check your Employee ID.', 'error');
+      } else if (res.status === 429) {
+        showToast('Too many attempts. Please wait and try again.', 'warning');
+      } else if (res.status >= 500) {
+        showToast('Server error. Please try again later.', 'error');
+      } else {
+        showToast('Login failed. Please try again.', 'error');
+      }
 
-    // Clear old session data
-    localStorage.removeItem('hrms_auth');
-    localStorage.removeItem('hrms_employee_prime_id');
-    localStorage.removeItem('hrms_employee_id');
-    localStorage.removeItem('hrms_first_name');
-    localStorage.removeItem('hrms_last_name');
-    localStorage.removeItem('hrms_department');
-    localStorage.removeItem('hrms_designation');
-    localStorage.removeItem('hrms_work_email');
-    localStorage.removeItem('hrms_login_ts');
-  })();
+    } catch (err) {
+      // Network failure or CORS issue
+      showToast('Unable to connect to server. Check your connection.', 'error');
+    }
+
+    setLoading(false);
+  }
+
+  /* ── EVENT BINDINGS ─────────────────────────────────── */
+  loginBtn.addEventListener('click', handleLogin);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !loginBtn.disabled) handleLogin();
+  });
+
+})();
 </script>
+
+</body>
+</html>

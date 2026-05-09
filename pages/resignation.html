@@ -704,32 +704,64 @@ document.addEventListener('DOMContentLoaded', function () {
   const initials = [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
   const role = designation !== '—' ? designation : (department !== '—' ? department : 'Employee');
 
-  // Header
-  document.getElementById('userAvatar').textContent = initials;
-  document.getElementById('userName').textContent = fullName;
-  document.getElementById('userRole').textContent = role;
+  // Header - with null checks
+  const userAvatar = document.getElementById('userAvatar');
+  const userName = document.getElementById('userName');
+  const userRole = document.getElementById('userRole');
+  if (userAvatar) userAvatar.textContent = initials;
+  if (userName) userName.textContent = fullName;
+  if (userRole) userRole.textContent = role;
 
-  // Form display fields
-  document.getElementById('disp_empId').textContent   = empId;
-  document.getElementById('disp_name').textContent    = fullName;
-  document.getElementById('disp_dept').textContent    = department;
-  document.getElementById('disp_desig').textContent   = designation;
-  document.getElementById('disp_manager').textContent = manager;
-  document.getElementById('disp_email').textContent   = workEmail;
-  document.getElementById('disp_manager2').textContent = manager + ' se approval awaited';
+  // Form display fields - with null checks
+  const dispEmpId = document.getElementById('disp_empId');
+  const dispName = document.getElementById('disp_name');
+  const dispDept = document.getElementById('disp_dept');
+  const dispDesig = document.getElementById('disp_desig');
+  const dispManager = document.getElementById('disp_manager');
+  const dispEmail = document.getElementById('disp_email');
+  const dispManager2 = document.getElementById('disp_manager2');
+  
+  if (dispEmpId) dispEmpId.textContent = empId;
+  if (dispName) dispName.textContent = fullName;
+  if (dispDept) dispDept.textContent = department;
+  if (dispDesig) dispDesig.textContent = designation;
+  if (dispManager) dispManager.textContent = manager;
+  if (dispEmail) dispEmail.textContent = workEmail;
+  if (dispManager2) dispManager2.textContent = manager + ' se approval awaited';
 
   // Set min date = today
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('resignationDate').min = today;
+  const resignationDateInput = document.getElementById('resignationDate');
+  if (resignationDateInput) resignationDateInput.min = today;
+
+  // Load draft first
+  loadDraft();
 
   // Check existing resignation in localStorage
   const existing = localStorage.getItem('hrms_resignation_status');
   if (existing === 'submitted') {
     const data = JSON.parse(localStorage.getItem('hrms_resignation_data') || '{}');
+    const formView = document.getElementById('formView');
+    const submittedView = document.getElementById('submittedView');
+    
     populateSubmittedView(data);
-    document.getElementById('formView').style.display = 'none';
-    document.getElementById('submittedView').style.display = 'block';
+    if (formView) formView.style.display = 'none';
+    if (submittedView) submittedView.style.display = 'block';
   }
+  
+  // Check status from backend after page loads
+  setTimeout(() => {
+    if (typeof checkResignationStatus === 'function') {
+      checkResignationStatus();
+    }
+  }, 1000);
+  
+  // Periodic check every 15 seconds
+  setInterval(() => {
+    if (typeof checkResignationStatus === 'function') {
+      checkResignationStatus();
+    }
+  }, 15000);
 });
 
 // ══════════════════════════════════════════════
@@ -811,58 +843,112 @@ function closeModal() {
   document.getElementById('confirmModal').classList.remove('active');
 }
 
-// ══════════════════════════════════════════════
-//  SUBMIT
-// ══════════════════════════════════════════════
 async function submitResignation() {
   closeModal();
 
-  const empId       = localStorage.getItem('hrms_employee_id') || '';
-  const resignDate  = document.getElementById('resignationDate').value;
-  const reason      = document.getElementById('resignReason').value;
+  const empId = localStorage.getItem('hrms_employee_id') || '';
+  const firstName = localStorage.getItem('hrms_first_name') || '';
+  const lastName = localStorage.getItem('hrms_last_name') || '';
+  const fullName = (firstName + ' ' + lastName).trim() || 'Employee';
+  
+  const resignDate = document.getElementById('resignationDate').value;
+  const reason = document.getElementById('resignReason').value;
   const otherReason = document.getElementById('otherReason').value;
-  const comments    = document.getElementById('resignComments').value;
+  const comments = document.getElementById('resignComments').value;
   const handoverPerson = document.getElementById('handoverPerson').value;
-  const handoverDate   = document.getElementById('handoverDate').value;
-  const pendingTasks   = document.getElementById('pendingTasks').value;
-  const lwd            = localStorage.getItem('hrms_lwd') || '';
-
+  const handoverDate = document.getElementById('handoverDate').value;
+  const pendingTasks = document.getElementById('pendingTasks').value;
+  
+  // Calculate LWD properly
+  const dt = new Date(resignDate);
+  dt.setDate(dt.getDate() + NOTICE_DAYS);
+  const lastWorkingDay = dt.toISOString().split('T')[0];
+  
+  // Prepare payload matching ExitRequestDto
   const payload = {
     employeeId: empId,
     resignationDate: resignDate,
-    lastWorkingDay: lwd,
-    noticePeriodDays: NOTICE_DAYS,
-    reason: reason === 'Other' ? otherReason : reason,
-    comments: comments,
-    handoverPerson: handoverPerson,
-    handoverDate: handoverDate,
-    pendingTasks: pendingTasks,
-    status: 'Pending',
-    submittedAt: new Date().toISOString()
+    lastWorkingDay: lastWorkingDay,
+    reasonForLeaving: reason === 'Other' ? otherReason : reason,
+    remarks: comments + (handoverPerson ? `\nHandover to: ${handoverPerson}` : '') + 
+             (handoverDate ? `\nHandover Date: ${handoverDate}` : '') +
+             (pendingTasks ? `\nPending Tasks: ${pendingTasks}` : ''),
+    basicSalary: null,
+    leaveEncashment: null,
+    bonus: null,
+    allowances: null,
+    salaryAdvance: null,
+    loanRecovery: null,
+    assetDamage: null,
+    otherDeductions: null
   };
 
+  console.log('Submitting resignation payload:', payload);
+  
   try {
-    const res = await fetch(`${BASE_URL}/api/resignation/submit`, {
+    const response = await fetch('http://localhost:8086/api/exit/resignations/create', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    payload.refNumber = json.data?.resignationId || generateRefNumber();
+    
+    console.log('Response status:', response.status);
+    const json = await response.json();
+    console.log('Response data:', json);
+    
+    if (response.ok && json.success) {
+      const exitId = json.exitId || json.data?.exitId || generateRefNumber();
+      const resignationId = json.id || json.data?.id;
+      
+      const savedData = {
+        refNumber: exitId,
+        resignationId: resignationId,
+        exitId: exitId,
+        employeeId: empId,
+        employeeName: fullName,
+        resignationDate: resignDate,
+        lastWorkingDay: lastWorkingDay,
+        reasonForLeaving: payload.reasonForLeaving,
+        status: 'PENDING',
+        submittedAt: new Date().toISOString(),
+        remarks: payload.remarks
+      };
+      
+      localStorage.setItem('hrms_resignation_status', 'submitted');
+      localStorage.setItem('hrms_resignation_data', JSON.stringify(savedData));
+      
+      populateSubmittedView(savedData);
+      document.getElementById('formView').style.display = 'none';
+      document.getElementById('submittedView').style.display = 'block';
+      showToast('Resignation submitted successfully! HR will review it.', 'success');
+    } else {
+      showToast(json.message || 'Submission failed. Please try again.', 'error');
+    }
   } catch (err) {
-    console.warn('[HRMS] API unavailable, proceeding locally:', err.message);
-    payload.refNumber = generateRefNumber();
+    console.error('[HRMS] API Error:', err);
+    const fallbackData = {
+      refNumber: generateRefNumber(),
+      resignationId: 'local-' + Date.now(),
+      employeeId: empId,
+      employeeName: fullName,
+      resignationDate: resignDate,
+      lastWorkingDay: lastWorkingDay,
+      reasonForLeaving: reason === 'Other' ? otherReason : reason,
+      status: 'PENDING',
+      submittedAt: new Date().toISOString(),
+      remarks: comments
+    };
+    
+    localStorage.setItem('hrms_resignation_status', 'submitted');
+    localStorage.setItem('hrms_resignation_data', JSON.stringify(fallbackData));
+    populateSubmittedView(fallbackData);
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('submittedView').style.display = 'block';
+    showToast('Saved locally! Will sync when online.', 'warning');
   }
-
-  // Save to localStorage
-  localStorage.setItem('hrms_resignation_status', 'submitted');
-  localStorage.setItem('hrms_resignation_data', JSON.stringify(payload));
-
-  populateSubmittedView(payload);
-  document.getElementById('formView').style.display = 'none';
-  document.getElementById('submittedView').style.display = 'block';
-  showToast('Resignation submitted successfully!', 'success');
 }
 
 function generateRefNumber() {
@@ -871,14 +957,59 @@ function generateRefNumber() {
   return `RES-${yr}-${num}`;
 }
 
+// ══════════════════════════════════════════════
+//  POPULATE SUBMITTED VIEW
+// ══════════════════════════════════════════════
 function populateSubmittedView(data) {
-  if (data.refNumber) document.getElementById('refNumber').textContent = data.refNumber;
-  const now = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  document.getElementById('submitDateDisplay').textContent = now;
-  if (data.lastWorkingDay) {
-    const d = new Date(data.lastWorkingDay);
-    document.getElementById('finalLWDDisplay').textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-  }
+    console.log('Populating submitted view with data:', data);
+    
+    const refNumber = data.refNumber || data.exitId || data.resignationId || 'N/A';
+    const refSpan = document.getElementById('refNumber');
+    if (refSpan) {
+        refSpan.innerHTML = `<i class="fas fa-hashtag"></i> ${refNumber}`;
+    }
+    
+    const submitDateSpan = document.getElementById('submitDateDisplay');
+    if (submitDateSpan) {
+        if (data.submittedAt) {
+            const d = new Date(data.submittedAt);
+            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        } else {
+            submitDateSpan.textContent = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        }
+    }
+    
+    const lwdSpan = document.getElementById('finalLWDDisplay');
+    if (lwdSpan && data.lastWorkingDay) {
+        const d = new Date(data.lastWorkingDay);
+        lwdSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+    } else if (lwdSpan) {
+        lwdSpan.textContent = '—';
+    }
+    
+    const managerSpan = document.getElementById('disp_manager2');
+    if (managerSpan) {
+        const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
+        if (data.status === 'APPROVED') {
+            managerSpan.textContent = managerName + ' ✅ Approved';
+        } else if (data.status === 'REJECTED') {
+            managerSpan.textContent = managerName + ' ❌ Rejected';
+        } else if (data.status === 'HR_PROCESSING') {
+            managerSpan.textContent = managerName + ' ✅ HR Processing Started';
+        } else if (data.status === 'CLEARANCE_PENDING') {
+            managerSpan.textContent = managerName + ' ✅ HR Completed, Clearance Pending';
+        } else if (data.status === 'COMPLETED') {
+            managerSpan.textContent = managerName + ' ✅ Process Complete';
+        } else if (data.status === 'PENDING') {
+            managerSpan.textContent = managerName + ' ⏳ Awaiting Approval';
+        } else {
+            managerSpan.textContent = managerName;
+        }
+    }
+    
+    if (typeof updateTimelineByStatus === 'function') {
+        updateTimelineByStatus(data.status);
+    }
 }
 
 // ══════════════════════════════════════════════
@@ -907,7 +1038,407 @@ function loadDraft() {
   if (draft.handoverDate) document.getElementById('handoverDate').value = draft.handoverDate;
   if (draft.pendingTasks) document.getElementById('pendingTasks').value = draft.pendingTasks;
 }
-loadDraft();
+
+// ══════════════════════════════════════════════
+//  CHECK RESIGNATION STATUS FROM BACKEND
+// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  CHECK RESIGNATION STATUS FROM BACKEND
+// ══════════════════════════════════════════════
+async function checkResignationStatus() {
+    const empId = localStorage.getItem('hrms_employee_id');
+    if (!empId) {
+        console.log('No employee ID found');
+        return;
+    }
+    
+    console.log('🔍 Checking resignation status for employee:', empId);
+    
+    try {
+        const response = await fetch(`${BASE_URL}/api/exit/resignations/employee/${empId}`);
+        const result = await response.json();
+        
+        console.log('Response status:', response.status);
+        console.log('Response data:', result);
+        
+        if (response.ok && result.success && result.data) {
+            const myResignation = result.data;
+            console.log('✅ Found resignation:', myResignation);
+            console.log('✅ Status from backend:', myResignation.status);
+            
+            // Clear old data and save new
+            localStorage.removeItem('hrms_resignation_data');
+            localStorage.setItem('hrms_resignation_status', 'submitted');
+            localStorage.setItem('hrms_resignation_data', JSON.stringify(myResignation));
+            
+            // Force update UI
+            forceUpdateUI(myResignation);
+        } else if (response.status === 404) {
+            console.log('No resignation found for this employee');
+        } else {
+            console.log('Error response:', result.message);
+        }
+    } catch (err) {
+        console.error('Error checking status:', err);
+    }
+}
+
+// ══════════════════════════════════════════════
+//  FORCE UPDATE UI - DIRECTLY OVERWRITE
+// ══════════════════════════════════════════════
+function forceUpdateUI(data) {
+    console.log('🔄 FORCE UPDATING UI with status:', data?.status);
+    
+    if (!data || !data.status) {
+        console.log('No data or status found');
+        return;
+    }
+    
+    const status = data.status;
+    const isApproved = status === 'APPROVED' || status === 'HR_PROCESSING' || status === 'CLEARANCE_PENDING' || status === 'COMPLETED';
+    const isRejected = status === 'REJECTED';
+    const isCompleted = status === 'COMPLETED';
+    
+    const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
+    
+    // Show submitted view
+    const formView = document.getElementById('formView');
+    const submittedView = document.getElementById('submittedView');
+    
+    if (formView) formView.style.display = 'none';
+    if (submittedView) submittedView.style.display = 'block';
+    
+    // Get the timeline container and COMPLETELY REPLACE it
+    const trackCard = document.querySelector('.track-card');
+    if (trackCard) {
+        // Find the timeline div inside track-card
+        let timelineDiv = trackCard.querySelector('.timeline');
+        if (!timelineDiv) {
+            // Create timeline div if it doesn't exist
+            timelineDiv = document.createElement('div');
+            timelineDiv.className = 'timeline';
+            const h4 = trackCard.querySelector('h4');
+            if (h4 && h4.nextSibling) {
+                trackCard.insertBefore(timelineDiv, h4.nextSibling);
+            } else {
+                trackCard.appendChild(timelineDiv);
+            }
+        }
+        
+        // Set timeline HTML based on status
+        if (isRejected) {
+            timelineDiv.innerHTML = `
+                <div class="tl-item">
+                    <div class="tl-left">
+                        <div class="tl-dot" style="background: var(--success);"></div>
+                        <div class="tl-line"></div>
+                    </div>
+                    <div class="tl-content">
+                        <strong>Resignation Submitted ✓</strong>
+                        <span id="submitDateDisplay"></span>
+                    </div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-left">
+                        <div class="tl-dot" style="background: #dc3545;"></div>
+                    </div>
+                    <div class="tl-content">
+                        <strong style="color: #dc3545;">Manager Approval ✗ (Rejected)</strong>
+                        <span>Your resignation has been rejected</span>
+                    </div>
+                </div>
+            `;
+        } else if (isApproved) {
+            timelineDiv.innerHTML = `
+                <div class="tl-item">
+                    <div class="tl-left">
+                        <div class="tl-dot" style="background: var(--success);"></div>
+                        <div class="tl-line" style="background: var(--success);"></div>
+                    </div>
+                    <div class="tl-content">
+                        <strong>Resignation Submitted ✓</strong>
+                        <span id="submitDateDisplay"></span>
+                    </div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-left">
+                        <div class="tl-dot" style="background: var(--success);"></div>
+                    </div>
+                    <div class="tl-content">
+                        <strong style="color: var(--success);">Manager Approval ✓ (Approved)</strong>
+                        <span>${managerName} has approved your resignation</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            timelineDiv.innerHTML = `
+                <div class="tl-item">
+                    <div class="tl-left">
+                        <div class="tl-dot" style="background: var(--success);"></div>
+                        <div class="tl-line"></div>
+                    </div>
+                    <div class="tl-content">
+                        <strong>Resignation Submitted ✓</strong>
+                        <span id="submitDateDisplay"></span>
+                    </div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-left">
+                        <div class="tl-dot" style="background: #e2e8f0;"></div>
+                    </div>
+                    <div class="tl-content">
+                        <strong style="color: var(--text-muted);">Manager Approval ⏳ (Awaiting)</strong>
+                        <span>${managerName} will review your resignation</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Update submit date
+    const submitDateSpan = document.getElementById('submitDateDisplay');
+    if (submitDateSpan) {
+        if (data.submittedAt) {
+            const d = new Date(data.submittedAt);
+            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        } else if (data.resignationDate) {
+            const d = new Date(data.resignationDate);
+            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        } else if (data.createdAt) {
+            const d = new Date(data.createdAt);
+            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+    }
+    
+    // Update last working day
+    const lwdSpan = document.getElementById('finalLWDDisplay');
+    if (lwdSpan && data.lastWorkingDay) {
+        const d = new Date(data.lastWorkingDay);
+        lwdSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+    
+    // Update ref number
+    const refSpan = document.getElementById('refNumber');
+    if (refSpan) {
+        const refNumber = data.exitId || data.id || 'N/A';
+        refSpan.innerHTML = `<i class="fas fa-hashtag"></i> ${refNumber}`;
+    }
+    
+    // Update manager name display
+    const managerSpan = document.getElementById('disp_manager2');
+    if (managerSpan) {
+        if (isApproved) {
+            managerSpan.textContent = `${managerName} ✅ Approved`;
+        } else if (isRejected) {
+            managerSpan.textContent = `${managerName} ❌ Rejected`;
+        } else {
+            managerSpan.textContent = `${managerName} ⏳ Awaiting Approval`;
+        }
+    }
+    
+    // Remove existing banner and add status banner
+    const existingBanner = document.querySelector('.submitted-view .status-banner');
+    if (existingBanner) existingBanner.remove();
+    
+    const container = document.querySelector('.submitted-view');
+    if (container) {
+        const banner = document.createElement('div');
+        banner.className = 'status-banner';
+        if (isApproved) {
+            banner.className += ' banner-success';
+            banner.innerHTML = `<i class="fas fa-check-circle"></i><span>✅ Your resignation has been APPROVED! You are now in notice period.</span>`;
+        } else if (isRejected) {
+            banner.className += ' banner-warning';
+            banner.innerHTML = `<i class="fas fa-exclamation-triangle"></i><span>❌ Your resignation has been REJECTED. Please contact HR.</span>`;
+        } else {
+            banner.className += ' banner-info';
+            banner.innerHTML = `<i class="fas fa-info-circle"></i><span>⏳ Your resignation is pending HR approval.</span>`;
+        }
+        
+        const trackCardElement = document.querySelector('.track-card');
+        if (trackCardElement) {
+            trackCardElement.insertAdjacentElement('afterend', banner);
+        }
+    }
+    
+    console.log('✅ UI force updated for status:', status);
+}
+
+// ══════════════════════════════════════════════
+//  OVERRIDE THE OLD updateResignationStatusUI
+// ══════════════════════════════════════════════
+window.updateResignationStatusUI = forceUpdateUI;
+
+// ══════════════════════════════════════════════
+//  MAKE SURE CHECK HAPPENS ON PAGE LOAD AND EVERY 5 SECONDS
+// ══════════════════════════════════════════════
+// Add this inside your DOMContentLoaded event listener
+setTimeout(() => {
+    checkResignationStatus();
+}, 500);
+
+setInterval(() => {
+    checkResignationStatus();
+}, 5000);
+
+// ══════════════════════════════════════════════
+//  UPDATE UI BASED ON RESIGNATION STATUS
+// ══════════════════════════════════════════════
+function updateResignationStatusUI(data) {
+    console.log('🔄 Updating UI with status:', data?.status);
+    
+    if (!data || !data.status) {
+        console.log('No data or status found');
+        return;
+    }
+    
+    const formView = document.getElementById('formView');
+    const submittedView = document.getElementById('submittedView');
+    
+    if (formView) formView.style.display = 'none';
+    if (submittedView) submittedView.style.display = 'block';
+    
+    const status = data.status;
+    // Check if status is APPROVED, HR_PROCESSING, CLEARANCE_PENDING, or COMPLETED
+    const isApproved = status === 'APPROVED' || status === 'HR_PROCESSING' || status === 'CLEARANCE_PENDING' || status === 'COMPLETED';
+    const isRejected = status === 'REJECTED';
+    
+    const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
+    
+    // Get the timeline container
+    const timelineContainer = document.querySelector('.submitted-view .timeline');
+    if (timelineContainer) {
+        timelineContainer.innerHTML = `
+            <div class="tl-item">
+                <div class="tl-left">
+                    <div class="tl-dot" style="background: var(--success);"></div>
+                    <div class="tl-line" style="background: ${isApproved ? 'var(--success)' : '#e2e8f0'};"></div>
+                </div>
+                <div class="tl-content">
+                    <strong>Resignation Submitted ✓</strong>
+                    <span id="submitDateDisplay"></span>
+                </div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-left">
+                    <div class="tl-dot" style="background: ${isRejected ? '#dc3545' : (isApproved ? 'var(--success)' : '#e2e8f0')};"></div>
+                </div>
+                <div class="tl-content">
+                    <strong>Manager Approval ${isRejected ? '✗ (Rejected)' : (isApproved ? '✓ (Approved)' : '⏳ (Awaiting)')}</strong>
+                    <span>${isRejected ? 'Your resignation has been rejected by HR' : (isApproved ? `${managerName} has approved your resignation` : `${managerName} will review your resignation`)}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Update submit date
+    const submitDateSpan = document.getElementById('submitDateDisplay');
+    if (submitDateSpan) {
+        if (data.submittedAt) {
+            const d = new Date(data.submittedAt);
+            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        } else if (data.resignationDate) {
+            const d = new Date(data.resignationDate);
+            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        }
+    }
+    
+    // Update last working day
+    const lwdSpan = document.getElementById('finalLWDDisplay');
+    if (lwdSpan && data.lastWorkingDay) {
+        const d = new Date(data.lastWorkingDay);
+        lwdSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+    
+    // Update ref number
+    const refSpan = document.getElementById('refNumber');
+    if (refSpan) {
+        const refNumber = data.exitId || data.id || 'N/A';
+        refSpan.innerHTML = `<i class="fas fa-hashtag"></i> ${refNumber}`;
+    }
+    
+    console.log('✅ UI updated for status:', status);
+}
+
+// ══════════════════════════════════════════════
+//  UPDATE TIMELINE BASED ON STATUS
+// ══════════════════════════════════════════════
+function updateTimelineByStatus(status) {
+    console.log('📊 Updating timeline for status:', status);
+    
+    const timelineContainer = document.querySelector('.timeline');
+    if (!timelineContainer) return;
+    
+    const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
+    const isApproved = ['APPROVED', 'HR_PROCESSING', 'CLEARANCE_PENDING', 'COMPLETED'].includes(status);
+    const isRejected = status === 'REJECTED';
+    const isCompleted = status === 'COMPLETED';
+    
+    timelineContainer.innerHTML = `
+        <div class="tl-item">
+            <div class="tl-left">
+                <div class="tl-dot" style="background: var(--success);"></div>
+                <div class="tl-line" id="line1" style="background: ${isApproved || isCompleted ? 'var(--success)' : '#e2e8f0'};"></div>
+            </div>
+            <div class="tl-content">
+                <strong>Resignation Submitted ✓</strong>
+                <span id="submitDateDisplay"></span>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left">
+                <div class="tl-dot" id="step2Dot" style="background: ${isRejected ? '#dc3545' : (isApproved ? 'var(--success)' : '#e2e8f0')};"></div>
+            </div>
+            <div class="tl-content">
+                <strong id="step2Title">Manager Approval ${isRejected ? '✗ (Rejected)' : (isApproved ? '✓ (Approved)' : '⏳ (Awaiting)')}</strong>
+                <span id="disp_manager2">${isRejected ? `${managerName} has rejected` : (isApproved ? `${managerName} has approved` : `${managerName} will review your resignation`)}</span>
+            </div>
+        </div>
+    `;
+    
+    // Update submit date
+    const localData = localStorage.getItem('hrms_resignation_data');
+    if (localData) {
+        const data = JSON.parse(localData);
+        const submitDateSpan = document.getElementById('submitDateDisplay');
+        if (submitDateSpan && data.submittedAt) {
+            const d = new Date(data.submittedAt);
+            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+    }
+    
+    console.log('✅ Timeline updated for status:', status);
+}
+
+// ══════════════════════════════════════════════
+//  SHOW STATUS BANNER
+// ══════════════════════════════════════════════
+function showStatusBanner(type, message) {
+  const container = document.querySelector('.submitted-view');
+  if (!container) return;
+  
+  const existingBanner = container.querySelector('.status-banner');
+  if (existingBanner) existingBanner.remove();
+  
+  const banner = document.createElement('div');
+  banner.className = 'status-banner';
+  
+  if (type === 'approved') {
+    banner.className += ' banner-success';
+    banner.innerHTML = `<i class="fas fa-check-circle" style="font-size:16px;flex-shrink:0"></i><span>${message}</span>`;
+  } else if (type === 'rejected') {
+    banner.className += ' banner-warning';
+    banner.innerHTML = `<i class="fas fa-exclamation-triangle" style="font-size:16px;flex-shrink:0"></i><span>${message}</span>`;
+  } else {
+    banner.className += ' banner-info';
+    banner.innerHTML = `<i class="fas fa-info-circle" style="font-size:16px;flex-shrink:0"></i><span>${message}</span>`;
+  }
+  
+  const trackCard = container.querySelector('.track-card');
+  if (trackCard) {
+    trackCard.insertAdjacentElement('afterend', banner);
+  }
+}
 
 // ══════════════════════════════════════════════
 //  TOAST
@@ -918,12 +1449,14 @@ function showToast(msg, type = 'success') {
     duration: 3500,
     gravity: 'bottom',
     position: 'right',
-    backgroundColor: type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#1f6f7f',
-    stopOnFocus: true,
     style: {
-      borderRadius: '10px', padding: '12px 18px',
-      fontSize: '13.5px', fontWeight: '500',
+      background: type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#1f6f7f',
+      borderRadius: '10px',
+      padding: '12px 18px',
+      fontSize: '13.5px',
+      fontWeight: '500',
     },
+    stopOnFocus: true,
   }).showToast();
 }
 
@@ -952,10 +1485,12 @@ function doLogout() {
 document.getElementById('logoutBtn').addEventListener('click', doLogout);
 document.getElementById('dropdownLogoutBtn').addEventListener('click', doLogout);
 
-// Close modal on overlay click
 document.getElementById('confirmModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+
+// Initial load of draft
+loadDraft();
 </script>
 </body>
 </html>
