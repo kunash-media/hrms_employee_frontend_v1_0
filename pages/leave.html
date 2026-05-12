@@ -222,11 +222,12 @@
             border-radius: 8px;
         }
         .mobile-toggle:hover { background: #e6f4f6; }
+        
         .page-title {
             font-family: 'Poppins', sans-serif;
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--primary);
+            font-size: 20px; 
+            font-weight: 600;
+            color: #145c6b;
         }
         .page-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
         .header-right { display: flex; align-items: center; gap: 16px; }
@@ -257,23 +258,35 @@
         }
 
         .user-profile { position: relative; }
-        .profile-btn {
-            display: flex; align-items: center; gap: 10px;
-            background: none; border: none;
-            border-radius: 40px; padding: 5px 14px 5px 5px;
-            cursor: pointer; transition: all 0.2s;
+        
+          .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: transparent;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 40px;
+            cursor: pointer;
+            text-align: left;
+            transition: var(--transition-default);
         }
+
+        
         .profile-btn:hover { border-color: var(--primary); background: #e6f4f6; }
+        
         .avatar {
-            width: 32px; height: 32px;
-            border-radius: 50%;
+            width: 42px;
+            height: 42px;
             background: var(--primary);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Poppins', sans-serif;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 600;
         }
+        
         .user-name { font-size: 13px; font-weight: 600; color: var(--text-main); }
         .user-role { font-size: 11px; color: var(--text-muted); }
         .dropdown-arrow { font-size: 11px; color: var(--text-muted); transition: transform 0.2s; }
@@ -762,14 +775,14 @@
             <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
             <li><a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
             <li><a href="../pages/leave.html" class="nav-link active"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
-            <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+            <li><a href="../pages/payroll.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
             <li><a href="../pages/resignation.html" class="nav-link"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
 
-            <li><a href="../pages/policies.html"  class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
+            <li><a href="../pages/under-construction.html"  class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
         </ul>
     </nav>
     <div class="sidebar-footer">
-        <button class="logout-btn" onclick="showToast('Logging out...','info')">
+        <button class="logout-btn">
             <i class="fas fa-sign-out-alt"></i><span class="nav-text">Logout</span>
         </button>
     </div>
@@ -804,7 +817,7 @@
                 <div class="profile-dropdown" id="profileDropdown">
                     <a href="../pages/profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
                     <div class="dropdown-divider"></div>
-                    <button class="dropdown-item logout-item" onclick="showToast('Logging out...','info')">
+                    <button class="dropdown-item logout-item">
                         <i class="fas fa-sign-out-alt"></i><span>Logout</span>
                     </button>
                 </div>
@@ -1121,7 +1134,7 @@ const LOGGED_EMP_ID   = localStorage.getItem('hrms_employee_id')       || sessio
 const EMPLOYEE_FNAME  = localStorage.getItem('hrms_first_name')        || '';
 const EMPLOYEE_LNAME  = localStorage.getItem('hrms_last_name')         || '';
 const EMPLOYEE_NAME   = (EMPLOYEE_FNAME + ' ' + EMPLOYEE_LNAME).trim() || sessionStorage.getItem('employeeName')    || '';
-const EMPLOYEE_DEPT   = localStorage.getItem('hrms_department')        || sessionStorage.getItem('department')      || '';
+const EMPLOYEE_DEPT   = localStorage.getItem('hrms_designation')        || sessionStorage.getItem('designation')      || '';
 const EMPLOYEE_TYPE   = localStorage.getItem('hrms_employment_type')   || sessionStorage.getItem('employmentType')  || '';
 
 // ============================================================

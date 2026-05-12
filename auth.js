@@ -308,8 +308,10 @@
    * standard element IDs used across the portal.
    * ───────────────────────────────────────────── */
   function populateUserUI() {
-    const fullName    = localStorage.getItem('hrms_full_name')    || '';
-    const firstName   = localStorage.getItem('hrms_first_name')   || fullName.split(' ')[0] || 'Employee';
+     const firstName = localStorage.getItem('hrms_first_name') || '';
+    const lastName  = localStorage.getItem('hrms_last_name')  || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+
     const designation = localStorage.getItem('hrms_designation')  || '';
     const department  = localStorage.getItem('hrms_department')   || '';
     const role        = designation || department || 'Employee';

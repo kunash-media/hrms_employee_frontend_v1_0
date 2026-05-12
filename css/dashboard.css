@@ -77,16 +77,12 @@ body {
   left: 0; top: 0;
   width: var(--sidebar-width);
   height: 100vh;
-
   background: linear-gradient(180deg, #1f6f7f 0%, #145c6b 100%);
   color: var(--text-white);
-
   display: flex;
   flex-direction: column;
-
   z-index: 1050;
   overflow: hidden;
-
   transition: width 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   box-shadow: 4px 0 20px rgba(0,0,0,0.12);
 }

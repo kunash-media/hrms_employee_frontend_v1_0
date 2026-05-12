@@ -408,8 +408,11 @@
     // Server returns fullName; split for firstName
     const fullName  = data.fullName ?? '';
     const firstName = fullName.split(' ')[0] ?? '';
+    const lastName = fullName.split(' ').slice(2).join(' ') ?? '';
+    
     localStorage.setItem('hrms_full_name',    fullName);
     localStorage.setItem('hrms_first_name',   firstName);
+    localStorage.setItem('hrms_last_name',   lastName);    
     localStorage.setItem('hrms_designation',  data.designation ?? '');
     localStorage.setItem('hrms_department',   data.department  ?? '');
     localStorage.setItem('hrms_login_ts',     String(Date.now()));
