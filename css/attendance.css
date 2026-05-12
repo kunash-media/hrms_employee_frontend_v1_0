@@ -323,7 +323,7 @@ body {
   font-size: 12px; font-weight: 600;
   background: #eef2f7; color: var(--text-dark);
 }
-.badge-warning { background: #fff4e0; color: #b45309; }
+.badge-warning { background: #fff4e0; color: #b45309; border: 1px solid; }
 .badge-success { background: #e8f5e9; color: var(--success); }
 .badge-secondary { background: #f1f5f9; color: var(--text-muted); }
 
@@ -333,6 +333,7 @@ body {
   background: var(--primary-soft);
   padding: 5px 14px; border-radius: 20px;
   color: var(--primary-dark); letter-spacing: 1px;
+  border: 1px solid;
 }
 
 .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }

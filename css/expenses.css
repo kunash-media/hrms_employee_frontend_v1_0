@@ -510,9 +510,9 @@
 
         .stat-card {
             background: #ffffff;
-            border-radius: 20px;
+            border-radius: 14px;
             padding: 18px;
-            border: 1px solid var(--primary);
+            border: 1px solid #1B738C;
             position: relative;
             overflow: hidden;
             transition: all 0.25s ease;
@@ -530,7 +530,7 @@
         }
 
         .stat-value {
-            font-size: 30px;
+            font-size: 20px;
             font-weight: 800;
             margin-top: 6px;
             line-height: 1.1;
@@ -561,10 +561,10 @@
         /* Chart Row */
         .chart-row {
             background: white;
-            border-radius: 20px;
+            border-radius: 14px;
             padding: 18px;
             margin-bottom: 24px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #1B738C;
         }
 
         .chart-row h4 {
@@ -586,10 +586,10 @@
             display: flex;
             align-items: center;
             background: white;
-            border-radius: 40px;
+            border-radius: 14px;
             padding: 8px 18px;
             gap: 8px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #1B738C;
         }
 
         .search-bar input {
@@ -610,19 +610,20 @@
         .filter-select,
         .filter-date {
             padding: 8px 12px;
-            border-radius: 40px;
-            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            border: 1px solid #1B738C;
             background: white;
             font-size: 0.8rem;
+            outline: none;
         }
 
         .btn-primary {
             background: var(--primary);
             border: none;
             padding: 10px 20px;
-            border-radius: 40px;
+            border-radius: 12px;
             color: white;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -647,7 +648,7 @@
 
         .expense-table {
             background: white;
-            border-radius: 20px;
+            border-radius: 14px;
             overflow-x: auto;
             border: 1px solid var(--primary);
         }

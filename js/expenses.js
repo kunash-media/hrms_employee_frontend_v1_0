@@ -33,7 +33,7 @@
         function handleLogout() {
             showToast('Logging out... Redirecting to login page', 'success');
             setTimeout(() => {
-                window.location.href = '../index.html';
+                window.location.href = '';
             }, 500);
         }
 
@@ -62,8 +62,7 @@
             document.getElementById('pendingAmount').innerText = formatIndianCurrency(pendingTotal);
             document.getElementById('approvedAmount').innerText = formatIndianCurrency(approvedTotal);
             document.getElementById('rejectedAmount').innerText = formatIndianCurrency(rejectedTotal);
-            const pendingCount = expenses.filter(e => e.status === 'Pending').length;
-            document.getElementById('pendingBadge').innerText = pendingCount;
+            
         }
 
         function renderTable() {

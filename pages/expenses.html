@@ -177,17 +177,11 @@
             .modal-actions .btn-primary { flex: 1; justify-content: center; }
         }
 
-          a{
+    a{
         text-decoration: none;
     }
     
-    .sidebar-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px; height: var(--header-height);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      flex-shrink: 0;
-    }
-    
+ 
      .nav-link {
       display: flex; align-items: center; gap: 12px;
       padding: 10px 18px; color: var(--sidebar-text);
@@ -281,7 +275,7 @@
                 <div class="notification-bell">
                     <button class="icon-btn" aria-label="Notifications">
                         <i class="far fa-bell"></i>
-                        <span class="notification-badge" id="pendingBadge">0</span>
+                        <span class="notification-badge">0</span>
                     </button>
                 </div>
 
@@ -650,7 +644,6 @@
             populateCategoryDropdown();
             renderTableAndStats();
             updateChart();
-            updatePendingBadge();
         } catch (err) {
             console.error('getAllExpenses:', err);
             showToast('Failed to load expenses', 'error');
