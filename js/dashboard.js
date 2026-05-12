@@ -8,6 +8,96 @@
 
 const BASE_EMP_URL = 'http://localhost:8086';
 
+const sidebar      = document.getElementById('sidebar');
+  const mainContent  = document.getElementById('mainContent');
+  const collapseBtn  = document.getElementById('collapseSidebarBtn');
+  const mobileToggle = document.getElementById('mobileToggleBtn');
+  const profileBtn   = document.getElementById('profileDropdownBtn');
+  const profileDropdown = document.getElementById('profileDropdown');
+
+  let isProgrammaticResize = false;
+
+  /* ─────────────────────────────────────────────
+   * SIDEBAR COLLAPSE
+   * ───────────────────────────────────────────── */
+  function setSidebarCollapsed(isCollapsed, skipStorage = false) {
+    sidebar.classList.toggle('collapsed', isCollapsed);
+    mainContent.classList.toggle('sidebar-collapsed', isCollapsed);
+
+    const icon = collapseBtn?.querySelector('i');
+    if (icon) icon.style.transform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+
+    if (!skipStorage) {
+      localStorage.setItem('hrms_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+    }
+  }
+
+  function toggleCollapse() {
+    setSidebarCollapsed(!sidebar.classList.contains('collapsed'));
+  }
+
+  if (collapseBtn) collapseBtn.addEventListener('click', toggleCollapse);
+
+  /* ─────────────────────────────────────────────
+   * MOBILE SIDEBAR
+   * ───────────────────────────────────────────── */
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', e => {
+      e.stopPropagation();
+      sidebar.classList.toggle('mobile-open');
+    });
+  }
+
+  document.addEventListener('click', e => {
+    // Close mobile sidebar on outside click
+    if (
+      window.innerWidth <= 768 &&
+      sidebar &&
+      mobileToggle &&
+      !sidebar.contains(e.target) &&
+      !mobileToggle.contains(e.target)
+    ) {
+      sidebar.classList.remove('mobile-open');
+    }
+
+    // Close profile dropdown on outside click
+    if (profileDropdown && profileBtn && !profileBtn.contains(e.target)) {
+      profileDropdown.classList.remove('active');
+    }
+  });
+
+  /* ─────────────────────────────────────────────
+   * PROFILE DROPDOWN
+   * ───────────────────────────────────────────── */
+  if (profileBtn) {
+    profileBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('active');
+    });
+  }
+
+  // ── LOGOUT BUTTONS ────────────────────────────
+  // auth.js rebinds ALL logout triggers after DOMContentLoaded.
+  // Nothing to do here — do not add confirm() or handleLogout().
+
+  /* ─────────────────────────────────────────────
+   * DATE / TIME
+   * ───────────────────────────────────────────── */
+  function updateDateTime() {
+    const el = document.getElementById('currentDateTime');
+    if (!el) return;
+    el.innerText = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year:    'numeric',
+      month:   'long',
+      day:     'numeric',
+    });
+  }
+
+  updateDateTime();
+  setInterval(updateDateTime, 60000);
+
+
 async function initDashboardCharts() {
   const employeePrimeId = localStorage.getItem('hrms_employee_prime_id');
 
@@ -108,3 +198,30 @@ async function initDashboardCharts() {
 }
 
 document.addEventListener('DOMContentLoaded', initDashboardCharts);
+
+
+ /* ─────────────────────────────────────────────
+   * SIDEBAR RESTORE on load
+   * ───────────────────────────────────────────── */
+  if (window.innerWidth > 768) {
+    const saved = localStorage.getItem('hrms_sidebar_collapsed') === 'true';
+    setSidebarCollapsed(saved, true);
+  }
+
+  /* ─────────────────────────────────────────────
+   * RESIZE HANDLER
+   * ───────────────────────────────────────────── */
+  window.addEventListener('resize', () => {
+    if (isProgrammaticResize) return;
+    isProgrammaticResize = true;
+
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove('collapsed', 'mobile-open');
+      mainContent.classList.remove('sidebar-collapsed');
+    } else {
+      const stored = localStorage.getItem('hrms_sidebar_collapsed') === 'true';
+      setSidebarCollapsed(stored, true);
+    }
+
+    setTimeout(() => { isProgrammaticResize = false; }, 100);
+  });
