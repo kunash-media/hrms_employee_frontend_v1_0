@@ -4,7 +4,7 @@
 
 /* ── Config ─────────────────────────────────────────────── */
 const BASE_URL     = 'http://localhost:8086';
-const EMP_PRIME_ID = () => parseInt(localStorage.getItem('employeePrimeId') || '1', 10);
+const EMP_PRIME_ID = () => parseInt(localStorage.getItem('hrms_employee_prime_id'));
 const PAGE_SIZE    = 10;
 
 /* ── State ──────────────────────────────────────────────── */

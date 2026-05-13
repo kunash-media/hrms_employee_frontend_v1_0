@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -10,178 +9,70 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!--
-        ARCHITECTURE NOTE
-        ─────────────────
-        1. expenses.css  → all page-specific styles (stats cards, table, modals, chart row)
-        2. dashboard.css → shared layout styles (sidebar, header, nav-link, avatar, dropdown)
-           imported AFTER expenses.css so shared vars & layout win over any page-level resets.
-
-        DO NOT redeclare sidebar / .nav-link / .avatar / .profile-dropdown / .logout-btn
-        in this file's <style> block — those live exclusively in dashboard.css.
-        Only truly page-specific overrides that cannot go in expenses.css belong below.
-    -->
-    <!-- <link rel="stylesheet" href="../css/dashboard.css"> -->
+  
     <link rel="stylesheet" href="../css/expenses.css">
-
     <style>
-        /* ── Page-specific overrides only ───────────────────────────────
-           Nothing here should duplicate dashboard.css selectors.
-           If you find yourself copying a selector from dashboard.css,
-           put it there instead.
-        ──────────────────────────────────────────────────────────────── */
-
-        /* Modal shell — not in shared CSS because it's page-specific */
+        /* Page-specific overrides only */
         .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 1200;
-            background: rgba(15, 23, 42, 0.55);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
+            display: none; position: fixed; inset: 0; z-index: 1200;
+            background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);
+            justify-content: center; align-items: center; padding: 16px;
         }
-        .modal.active,
-        .modal[style*="flex"] { display: flex; }
-
+        .modal.active, .modal[style*="flex"] { display: flex; }
         .modal-content {
-            width: 100%;
-            max-width: 520px;
-            max-height: 82vh;
-            background: #ffffff;
-            border-radius: 22px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.28);
-            display: flex;
-            flex-direction: column;
-            animation: modalFadeIn 0.22s ease-out;
+            width: 100%; max-width: 520px; max-height: 82vh;
+            background: #ffffff; border-radius: 22px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.28);
+            display: flex; flex-direction: column; animation: modalFadeIn 0.22s ease-out;
         }
         @keyframes modalFadeIn {
             from { opacity: 0; transform: scale(0.96) translateY(8px); }
-            to   { opacity: 1; transform: scale(1)    translateY(0);    }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
-
         .modal-header {
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 22px;
-            background: linear-gradient(135deg, #1f6f7f 0%, #145c6b 100%);
-            color: #fff;
-            border-radius: 22px 22px 0 0;
+            flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
+            padding: 18px 22px; background: linear-gradient(135deg, #1f6f7f 0%, #145c6b 100%);
+            color: #fff; border-radius: 22px 22px 0 0;
         }
-        .modal-header strong { font-size: 1rem; font-weight: 600; }
-
         .modal-close {
-            width: 32px; height: 32px;
-            border-radius: 10px; border: none;
-            background: rgba(255,255,255,0.15);
-            color: #fff; font-size: 18px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
+            width: 32px; height: 32px; border-radius: 10px; border: none;
+            background: rgba(255,255,255,0.15); color: #fff; font-size: 18px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-        .modal-close:hover { background: rgba(255,255,255,0.30); }
-
-        .modal-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 22px;
-            scrollbar-width: thin;
-            scrollbar-color: #1f6f7f #f1f1f1;
-        }
-        .modal-body::-webkit-scrollbar       { width: 5px; }
-        .modal-body::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .modal-body::-webkit-scrollbar-thumb { background: #1f6f7f; border-radius: 10px; }
-
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px 22px; }
         .form-group { margin-bottom: 14px; }
         .form-group label {
             font-weight: 600; display: block; margin-bottom: 5px;
-            font-size: 0.7rem; color: #64748b;
-            text-transform: uppercase; letter-spacing: 0.5px;
+            font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%; padding: 10px 12px;
-            border: 1.5px solid #e2e8f0; border-radius: 12px;
-            font-size: 0.85rem; font-family: 'Inter', sans-serif;
-            transition: border-color 0.2s, box-shadow 0.2s;
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0;
+            border-radius: 12px; font-size: 0.85rem; transition: all 0.2s;
         }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #1f6f7f;
-            box-shadow: 0 0 0 3px rgba(31,111,127,0.10);
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #1f6f7f; box-shadow: 0 0 0 3px rgba(31,111,127,0.10); outline: none;
         }
-        .form-group textarea { resize: vertical; min-height: 60px; }
-
-        .modal-actions {
-            display: flex; justify-content: flex-end; gap: 10px;
-            margin-top: 18px; padding-top: 14px;
-            border-top: 1px solid #e2e8f0; flex-shrink: 0;
-        }
-
-        .receipt-preview { margin-top: 8px; }
-        .receipt-preview img {
-            max-width: 100%; max-height: 250px;
-            border-radius: 12px; border: 1px solid #e2e8f0;
-        }
-        .receipt-section { margin-top: 15px; }
-        .receipt-section label { font-weight: 600; font-size: 0.75rem; color: #64748b; display: block; margin-bottom: 6px; }
-
-        /* Status badges */
-        .status-badge {
-            display: inline-block; padding: 4px 12px;
-            border-radius: 100px; font-size: 0.75rem; font-weight: 600;
-        }
-        .status-pending  { background: #fef3c7; color: #b45309; }
+        .status-badge { padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #b45309; }
         .status-approved { background: #d1fae5; color: #065f46; }
         .status-rejected { background: #fee2e2; color: #991b1b; }
-        .status-paid     { background: #dbeafe; color: #1e40af; }
-
-        /* Action icons */
+        .status-paid { background: #dbeafe; color: #1e40af; }
         .action-icons i {
-            margin: 0 5px; cursor: pointer;
-            font-size: 1.05rem; color: #1f6f7f;
-            transition: color 0.2s, transform 0.15s;
+            margin: 0 5px; cursor: pointer; font-size: 1.05rem; color: #1f6f7f;
         }
         .action-icons i:hover { color: #145c6b; transform: scale(1.15); }
 
-        /* Detail modal content */
-        #detailContent { display: flex; flex-direction: column; gap: 12px; }
-        .detail-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 0; border-bottom: 1px solid #f0f2f5;
-        }
-        .detail-label {
-            font-weight: 600; color: #475569;
-            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .detail-value {
-            font-weight: 500; color: #1e293b;
-            font-size: 0.85rem; word-break: break-word;
-            text-align: right; max-width: 60%;
-        }
-        .detail-value.amount { font-size: 1rem; font-weight: 700; color: #1f6f7f; }
 
-        @media (max-width: 640px) {
-            .modal-content { max-height: 90vh; }
-            .detail-item { flex-direction: column; align-items: flex-start; gap: 4px; }
-            .detail-value { text-align: left; max-width: 100%; }
-            .modal-actions { flex-wrap: wrap; }
-            .modal-actions .btn-primary { flex: 1; justify-content: center; }
-        }
-
-    a{
+         a{
         text-decoration: none;
     }
     
- 
+    .sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: var(--header-height);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    
      .nav-link {
       display: flex; align-items: center; gap: 12px;
       padding: 10px 18px; color: var(--sidebar-text);
@@ -210,76 +101,51 @@
     .collapse-btn:hover { background: var(--sidebar-hover); color: #fff; }
     .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
 
-    .sidebar-nav{
-        padding: 8px 0;
-    }
+        
     </style>
 </head>
-
 <body>
 <div class="dashboard-container">
-
-    <!-- ═══════════════════════════════════════════════════════
-         SIDEBAR  — identical markup to dashboard.html
-         Active class is on the Expenses link here.
-    ═══════════════════════════════════════════════════════ -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="../pages/dashboard.html" class="logo">
                 <i class="fas fa-briefcase"></i>
                 <span class="logo-text">Employee Portal</span>
             </a>
-            <button class="collapse-btn" id="collapseSidebarBtn" aria-label="Toggle sidebar">
+            <button class="collapse-btn" id="collapseSidebarBtn">
                 <i class="fas fa-chevron-left"></i>
             </button>
         </div>
-
         <nav class="sidebar-nav">
             <ul class="nav-menu">
-                <li><a href="../pages/dashboard.html"   class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
-                <li><a href="../pages/profile.html"     class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
-                <li><a href="../pages/attendance.html"  class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
-                <li><a href="../pages/expenses.html"    class="nav-link active"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
-                <li><a href="../pages/leave.html"       class="nav-link"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
-                <li><a href="../pages/payroll.html"     class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+                <li><a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
+                <li><a href="../pages/profile.html" class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
+                <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
+                <li><a href="../pages/expenses.html" class="nav-link active"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
+                <li><a href="../pages/leave.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
+                <li><a href="../pages/payroll.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
                 <li><a href="../pages/resignation.html" class="nav-link"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
                 <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
             </ul>
         </nav>
-
         <div class="sidebar-footer">
-            <!-- auth.js binds ALL logout buttons by id="logoutBtn" -->
             <button class="logout-btn" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="nav-text">Logout</span>
             </button>
         </div>
     </aside>
-
-    <!-- ═══════════════════════════════════════════════════════
-         MAIN CONTENT
-    ═══════════════════════════════════════════════════════ -->
     <div class="main-content" id="mainContent">
-
-        <!-- ── HEADER — identical structure to dashboard.html ── -->
         <header class="header">
             <div class="header-left">
-                <button class="mobile-toggle" id="mobileToggleBtn" aria-label="Open menu">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button class="mobile-toggle" id="mobileToggleBtn"><i class="fas fa-bars"></i></button>
                 <div class="page-title">Expense Management</div>
             </div>
-
             <div class="header-right">
-                <!-- Notification bell -->
                 <div class="notification-bell">
-                    <button class="icon-btn" aria-label="Notifications">
-                        <i class="far fa-bell"></i>
-                        <span class="notification-badge">0</span>
-                    </button>
+                    <button class="icon-btn"><i class="far fa-bell"></i><span class="notification-badge">0</span></button>
                 </div>
-
-                <!-- User profile — exact same structure as dashboard.html -->
                 <div class="user-profile">
                     <button class="profile-btn" id="profileDropdownBtn">
                         <div class="avatar" id="userAvatar">EM</div>
@@ -289,29 +155,15 @@
                         </div>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </button>
-
                     <div class="profile-dropdown" id="profileDropdown">
-                        <a href="../pages/profile.html" class="dropdown-item">
-                            <i class="fas fa-user-circle"></i>
-                            <span>My Profile</span>
-                        </a>
+                        <a href="../pages/profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
                         <div class="dropdown-divider"></div>
-                        <!--
-                            auth.js rebinds ALL .logout-item buttons after DOMContentLoaded.
-                            Do NOT add onclick or addEventListener for logout here.
-                        -->
-                        <button class="dropdown-item logout-item">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </button>
+                        <button class="dropdown-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
                     </div>
                 </div>
             </div>
         </header>
-
-        <!-- ── PAGE CONTENT ── -->
         <div class="content-wrapper">
-
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card stat-total">
@@ -335,13 +187,11 @@
                     <div class="stat-sub">total rejected</div>
                 </div>
             </div>
-
             <!-- Chart -->
             <div class="chart-row">
                 <h4><i class="fas fa-chart-line"></i> Monthly Expense Trend</h4>
                 <canvas id="expenseChart" height="100" style="max-height:200px;"></canvas>
             </div>
-
             <!-- Table Actions -->
             <div class="table-actions">
                 <div class="search-bar">
@@ -350,7 +200,7 @@
                 </div>
                 <div class="filters">
                     <input type="date" id="filterFrom" class="filter-date">
-                    <input type="date" id="filterTo"   class="filter-date">
+                    <input type="date" id="filterTo" class="filter-date">
                     <button class="btn-primary" id="addExpenseBtn"><i class="fas fa-plus"></i> Add Expense</button>
                     <button class="btn-primary btn-outline" id="exportBtn"><i class="fas fa-file-csv"></i> Export CSV</button>
                     <select id="filterCategory" class="filter-select">
@@ -364,7 +214,6 @@
                     </select>
                 </div>
             </div>
-
             <!-- Expense Table -->
             <div class="expense-table">
                 <table>
@@ -382,19 +231,16 @@
                 </table>
                 <div class="pagination" id="pagination"></div>
             </div>
-        </div><!-- /.content-wrapper -->
-    </div><!-- /.main-content -->
-</div><!-- /.dashboard-container -->
+        </div>
+    </div>
+</div>
 
-
-<!-- ═══════════════════════════════════════════════════════
-     ADD / EDIT MODAL
-═══════════════════════════════════════════════════════ -->
+<!-- ADD / EDIT MODAL -->
 <div id="expenseModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <strong id="modalTitle">Add New Expense</strong>
-            <button class="modal-close" id="closeModalBtn" aria-label="Close">&times;</button>
+            <button class="modal-close" id="closeModalBtn">&times;</button>
         </div>
         <div class="modal-body">
             <form id="expenseForm">
@@ -428,13 +274,11 @@
                     <label>Upload Receipt</label>
                     <input type="file" id="receiptFile" accept="image/*">
                 </div>
-
                 <div class="receipt-section" id="currentReceiptSection" style="display:none;">
                     <label>Current Receipt</label>
                     <div id="currentReceiptPreview" class="receipt-preview"></div>
                 </div>
                 <div id="receiptPreview" class="receipt-preview"></div>
-
                 <div class="modal-actions">
                     <button type="button" class="btn-primary btn-outline" id="cancelModalBtn">Cancel</button>
                     <button type="submit" class="btn-primary" id="submitExpenseBtn">Submit</button>
@@ -445,413 +289,219 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     DETAIL MODAL
-═══════════════════════════════════════════════════════ -->
+<!-- DETAIL MODAL -->
 <div id="detailModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <strong>Expense Details</strong>
-            <button class="modal-close" id="closeDetailBtn" aria-label="Close">&times;</button>
+            <button class="modal-close" id="closeDetailBtn">&times;</button>
         </div>
         <div class="modal-body" id="detailContent"></div>
     </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════════════
-     SCRIPTS
-     Load order matters:
-       1. auth.js   — session guard + populates user name/avatar + binds ALL logout triggers
-       2. inline JS — sidebar collapse, profile dropdown, page logic
-     auth.js MUST run first so the page redirects unauthenticated users before
-     any page logic executes.
-═══════════════════════════════════════════════════════ -->
 <script src="../auth.js"></script>
-
 <script>
-/**
- * expenses.js (inline)
- *
- * Responsibilities:
- *   - Sidebar collapse / mobile toggle  (mirrors dashboard.js exactly)
- *   - Profile dropdown toggle           (mirrors dashboard.js exactly)
- *   - All expense CRUD + chart + filters
- *
- * NOT handled here (owned by auth.js):
- *   - Session guard
- *   - User name / role / avatar population
- *   - Logout confirmation overlay for #logoutBtn and ALL .logout-item buttons
- */
 (function () {
     'use strict';
 
-    /* ─────────────────────────────────────────────
-     * ELEMENT REFS
-     * ───────────────────────────────────────────── */
-    const sidebar         = document.getElementById('sidebar');
-    const mainContent     = document.getElementById('mainContent');
-    const collapseBtn     = document.getElementById('collapseSidebarBtn');
+    // ==================== UI SETUP ====================
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const collapseBtn = document.getElementById('collapseSidebarBtn');
     const mobileToggleBtn = document.getElementById('mobileToggleBtn');
-    const profileBtn      = document.getElementById('profileDropdownBtn');
+    const profileBtn = document.getElementById('profileDropdownBtn');
     const profileDropdown = document.getElementById('profileDropdown');
 
-    /* ─────────────────────────────────────────────
-     * SIDEBAR COLLAPSE  — exact mirror of dashboard.js
-     * ───────────────────────────────────────────── */
-    function setSidebarCollapsed(isCollapsed, skipStorage) {
+    function setSidebarCollapsed(isCollapsed) {
         sidebar.classList.toggle('collapsed', isCollapsed);
         mainContent.classList.toggle('sidebar-collapsed', isCollapsed);
-
-        const icon = collapseBtn && collapseBtn.querySelector('i');
-        if (icon) icon.style.transform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
-
-        if (!skipStorage) {
-            localStorage.setItem('hrms_sidebar_collapsed', isCollapsed ? 'true' : 'false');
-        }
+        localStorage.setItem('hrms_sidebar_collapsed', isCollapsed);
     }
 
-    if (collapseBtn) {
-        collapseBtn.addEventListener('click', function () {
-            setSidebarCollapsed(!sidebar.classList.contains('collapsed'));
-        });
-    }
-
-    /* ─────────────────────────────────────────────
-     * MOBILE SIDEBAR
-     * ───────────────────────────────────────────── */
-    if (mobileToggleBtn) {
-        mobileToggleBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            sidebar.classList.toggle('mobile-open');
-        });
-    }
-
-    /* ─────────────────────────────────────────────
-     * PROFILE DROPDOWN  — exact mirror of dashboard.js
-     * ───────────────────────────────────────────── */
-    if (profileBtn) {
-        profileBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            profileDropdown.classList.toggle('active');
-        });
-    }
-
-    /* Global click → close mobile sidebar + profile dropdown */
-    document.addEventListener('click', function (e) {
-        // Close mobile sidebar on outside click
-        if (
-            window.innerWidth <= 768 &&
-            sidebar && mobileToggleBtn &&
-            !sidebar.contains(e.target) &&
-            !mobileToggleBtn.contains(e.target)
-        ) {
+    collapseBtn.addEventListener('click', () => setSidebarCollapsed(!sidebar.classList.contains('collapsed')));
+    mobileToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('mobile-open');
+    });
+    profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('active');
+    });
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !mobileToggleBtn.contains(e.target)) {
             sidebar.classList.remove('mobile-open');
         }
-
-        // Close profile dropdown on outside click
-        if (profileDropdown && profileBtn && !profileBtn.contains(e.target)) {
-            profileDropdown.classList.remove('active');
-        }
+        if (!profileBtn.contains(e.target)) profileDropdown.classList.remove('active');
     });
 
-    /* ─────────────────────────────────────────────
-     * SIDEBAR RESTORE on load + RESIZE HANDLER
-     * ───────────────────────────────────────────── */
     if (window.innerWidth > 768) {
-        setSidebarCollapsed(
-            localStorage.getItem('hrms_sidebar_collapsed') === 'true',
-            true
-        );
+        setSidebarCollapsed(localStorage.getItem('hrms_sidebar_collapsed') === 'true');
     }
 
-    let isProgrammaticResize = false;
-    window.addEventListener('resize', function () {
-        if (isProgrammaticResize) return;
-        isProgrammaticResize = true;
+    // ==================== EXPENSE LOGIC ====================
+    const API_BASE = 'http://localhost:8086/api/expenses';
+    let CURRENT_EMPLOYEE_ID = parseInt(localStorage.getItem('hrms_employee_prime_id') || '1');
+    console.log('✅ Logged in Employee Prime ID from auth.js:', CURRENT_EMPLOYEE_ID);
 
-        if (window.innerWidth <= 768) {
-            sidebar.classList.remove('collapsed', 'mobile-open');
-            mainContent.classList.remove('sidebar-collapsed');
-        } else {
-            setSidebarCollapsed(
-                localStorage.getItem('hrms_sidebar_collapsed') === 'true',
-                true
-            );
-        }
-        setTimeout(function () { isProgrammaticResize = false; }, 100);
-    });
-
-    /* ═══════════════════════════════════════════════════════
-       EXPENSE PAGE LOGIC
-    ═══════════════════════════════════════════════════════ */
-
-    const API_BASE           = 'http://localhost:8086/api/expenses';
-    const CURRENT_EMPLOYEE_ID = 0;
-
-    let allExpenses   = [];
-    let expenseChart  = null;
-
-    // After a receipt upload during edit, store the local blob URL
-    // keyed by expense id so viewExpense bypasses server caching.
+    let allExpenses = [];
+    let expenseChart = null;
     const receiptBlobUrls = {};
 
-    /* ── Toast ── */
-    function showToast(message, type) {
+    function showToast(message, type = 'success') {
         Toastify({
             text: message,
             duration: 3000,
             gravity: 'top',
             position: 'right',
-            backgroundColor: type === 'error' ? '#e53e3e' : '#2c5282',
-            stopOnFocus: true
+            backgroundColor: type === 'error' ? '#e53e3e' : '#2c5282'
         }).showToast();
     }
 
-    /* ── Modals ── */
-    function openModal(id) {
-        document.getElementById(id).style.display = 'flex';
+    function openModal(id) { 
+        document.getElementById(id).style.display = 'flex'; 
     }
+
     function closeAllModals() {
-        ['expenseModal', 'detailModal'].forEach(function (id) {
-            document.getElementById(id).style.display = 'none';
-        });
+        document.getElementById('expenseModal').style.display = 'none';
+        document.getElementById('detailModal').style.display = 'none';
         document.getElementById('currentReceiptSection').style.display = 'none';
         document.getElementById('receiptPreview').innerHTML = '';
         document.getElementById('expenseForm').reset();
         document.getElementById('expenseId').value = '';
     }
 
-    // Close modal when clicking backdrop
-    window.addEventListener('click', function (e) {
-        if (e.target.classList.contains('modal')) {
-            e.target.style.display = 'none';
-        }
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) e.target.style.display = 'none';
     });
 
-    document.getElementById('closeModalBtn').onclick  = closeAllModals;
+    document.getElementById('closeModalBtn').onclick = closeAllModals;
     document.getElementById('cancelModalBtn').onclick = closeAllModals;
     document.getElementById('closeDetailBtn').onclick = closeAllModals;
 
-    /* ─────────────────────────────────────────────
-     * API CALLS
-     * ───────────────────────────────────────────── */
-    async function getAllExpenses() {
+    // ==================== API CALLS ====================
+    async function getMyExpenses() {
         try {
-            const res = await fetch(API_BASE + '/get-all-expenses');
-            if (!res.ok) throw new Error('Fetch failed');
+            const res = await fetch(`${API_BASE}/get-expenses-by-employee/employee/${CURRENT_EMPLOYEE_ID}`);
+            if (!res.ok) throw new Error('Failed to fetch expenses');
             allExpenses = await res.json();
             populateCategoryDropdown();
             renderTableAndStats();
             updateChart();
         } catch (err) {
-            console.error('getAllExpenses:', err);
-            showToast('Failed to load expenses', 'error');
+            console.error(err);
+            showToast('Failed to load your expenses', 'error');
         }
     }
 
     async function createExpense(data, file) {
-        const fd = buildFormData(data, file);
+        const fd = new FormData();
         fd.append('employeePrimeId', CURRENT_EMPLOYEE_ID);
-        const res = await fetch(API_BASE + '/create-expense', { method: 'POST', body: fd });
+        fd.append('expenseType', data.expenseType);
+        fd.append('amount', data.amount);
+        fd.append('expenseDate', data.expenseDate);
+        if (data.description) fd.append('description', data.description);
+        if (file) fd.append('receipts', file);
+
+        const res = await fetch(`${API_BASE}/create-expense`, { method: 'POST', body: fd });
         if (!res.ok) throw new Error('Create failed');
         return res.json();
     }
 
     async function updateExpense(id, data, file) {
-        const fd = buildFormData(data, file);
-        const res = await fetch(API_BASE + '/update-expense/' + id, { method: 'PUT', body: fd });
+        const fd = new FormData();
+        if (data.expenseType) fd.append('expenseType', data.expenseType);
+        if (data.amount) fd.append('amount', data.amount);
+        if (data.expenseDate) fd.append('expenseDate', data.expenseDate);
+        if (data.description) fd.append('description', data.description);
+        if (file) fd.append('receipts', file);
+
+        const res = await fetch(`${API_BASE}/update-expense/${id}`, { method: 'PUT', body: fd });
         if (!res.ok) throw new Error('Update failed');
         return res.json();
     }
 
     async function deleteExpense(id) {
-        const res = await fetch(API_BASE + '/delete-expense/' + id, { method: 'DELETE' });
+        const res = await fetch(`${API_BASE}/delete-expense/${id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Delete failed');
     }
 
-    async function approveExpense(id) {
-        const res = await fetch(API_BASE + '/approve-expense/' + id + '/approve', { method: 'PATCH' });
-        if (!res.ok) throw new Error('Approve failed');
-        return res.json();
-    }
-
-    async function rejectExpense(id) {
-        const res = await fetch(API_BASE + '/reject-expense/' + id + '/reject', { method: 'PATCH' });
-        if (!res.ok) throw new Error('Reject failed');
-        return res.json();
-    }
-
-    async function markAsPaid(id) {
-        const res = await fetch(API_BASE + '/mark-as-paid/' + id + '/paid', { method: 'PATCH' });
-        if (!res.ok) throw new Error('Mark paid failed');
-        return res.json();
-    }
-
     async function getExpenseById(id) {
-        const res = await fetch(API_BASE + '/' + id);
-        if (!res.ok) throw new Error('Fetch detail failed');
+        const res = await fetch(`${API_BASE}/${id}`);
+        if (!res.ok) throw new Error('Fetch failed');
         return res.json();
     }
-
-    async function getMonthlyTotal(month, year) {
-        try {
-            const res = await fetch(
-                API_BASE + '/get-monthly-total/stats/monthly?month=' + month + '&year=' + year
-            );
-            if (!res.ok) return 0;
-            const text = await res.text();
-            if (!text || !text.trim()) return 0;
-            try {
-                const parsed = JSON.parse(text);
-                if (typeof parsed === 'number') return parsed;
-                if (typeof parsed === 'object' && parsed !== null) {
-                    const v = parsed.total ?? parsed.amount ?? parsed.value ?? Object.values(parsed)[0] ?? 0;
-                    return typeof v === 'number' ? v : parseFloat(v) || 0;
-                }
-                return parseFloat(parsed) || 0;
-            } catch (_) {
-                return parseFloat(text) || 0;
-            }
-        } catch (_) {
-            return 0;
-        }
-    }
-
-    function buildFormData(data, file) {
-        const fd = new FormData();
-        Object.keys(data).forEach(function (k) {
-            if (data[k] !== undefined && data[k] !== null && data[k] !== '') {
-                fd.append(k, data[k]);
-            }
-        });
-        if (file) fd.append('receipts', file);
-        return fd;
-    }
-
-    /* ─────────────────────────────────────────────
-     * FILTERS STATE
-     * ───────────────────────────────────────────── */
-    const currentFilters = { category: '', status: '', from: '', to: '' };
 
     function getFilteredExpenses() {
         let filtered = allExpenses.slice();
-
-        if (currentFilters.category) {
-            const cat = currentFilters.category.toLowerCase().trim();
-            filtered = filtered.filter(function (exp) {
-                return [exp.expenseType, exp.category, exp.expenseCategory, exp.type]
-                    .some(function (f) { return f != null && f.toString().toLowerCase().trim() === cat; });
-            });
-        }
-        if (currentFilters.status) {
-            const st = currentFilters.status.toLowerCase().trim();
-            filtered = filtered.filter(function (exp) {
-                return exp.status && exp.status.toLowerCase().trim() === st;
-            });
-        }
-        if (currentFilters.from) {
-            filtered = filtered.filter(function (exp) { return exp.expenseDate >= currentFilters.from; });
-        }
-        if (currentFilters.to) {
-            filtered = filtered.filter(function (exp) { return exp.expenseDate <= currentFilters.to; });
-        }
-
         const search = document.getElementById('searchInput').value.toLowerCase().trim();
         if (search) {
-            filtered = filtered.filter(function (exp) {
-                return (exp.expenseType  && exp.expenseType.toLowerCase().includes(search)) ||
-                       (exp.description  && exp.description.toLowerCase().includes(search));
-            });
+            filtered = filtered.filter(exp =>
+                (exp.expenseType || '').toLowerCase().includes(search) ||
+                (exp.description || '').toLowerCase().includes(search)
+            );
         }
         return filtered;
     }
 
     function populateCategoryDropdown() {
-        const select    = document.getElementById('filterCategory');
-        const prevValue = select.value;
-        const types     = Array.from(
-            new Set(allExpenses.map(function (e) { return e.expenseType; }).filter(Boolean))
-        ).sort();
-
+        const select = document.getElementById('filterCategory');
+        const types = [...new Set(allExpenses.map(e => e.expenseType).filter(Boolean))].sort();
         select.innerHTML = '<option value="">All Categories</option>';
-        types.forEach(function (t) {
+        types.forEach(t => {
             const opt = document.createElement('option');
-            opt.value       = t;
-            opt.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+            opt.value = t;
+            opt.textContent = t;
             select.appendChild(opt);
         });
-        if (prevValue && types.includes(prevValue)) select.value = prevValue;
     }
 
-    /* ─────────────────────────────────────────────
-     * RENDER
-     * ───────────────────────────────────────────── */
-    function renderTable(filtered) {
+    function renderTable() {
         const tbody = document.getElementById('tableBody');
+        const filtered = getFilteredExpenses();
         tbody.innerHTML = '';
 
         if (!filtered.length) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">No expenses found</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:#888;">No expenses found</td></tr>`;
             return;
         }
 
-        filtered.forEach(function (exp) {
-            const statusKey   = (exp.status || 'pending').toLowerCase();
-            const statusLabel = exp.status || 'Pending';
-            const row         = document.createElement('tr');
-            row.innerHTML =
-                '<td>' + (exp.expenseDate || '') + '</td>' +
-                '<td>' + (exp.expenseType  || '') + '</td>' +
-                '<td>' + (exp.expenseType  || 'Other') + '</td>' +
-                '<td>&#8377;' + (exp.amount ? exp.amount.toFixed(2) : '0.00') + '</td>' +
-                '<td><span class="status-badge status-' + statusKey + '">' + statusLabel + '</span></td>' +
-                '<td class="action-icons">' +
-                    '<i class="fas fa-eye"        onclick="viewExpense('   + exp.id + ')" title="View"></i>'   +
-                    '<i class="fas fa-edit"       onclick="editExpense('   + exp.id + ')" title="Edit"></i>'   +
-                    '<i class="fas fa-trash-alt"  onclick="deleteHandler(' + exp.id + ')" title="Delete"></i>' +
-                    (exp.status !== 'Approved' ? '<i class="fas fa-check-circle" onclick="approveHandler(' + exp.id + ')" title="Approve"></i>' : '') +
-                    (exp.status !== 'Rejected' ? '<i class="fas fa-times-circle" onclick="rejectHandler('  + exp.id + ')" title="Reject"></i>'  : '') +
-                    (exp.status === 'Approved' ? '<i class="fas fa-rupee-sign"   onclick="paidHandler('    + exp.id + ')" title="Mark Paid"></i>' : '') +
-                '</td>';
+        filtered.forEach(exp => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${exp.expenseDate || ''}</td>
+                <td>${exp.expenseType || ''}</td>
+                <td>${exp.expenseType || 'Other'}</td>
+                <td>₹${(exp.amount || 0).toFixed(2)}</td>
+                <td><span class="status-badge status-${(exp.status || 'pending').toLowerCase()}">${exp.status || 'Pending'}</span></td>
+                <td class="action-icons">
+                    <i class="fas fa-eye" onclick="viewExpense(${exp.id})" title="View"></i>
+                    <i class="fas fa-edit" onclick="editExpense(${exp.id})" title="Edit"></i>
+                    <i class="fas fa-trash-alt" onclick="deleteHandler(${exp.id})" title="Delete"></i>
+                </td>
+            `;
             tbody.appendChild(row);
         });
     }
 
     async function renderTableAndStats() {
-        const filtered = getFilteredExpenses();
-        renderTable(filtered);                                // sync — no blocking
-
-        const now          = new Date();
-        const monthlyTotal = await getMonthlyTotal(now.getMonth() + 1, now.getFullYear());
-
-        document.getElementById('totalMonthly').innerHTML  = '&#8377;' + Number(monthlyTotal).toFixed(2);
-        document.getElementById('pendingAmount').innerHTML = '&#8377;' + allExpenses
-            .filter(function (e) { return e.status === 'Pending';  })
-            .reduce(function (s, e) { return s + (e.amount || 0); }, 0).toFixed(2);
-        document.getElementById('approvedAmount').innerHTML = '&#8377;' + allExpenses
-            .filter(function (e) { return e.status === 'Approved'; })
-            .reduce(function (s, e) { return s + (e.amount || 0); }, 0).toFixed(2);
-        document.getElementById('rejectedAmount').innerHTML = '&#8377;' + allExpenses
-            .filter(function (e) { return e.status === 'Rejected'; })
-            .reduce(function (s, e) { return s + (e.amount || 0); }, 0).toFixed(2);
-    }
-
-    function updatePendingBadge() {
-        document.getElementById('pendingBadge').innerText =
-            allExpenses.filter(function (e) { return e.status === 'Pending'; }).length;
+        renderTable();
+        document.getElementById('totalMonthly').innerHTML = '₹' + allExpenses.reduce((s, e) => s + (e.amount || 0), 0).toFixed(2);
+        document.getElementById('pendingAmount').innerHTML = '₹' + allExpenses.filter(e => e.status === 'Pending').reduce((s, e) => s + (e.amount || 0), 0).toFixed(2);
+        document.getElementById('approvedAmount').innerHTML = '₹' + allExpenses.filter(e => e.status === 'Approved').reduce((s, e) => s + (e.amount || 0), 0).toFixed(2);
+        document.getElementById('rejectedAmount').innerHTML = '₹' + allExpenses.filter(e => e.status === 'Rejected').reduce((s, e) => s + (e.amount || 0), 0).toFixed(2);
     }
 
     function updateChart() {
         const monthly = {};
-        allExpenses.forEach(function (exp) {
+        allExpenses.forEach(exp => {
             if (exp.expenseDate && exp.amount) {
                 const key = exp.expenseDate.substring(0, 7);
                 monthly[key] = (monthly[key] || 0) + exp.amount;
             }
         });
-        const labels  = Object.keys(monthly).sort();
-        const amounts = labels.map(function (k) { return monthly[k]; });
+        const labels = Object.keys(monthly).sort();
+        const amounts = labels.map(k => monthly[k]);
 
         if (expenseChart) expenseChart.destroy();
         expenseChart = new Chart(document.getElementById('expenseChart').getContext('2d'), {
@@ -871,61 +521,44 @@
         });
     }
 
-    /* ─────────────────────────────────────────────
-     * PUBLIC ACTION HANDLERS (called from inline onclick)
-     * ───────────────────────────────────────────── */
     window.viewExpense = async function (id) {
         try {
             const exp = await getExpenseById(id);
-            const receiptUrl = receiptBlobUrls[exp.id]
-                ? receiptBlobUrls[exp.id]
-                : API_BASE + '/get-receipt/' + exp.id + '/receipts/0?t=' + Date.now();
-
-            document.getElementById('detailContent').innerHTML =
-                '<div class="detail-item"><span class="detail-label">ID</span><span class="detail-value">'           + exp.id + '</span></div>' +
-                '<div class="detail-item"><span class="detail-label">Title</span><span class="detail-value">'        + (exp.expenseType || '-') + '</span></div>' +
-                '<div class="detail-item"><span class="detail-label">Amount</span><span class="detail-value amount">&#8377;' + (exp.amount ? exp.amount.toFixed(2) : '0.00') + '</span></div>' +
-                '<div class="detail-item"><span class="detail-label">Date</span><span class="detail-value">'         + (exp.expenseDate || '-') + '</span></div>' +
-                '<div class="detail-item"><span class="detail-label">Status</span><span class="detail-value">'       + (exp.status || 'Pending') + '</span></div>' +
-                '<div class="detail-item"><span class="detail-label">Description</span><span class="detail-value">'  + (exp.description || '-') + '</span></div>' +
-                '<div class="detail-item"><span class="detail-label">Bill #</span><span class="detail-value">'       + (exp.billNumber || '-') + '</span></div>' +
-                '<div style="margin-top:12px;">' +
-                    '<img src="' + receiptUrl + '" alt="Receipt" style="max-width:100%;max-height:280px;border-radius:12px;" onerror="this.style.display=\'none\'">' +
-                '</div>';
-
+            let receiptUrl = receiptBlobUrls[id] ? receiptBlobUrls[id] : `${API_BASE}/get-receipt/${id}/receipts/0?t=${Date.now()}`;
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-item"><span class="detail-label">ID</span><span class="detail-value">${exp.id}</span></div>
+                <div class="detail-item"><span class="detail-label">Title</span><span class="detail-value">${exp.expenseType || '-'}</span></div>
+                <div class="detail-item"><span class="detail-label">Amount</span><span class="detail-value amount">₹${(exp.amount || 0).toFixed(2)}</span></div>
+                <div class="detail-item"><span class="detail-label">Date</span><span class="detail-value">${exp.expenseDate || '-'}</span></div>
+                <div class="detail-item"><span class="detail-label">Status</span><span class="detail-value">${exp.status || 'Pending'}</span></div>
+                <div class="detail-item"><span class="detail-label">Description</span><span class="detail-value">${exp.description || '-'}</span></div>
+                <div style="margin-top:12px;">
+                    <img src="${receiptUrl}" alt="Receipt" style="max-width:100%;border-radius:12px;" onerror="this.style.display='none'">
+                </div>
+            `;
             openModal('detailModal');
-        } catch (err) {
-            showToast('Failed to load expense details', 'error');
+        } catch (e) {
+            showToast('Failed to load details', 'error');
         }
     };
 
     window.editExpense = async function (id) {
         try {
             const exp = await getExpenseById(id);
-            document.getElementById('expenseId').value    = exp.id;
-            document.getElementById('title').value        = exp.expenseType || '';
-            document.getElementById('amount').value       = exp.amount || '';
-            document.getElementById('category').value     = exp.expenseType || 'Travel';
-            document.getElementById('expenseDate').value  = exp.expenseDate || '';
-            document.getElementById('description').value  = exp.description || '';
+            document.getElementById('expenseId').value = exp.id;
+            document.getElementById('title').value = exp.expenseType || '';
+            document.getElementById('amount').value = exp.amount || '';
+            document.getElementById('category').value = exp.expenseType || 'Travel';
+            document.getElementById('expenseDate').value = exp.expenseDate || '';
+            document.getElementById('description').value = exp.description || '';
             document.getElementById('modalTitle').innerText = 'Edit Expense';
 
-            const section  = document.getElementById('currentReceiptSection');
-            const preview  = document.getElementById('currentReceiptPreview');
-            preview.innerHTML = '';
-
-            const previewUrl = receiptBlobUrls[exp.id]
-                ? receiptBlobUrls[exp.id]
-                : API_BASE + '/get-receipt/' + exp.id + '/receipts/0?t=' + Date.now();
-
-            preview.innerHTML =
-                '<img src="' + previewUrl + '" alt="Current Receipt" style="max-width:100%;border-radius:8px;" onerror="this.style.display=\'none\'">';
-            section.style.display = 'block';
-
-            document.getElementById('receiptPreview').innerHTML = '';
+            const previewUrl = receiptBlobUrls[id] ? receiptBlobUrls[id] : `${API_BASE}/get-receipt/${id}/receipts/0?t=${Date.now()}`;
+            document.getElementById('currentReceiptPreview').innerHTML = `<img src="${previewUrl}" style="max-width:100%;border-radius:8px;" onerror="this.style.display='none'">`;
+            document.getElementById('currentReceiptSection').style.display = 'block';
             openModal('expenseModal');
-        } catch (err) {
-            showToast('Failed to load expense for editing', 'error');
+        } catch (e) {
+            showToast('Failed to load expense', 'error');
         }
     };
 
@@ -933,131 +566,87 @@
         if (!confirm('Delete this expense?')) return;
         try {
             await deleteExpense(id);
-            showToast('Expense deleted successfully');
-            getAllExpenses();
-        } catch (err) {
-            showToast('Failed to delete expense', 'error');
+            delete receiptBlobUrls[id];
+            showToast('Expense deleted');
+            getMyExpenses();
+        } catch (e) {
+            showToast('Delete failed', 'error');
         }
     };
 
-    window.approveHandler = async function (id) {
-        try { await approveExpense(id); showToast('Expense approved'); getAllExpenses(); }
-        catch (err) { showToast('Failed to approve expense', 'error'); }
-    };
-
-    window.rejectHandler = async function (id) {
-        try { await rejectExpense(id); showToast('Expense rejected'); getAllExpenses(); }
-        catch (err) { showToast('Failed to reject expense', 'error'); }
-    };
-
-    window.paidHandler = async function (id) {
-        try { await markAsPaid(id); showToast('Marked as paid'); getAllExpenses(); }
-        catch (err) { showToast('Failed to mark as paid', 'error'); }
-    };
-
-    /* ─────────────────────────────────────────────
-     * FORM SUBMIT
-     * ───────────────────────────────────────────── */
-    async function submitForm(asDraft) {
-        const expenseId  = document.getElementById('expenseId').value;
-        const receiptFile = document.getElementById('receiptFile').files[0];
+    async function submitForm() {
+        const id = document.getElementById('expenseId').value;
+        const file = document.getElementById('receiptFile').files[0];
         const data = {
-            expenseType:  document.getElementById('title').value,
-            amount:       parseFloat(document.getElementById('amount').value),
-            expenseDate:  document.getElementById('expenseDate').value,
-            description:  document.getElementById('description').value,
-            billNumber:   '',
-            employeePrimeId: CURRENT_EMPLOYEE_ID
+            expenseType: document.getElementById('title').value,
+            amount: parseFloat(document.getElementById('amount').value),
+            expenseDate: document.getElementById('expenseDate').value,
+            description: document.getElementById('description').value
         };
 
         try {
-            if (expenseId) {
-                await updateExpense(expenseId, data, receiptFile);
-                if (receiptFile) {
-                    if (receiptBlobUrls[expenseId]) URL.revokeObjectURL(receiptBlobUrls[expenseId]);
-                    receiptBlobUrls[expenseId] = URL.createObjectURL(receiptFile);
+            if (id) {
+                await updateExpense(id, data, file);
+                if (file) {
+                    if (receiptBlobUrls[id]) URL.revokeObjectURL(receiptBlobUrls[id]);
+                    receiptBlobUrls[id] = URL.createObjectURL(file);
                 }
                 showToast('Expense updated successfully');
             } else {
-                await createExpense(data, receiptFile);
-                showToast(asDraft ? 'Draft saved successfully' : 'Expense submitted successfully');
+                await createExpense(data, file);
+                showToast('Expense submitted successfully');
             }
             closeAllModals();
-            getAllExpenses();
+            getMyExpenses();
         } catch (err) {
-            showToast(err.message || 'Operation failed', 'error');
+            showToast('Operation failed: ' + err.message, 'error');
         }
     }
 
-    document.getElementById('expenseForm').addEventListener('submit', function (e) {
+    document.getElementById('expenseForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        submitForm(false);
+        submitForm();
     });
 
-    document.getElementById('draftBtn').addEventListener('click', function () {
-        submitForm(true);
-    });
-
-    /* ─────────────────────────────────────────────
-     * ADD EXPENSE BUTTON
-     * ───────────────────────────────────────────── */
-    document.getElementById('addExpenseBtn').onclick = function () {
+    document.getElementById('addExpenseBtn').onclick = () => {
         document.getElementById('expenseForm').reset();
         document.getElementById('expenseId').value = '';
         document.getElementById('modalTitle').innerText = 'Add New Expense';
         document.getElementById('currentReceiptSection').style.display = 'none';
-        document.getElementById('receiptPreview').innerHTML = '';
         openModal('expenseModal');
     };
 
-    /* ─────────────────────────────────────────────
-     * RECEIPT FILE PREVIEW
-     * ───────────────────────────────────────────── */
     document.getElementById('receiptFile').addEventListener('change', function () {
         const file = this.files[0];
-        if (!file) return;
-        const preview = document.getElementById('receiptPreview');
-        preview.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="Preview" style="max-height:120px;border-radius:8px;">';
+        if (file) {
+            const url = URL.createObjectURL(file);
+            document.getElementById('receiptPreview').innerHTML = `<img src="${url}" style="max-height:120px;border-radius:8px;">`;
+        }
     });
 
-    /* ─────────────────────────────────────────────
-     * FILTERS
-     * ───────────────────────────────────────────── */
-    document.getElementById('filterCategory').onchange = function (e) { currentFilters.category = e.target.value; renderTableAndStats(); };
-    document.getElementById('filterStatus').onchange   = function (e) { currentFilters.status   = e.target.value; renderTableAndStats(); };
-    document.getElementById('filterFrom').onchange     = function (e) { currentFilters.from     = e.target.value; renderTableAndStats(); };
-    document.getElementById('filterTo').onchange       = function (e) { currentFilters.to       = e.target.value; renderTableAndStats(); };
-    document.getElementById('searchInput').oninput     = function ()  { renderTableAndStats(); };
+    // Filter listeners
+    document.getElementById('filterCategory').onchange = () => renderTableAndStats();
+    document.getElementById('filterStatus').onchange = () => renderTableAndStats();
+    document.getElementById('filterFrom').onchange = () => renderTableAndStats();
+    document.getElementById('filterTo').onchange = () => renderTableAndStats();
+    document.getElementById('searchInput').oninput = () => renderTableAndStats();
 
-    /* ─────────────────────────────────────────────
-     * EXPORT CSV
-     * ───────────────────────────────────────────── */
-    document.getElementById('exportBtn').onclick = function () {
-        const rows = [['ID', 'Date', 'Category', 'Amount', 'Status', 'Description', 'Bill Number']];
-        getFilteredExpenses().forEach(function (exp) {
-            rows.push([
-                exp.id || '',
-                exp.expenseDate || '',
-                exp.expenseType || '',
-                exp.amount || '',
-                exp.status || '',
-                (exp.description || '').replace(/,/g, ' '),
-                exp.billNumber || ''
-            ]);
+    document.getElementById('exportBtn').onclick = () => {
+        const filtered = getFilteredExpenses();
+        let csv = 'ID,Date,Title,Amount,Status,Description\n';
+        filtered.forEach(exp => {
+            csv += `${exp.id},${exp.expenseDate || ''},${exp.expenseType || ''},${exp.amount || ''},${exp.status || ''},"${(exp.description || '').replace(/"/g, '""')}"\n`;
         });
-        const blob = new Blob([rows.map(function (r) { return r.join(','); }).join('\n')], { type: 'text/csv' });
+        const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'expenses_' + new Date().toISOString().split('T')[0] + '.csv';
+        a.download = `expenses_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
-        URL.revokeObjectURL(a.href);
         showToast('Export complete');
     };
 
-    /* ─────────────────────────────────────────────
-     * INIT
-     * ───────────────────────────────────────────── */
-    getAllExpenses();
+    // INIT
+    getMyExpenses();
 
 })();
 </script>
