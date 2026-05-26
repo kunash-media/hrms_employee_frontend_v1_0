@@ -600,9 +600,9 @@ function renderStepper() {
   document.querySelectorAll('.step').forEach(el => {
     el.addEventListener('click', () => {
       if (!empData) return;
-      if (parseInt(el.dataset.step)===5 && !allDocsUploaded()) {
-        showToast('Upload all 5 required documents before accessing the Documents tab.','error'); return;
-      }
+      // if (parseInt(el.dataset.step)===5 && !allDocsUploaded()) {
+      //   showToast('Upload all 5 required documents before accessing the Documents tab.','error'); return;
+      // }
       if (isEditMode) collectFormDataFromStep(currentStep);
       currentStep = parseInt(el.dataset.step);
       renderCurrentStep(); updateStepperUI(); updateNavButtons();

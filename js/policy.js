@@ -1,162 +1,440 @@
+// ═══════════════════════════════════════════════════════════════════════
+//  POLICY.JS — Employee Portal | Company Policies
+//  Backend: Spring Boot /api/v1/policies
+// ═══════════════════════════════════════════════════════════════════════
 
-        // ==================== POLICY DATA ====================
-        const policiesData = {
-            "HR Policies": [
-                { id: "hr1", title: "Code of Conduct", description: "Standards of professional behavior and ethics.", lastUpdated: "2024-01-15", acknowledged: false, content: "<h3>Purpose</h3><p>This Code of Conduct outlines the ethical and professional standards expected of all employees.</p><h3>Key Principles</h3><ul><li>Integrity and honesty in all dealings</li><li>Respect for colleagues and stakeholders</li><li>Compliance with laws and regulations</li><li>Confidentiality of company information</li></ul><h3>Reporting Violations</h3><p>Any violations should be reported to HR immediately.</p>" },
-                { id: "hr2", title: "Anti-Harassment Policy", description: "Workplace harassment prevention and reporting.", lastUpdated: "2024-02-10", acknowledged: false, content: "<h3>Zero Tolerance Policy</h3><p>Our company maintains a zero-tolerance approach to harassment.</p><h3>Definitions</h3><ul><li>Sexual harassment</li><li>Bullying and intimidation</li><li>Discrimination based on protected characteristics</li></ul><h3>Reporting Process</h3><p>Employees can report anonymously through the HR hotline.</p>" },
-                { id: "hr3", title: "Recruitment Policy", description: "Guidelines for hiring and selection.", lastUpdated: "2023-11-05", acknowledged: false, content: "<h3>Recruitment Principles</h3><ul><li>Merit-based selection</li><li>Diversity and inclusion focus</li><li>Transparent interview process</li></ul>" }
-            ],
-            "Leave Policies": [
-                { id: "leave1", title: "Annual Leave Policy", description: "Vacation and paid time off guidelines.", lastUpdated: "2024-03-01", acknowledged: false, content: "<h3>Annual Leave Entitlement</h3><ul><li>0-2 years: 15 days</li><li>3-5 years: 20 days</li><li>5+ years: 25 days</li></ul><h3>Carry Forward</h3><p>Maximum 5 days can be carried forward to next year.</p>" },
-                { id: "leave2", title: "Sick Leave Policy", description: "Medical leave and documentation rules.", lastUpdated: "2024-01-20", acknowledged: false, content: "<h3>Sick Leave Entitlement</h3><p>12 days per financial year.</p><h3>Documentation</h3><p>Medical certificate required for leaves exceeding 3 consecutive days.</p>" },
-                { id: "leave3", title: "Parental Leave", description: "Maternity, paternity, and adoption leave.", lastUpdated: "2023-12-10", acknowledged: false, content: "<h3>Maternity Leave</h3><p>26 weeks paid leave.</p><h3>Paternity Leave</h3><p>15 days paid leave.</p><h3>Adoption Leave</h3><p>12 weeks for primary caregiver.</p>" }
-            ],
-            "Attendance Policies": [
-                { id: "att1", title: "Work Hours Policy", description: "Standard working hours and breaks.", lastUpdated: "2024-02-15", acknowledged: false, content: "<h3>Working Hours</h3><p>Monday to Friday, 9:00 AM to 6:00 PM.</p><h3>Break Policy</h3><ul><li>1 hour lunch break</li><li>Two 15-minute tea breaks</li></ul>" },
-                { id: "att2", title: "Remote Work Policy", description: "WFH guidelines and expectations.", lastUpdated: "2024-01-25", acknowledged: false, content: "<h3>Eligibility</h3><p>Employees with 6+ months tenure can request remote work up to 2 days/week.</p><h3>Expectations</h3><ul><li>Available during core hours (10AM-4PM)</li><li>Reliable internet connection</li></ul>" },
-                { id: "att3", title: "Overtime Policy", description: "Compensation for extra working hours.", lastUpdated: "2023-10-30", acknowledged: false, content: "<h3>Overtime Compensation</h3><p>Overtime paid at 1.5x hourly rate for hours beyond 45/week.</p><h3>Approval Required</h3><p>All overtime must be pre-approved by manager.</p>" }
-            ],
-            "Code of Conduct": [
-                { id: "code1", title: "Professional Ethics", description: "Ethical guidelines for employees.", lastUpdated: "2024-02-01", acknowledged: false, content: "<h3>Core Values</h3><ul><li>Integrity</li><li>Accountability</li><li>Respect</li><li>Excellence</li></ul>" },
-                { id: "code2", title: "Conflict of Interest", description: "Managing personal and professional boundaries.", lastUpdated: "2024-01-10", acknowledged: false, content: "<h3>Definition</h3><p>A conflict arises when personal interests interfere with company duties.</p><h3>Disclosure</h3><p>All potential conflicts must be disclosed to HR.</p>" }
-            ],
-            "IT / Security Policies": [
-                { id: "it1", title: "Data Protection Policy", description: "Handling sensitive company data.", lastUpdated: "2024-03-10", acknowledged: false, content: "<h3>Data Classification</h3><ul><li>Public</li><li>Internal</li><li>Confidential</li><li>Restricted</li></ul><h3>Handling Guidelines</h3><p>Confidential data must be encrypted.</p>" },
-                { id: "it2", title: "Password Security", description: "Password creation and management rules.", lastUpdated: "2024-01-05", acknowledged: false, content: "<h3>Password Requirements</h3><ul><li>Minimum 12 characters</li><li>Mix of uppercase, lowercase, numbers, symbols</li><li>Change every 90 days</li></ul>" },
-                { id: "it3", title: "Bring Your Own Device", description: "Personal device usage policy.", lastUpdated: "2023-12-15", acknowledged: false, content: "<h3>BYOD Guidelines</h3><p>Employees may use personal devices with installed security software.</p><h3>Company Rights</h3><p>Company can remotely wipe devices if lost or stolen.</p>" }
-            ]
-        };
+// ─── CONFIG ─────────────────────────────────────────────────────────────────
+const BASE_URL = 'http://localhost:8086/api/v1/policies';
 
-        let currentTab = "HR Policies";
-        let currentView = "list";
-        let selectedPolicy = null;
-        let acknowledgedPolicies = JSON.parse(localStorage.getItem("acknowledgedPolicies") || "{}");
+// ─── STATE (same variable names as original) ────────────────────────────────
+let currentTab       = null;   // will be set after categories load
+let currentView      = "list";
+let selectedPolicy   = null;
+let allCategories    = [];     // PolicyCategoryResponseDTO[]
+let allPolicies      = [];     // PolicyResponseDTO[] for current tab
+let acknowledgedPolicies = JSON.parse(localStorage.getItem("acknowledgedPolicies") || "{}");
 
-        // Helper
-        function showToast(msg, type) {
-            Toastify({ text: type === 'success' ? `✓ ${msg}` : `✕ ${msg}`, duration: 3000, gravity: "bottom", position: "right", backgroundColor: type === 'success' ? "#6faf2e" : "#e56c6c", stopOnFocus: true, style: { borderRadius: "10px", padding: "12px 16px", fontSize: "14px" } }).showToast();
+// Employee profile — read from localStorage (set at login)
+const EMPLOYEE_DEPARTMENT = localStorage.getItem('hrms_department') || '';
+const EMPLOYEE_TYPE       = localStorage.getItem('hrms_emp_type')   || '';
+
+// ─── HELPER: Auth headers ───────────────────────────────────────────────────
+function getAuthHeaders() {
+    const token = localStorage.getItem('hrms_token');
+    return token
+        ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        : { 'Content-Type': 'application/json' };
+}
+
+// ─── HELPER: Toast (same as original) ───────────────────────────────────────
+function showToast(msg, type) {
+    Toastify({
+        text: type === 'success' ? `✓ ${msg}` : `✕ ${msg}`,
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: type === 'success' ? "#6faf2e" : "#e56c6c",
+        stopOnFocus: true,
+        style: { borderRadius: "10px", padding: "12px 16px", fontSize: "14px" }
+    }).showToast();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  API CALLS
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * GET /api/v1/policies/categories
+ * Loads all categories → used to build tab buttons
+ */
+async function fetchCategories() {
+    const res = await fetch(`${BASE_URL}/categories`, {
+        headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to load categories');
+    return await res.json(); // PolicyCategoryResponseDTO[]
+}
+
+/**
+ * GET /api/v1/policies/employee-preview
+ * Returns only Active policies visible to this employee
+ * Filtered by: department, employeeType, categoryName
+ */
+async function fetchPoliciesByCategory(categoryName) {
+    const params = new URLSearchParams();
+    if (EMPLOYEE_DEPARTMENT) params.append('department',   EMPLOYEE_DEPARTMENT);
+    if (EMPLOYEE_TYPE)        params.append('employeeType', EMPLOYEE_TYPE);
+    if (categoryName)         params.append('categoryName', categoryName);
+
+    const res = await fetch(`${BASE_URL}/employee-preview?${params}`, {
+        headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to load policies');
+    return await res.json(); // PolicyResponseDTO[]
+}
+
+/**
+ * GET /api/v1/policies/{id}
+ * Loads single policy detail
+ */
+async function fetchPolicyById(id) {
+    const res = await fetch(`${BASE_URL}/${id}`, {
+        headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to load policy details');
+    return await res.json(); // PolicyResponseDTO
+}
+
+/**
+ * GET /api/v1/policies/{id}/document
+ * Returns base64 fileData or fileUrl for download
+ */
+async function fetchPolicyDocument(id) {
+    const res = await fetch(`${BASE_URL}/${id}/document`, {
+        headers: getAuthHeaders()
+    });
+    if (res.status === 404) return null;  // no document attached
+    if (!res.ok) throw new Error('Failed to fetch document');
+    return await res.json(); // PolicyDocumentResponseDTO
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  RENDER TABS  (same structure as original renderTabs())
+// ═══════════════════════════════════════════════════════════════════════
+function renderTabs() {
+    const tabsContainer = document.getElementById('tabsContainer');
+    if (!tabsContainer) return;
+
+    // Build tab HTML — same pattern as original
+    tabsContainer.innerHTML = allCategories.map(cat =>
+        `<button class="tab-btn ${currentTab === cat.name ? 'active' : ''}"
+            data-tab="${cat.name}"
+            data-id="${cat.id}">
+            ${cat.name}
+        </button>`
+    ).join('');
+
+    // Attach click listeners — same as original
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            currentTab     = btn.dataset.tab;
+            currentView    = "list";
+            selectedPolicy = null;
+            renderTabs();
+            await loadPoliciesForTab(currentTab);
+            renderContent();
+        });
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  LOAD POLICIES FOR A TAB
+// ═══════════════════════════════════════════════════════════════════════
+async function loadPoliciesForTab(categoryName) {
+    showLoadingInContent();
+    try {
+        allPolicies = await fetchPoliciesByCategory(categoryName);
+    } catch (err) {
+        allPolicies = [];
+        showToast('Failed to load policies', 'error');
+        console.error(err);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  RENDER CONTENT  (same structure as original renderContent())
+// ═══════════════════════════════════════════════════════════════════════
+function renderContent() {
+    const contentArea = document.getElementById('contentArea');
+    if (!contentArea) return;
+
+    const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+
+    // ── LIST VIEW (same as original) ──────────────────────────────────────
+    if (currentView === "list") {
+
+        // Client-side search filter on already-loaded policies
+        const filtered = searchTerm
+            ? allPolicies.filter(p =>
+                (p.title       || '').toLowerCase().includes(searchTerm) ||
+                (p.description || '').toLowerCase().includes(searchTerm)
+              )
+            : allPolicies;
+
+        if (filtered.length === 0) {
+            contentArea.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <p>No policies found matching your search.</p>
+                </div>`;
+            return;
         }
 
-        function getFilteredPolicies(tab, searchTerm) {
-            let policies = policiesData[tab] || [];
-            if (searchTerm) {
-                const term = searchTerm.toLowerCase();
-                policies = policies.filter(p => p.title.toLowerCase().includes(term) || p.description.toLowerCase().includes(term));
-            }
-            return policies;
-        }
+        // Card HTML — same structure as original
+        // DTO field mapping:
+        //   p.title        → policy title
+        //   p.description  → policy description
+        //   p.updatedAt    → last updated (was p.lastUpdated in dummy data)
+        //   p.id           → data-id on card
+        contentArea.innerHTML = `
+            <div class="policy-grid">
+                ${filtered.map(p => `
+                    <div class="policy-card" data-id="${p.id}">
+                        <div class="policy-card-header">
+                            <h3>${escHtml(p.title)}</h3>
+                            ${acknowledgedPolicies[p.id]
+                                ? '<span class="ack-badge"><i class="fas fa-check-circle"></i> Acknowledged</span>'
+                                : '<span class="policy-badge">Pending</span>'
+                            }
+                        </div>
+                        <div class="policy-desc">${escHtml(p.description || 'No description provided.')}</div>
+                        <div class="policy-meta">
+                            <span><i class="far fa-calendar-alt"></i> Updated: ${formatDate(p.updatedAt)}</span>
+                            <span style="color: var(--primary);">Click to view →</span>
+                        </div>
+                    </div>`
+                ).join('')}
+            </div>`;
 
-        function renderTabs() {
-            const tabsContainer = document.getElementById('tabsContainer');
-            const tabs = Object.keys(policiesData);
-            tabsContainer.innerHTML = tabs.map(tab => `<button class="tab-btn ${currentTab === tab ? 'active' : ''}" data-tab="${tab}">${tab}</button>`).join('');
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentTab = btn.dataset.tab;
-                    currentView = "list";
-                    selectedPolicy = null;
-                    renderTabs();
+        // Card click → detail view (same as original)
+        document.querySelectorAll('.policy-card').forEach(card => {
+            card.addEventListener('click', async () => {
+                const id = card.dataset.id;
+                showLoadingInContent();
+                try {
+                    selectedPolicy = await fetchPolicyById(id);
+                    currentView    = "detail";
                     renderContent();
-                });
-            });
-        }
-
-        function renderContent() {
-            const contentArea = document.getElementById('contentArea');
-            const searchTerm = document.getElementById('searchInput')?.value || '';
-
-            if (currentView === "list") {
-                const policies = getFilteredPolicies(currentTab, searchTerm);
-                if (policies.length === 0) {
-                    contentArea.innerHTML = `<div class="empty-state"><i class="fas fa-file-alt"></i><p>No policies found matching your search.</p></div>`;
-                    return;
+                } catch (err) {
+                    showToast('Failed to load policy details', 'error');
+                    console.error(err);
                 }
-                contentArea.innerHTML = `<div class="policy-grid">${policies.map(p => `
-                <div class="policy-card" data-id="${p.id}">
-                    <div class="policy-card-header">
-                        <h3>${p.title}</h3>
-                        ${acknowledgedPolicies[p.id] ? '<span class="ack-badge"><i class="fas fa-check-circle"></i> Acknowledged</span>' : '<span class="policy-badge">Pending</span>'}
-                    </div>
-                    <div class="policy-desc">${p.description}</div>
-                    <div class="policy-meta">
-                        <span><i class="far fa-calendar-alt"></i> Updated: ${p.lastUpdated}</span>
-                        <span style="color: var(--primary);">Click to view →</span>
-                    </div>
-                </div>
-            `).join('')}</div>`;
-
-                document.querySelectorAll('.policy-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        const id = card.dataset.id;
-                        selectedPolicy = getFilteredPolicies(currentTab, '').find(p => p.id === id);
-                        currentView = "detail";
-                        renderContent();
-                    });
-                });
-            } else if (currentView === "detail" && selectedPolicy) {
-                const isAcknowledged = acknowledgedPolicies[selectedPolicy.id] || false;
-                contentArea.innerHTML = `
-                <button class="btn-back" id="backToListBtn"><i class="fas fa-arrow-left"></i> Back to Policies</button>
-                <div class="policy-detail-view">
-                    <div class="detail-header">
-                        <div class="detail-title">
-                            <h2>${selectedPolicy.title}</h2>
-                            <span class="policy-badge" style="margin-top: 8px; display: inline-block;">${currentTab}</span>
-                        </div>
-                        <div class="detail-actions">
-                            <button class="btn-download" id="downloadPolicyBtn"><i class="fas fa-download"></i> Download (PDF)</button>
-                            <button class="btn-acknowledge" id="acknowledgeBtn" ${isAcknowledged ? 'disabled' : ''}>${isAcknowledged ? '<i class="fas fa-check-circle"></i> Acknowledged' : '<i class="fas fa-check"></i> Acknowledge & Agree'}</button>
-                        </div>
-                    </div>
-                    <div class="detail-content">${selectedPolicy.content}</div>
-                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #20879bcb; font-size: 0.8rem; color: var(--text-muted);">
-                        <i class="far fa-calendar-alt"></i> Last updated: ${selectedPolicy.lastUpdated}
-                    </div>
-                </div>
-            `;
-                document.getElementById('backToListBtn')?.addEventListener('click', () => {
-                    currentView = "list";
-                    selectedPolicy = null;
-                    renderContent();
-                });
-                document.getElementById('downloadPolicyBtn')?.addEventListener('click', () => {
-                    const content = `${selectedPolicy.title}\n\n${selectedPolicy.description}\n\n${selectedPolicy.content.replace(/<[^>]*>/g, '')}\n\nLast Updated: ${selectedPolicy.lastUpdated}`;
-                    const blob = new Blob([content], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${selectedPolicy.title.replace(/\s/g, '_')}.txt`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    showToast("Policy downloaded", "success");
-                });
-                document.getElementById('acknowledgeBtn')?.addEventListener('click', () => {
-                    if (!acknowledgedPolicies[selectedPolicy.id]) {
-                        acknowledgedPolicies[selectedPolicy.id] = { policyId: selectedPolicy.id, title: selectedPolicy.title, acknowledgedAt: new Date().toISOString() };
-                        localStorage.setItem("acknowledgedPolicies", JSON.stringify(acknowledgedPolicies));
-                        showToast(`You have acknowledged "${selectedPolicy.title}"`, "success");
-                        renderContent();
-                    }
-                });
-            }
-        }
-
-        // Search handler
-        document.getElementById('searchInput')?.addEventListener('input', () => {
-            if (currentView === "list") renderContent();
+            });
         });
 
-        // Sidebar & UI
-        const sidebar = document.getElementById('sidebar');
-        document.getElementById('collapseSidebarBtn')?.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); document.getElementById('mainContent').classList.toggle('sidebar-collapsed'); });
-        document.getElementById('mobileToggleBtn')?.addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
-        const profileBtn = document.getElementById('profileDropdownBtn'), profileDropdown = document.getElementById('profileDropdown');
-        if (profileBtn && profileDropdown) {
-            profileBtn.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.classList.toggle('active'); });
-            document.addEventListener('click', (e) => { if (!profileBtn.contains(e.target)) profileDropdown.classList.remove('active'); });
-        }
-        document.getElementById('logoutBtn')?.addEventListener('click', () => { if (confirm("Logout?")) showToast("Logged out", "success"); });
+    // ── DETAIL VIEW (same as original) ───────────────────────────────────
+    } else if (currentView === "detail" && selectedPolicy) {
 
+        const p              = selectedPolicy;
+        const isAcknowledged = !!acknowledgedPolicies[p.id];
+
+        contentArea.innerHTML = `
+            <button class="btn-back" id="backToListBtn">
+                <i class="fas fa-arrow-left"></i> Back to Policies
+            </button>
+            <div class="policy-detail-view">
+                <div class="detail-header">
+                    <div class="detail-title">
+                        <h2>${escHtml(p.title)}</h2>
+                        <span class="policy-badge" style="margin-top: 8px; display: inline-block;">
+                            ${escHtml(p.categoryName || currentTab)}
+                        </span>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn-download" id="downloadPolicyBtn"
+                            ${!p.hasDocument ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+                            <i class="fas fa-download"></i>
+                            ${p.hasDocument ? 'Download (PDF)' : 'No Document'}
+                        </button>
+                        <button class="btn-acknowledge" id="acknowledgeBtn" ${isAcknowledged ? 'disabled' : ''}>
+                            ${isAcknowledged
+                                ? '<i class="fas fa-check-circle"></i> Acknowledged'
+                                : '<i class="fas fa-check"></i> Acknowledge & Agree'
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                <div class="detail-content">
+                    ${p.description
+                        ? `<p>${escHtml(p.description)}</p>`
+                        : `<p style="color:var(--text-muted);font-style:italic;">No detailed content available for this policy.</p>`
+                    }
+                </div>
+
+                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #20879bcb; font-size: 0.8rem; color: var(--text-muted);">
+                    <i class="far fa-calendar-alt"></i> Last updated: ${formatDate(p.updatedAt)}
+                </div>
+            </div>`;
+
+        // ── Back button (same as original) ───────────────────────────────
+        document.getElementById('backToListBtn')?.addEventListener('click', () => {
+            currentView    = "list";
+            selectedPolicy = null;
+            renderContent();
+        });
+
+        // ── Download button → calls backend /document endpoint ────────────
+        document.getElementById('downloadPolicyBtn')?.addEventListener('click', async () => {
+            if (!p.hasDocument) return;
+            showToast('Preparing download...', 'success');
+            try {
+                const doc = await fetchPolicyDocument(p.id);
+
+                if (!doc) {
+                    showToast('No document attached to this policy.', 'error');
+                    return;
+                }
+
+                if (doc.fileData) {
+                    // base64 → browser download (same <a>.click() trigger as original)
+                    const a    = document.createElement('a');
+                    a.href     = doc.fileData;
+                    a.download = doc.fileName || `${p.title.replace(/\s/g, '_')}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast('Policy downloaded', 'success');
+                } else if (doc.fileUrl) {
+                    window.open(doc.fileUrl, '_blank');
+                    showToast('Opening document...', 'success');
+                } else {
+                    showToast('No document available.', 'error');
+                }
+            } catch (err) {
+                showToast('Download failed. Please try again.', 'error');
+                console.error('Download error:', err);
+            }
+        });
+
+        // ── Acknowledge button — same localStorage logic as original ──────
+        document.getElementById('acknowledgeBtn')?.addEventListener('click', () => {
+            if (!acknowledgedPolicies[p.id]) {
+                acknowledgedPolicies[p.id] = {
+                    policyId:       p.id,
+                    title:          p.title,
+                    acknowledgedAt: new Date().toISOString()
+                };
+                localStorage.setItem("acknowledgedPolicies", JSON.stringify(acknowledgedPolicies));
+                showToast(`You have acknowledged "${p.title}"`, 'success');
+                renderContent(); // re-render to disable button (same as original)
+            }
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SEARCH HANDLER (same as original)
+// ═══════════════════════════════════════════════════════════════════════
+document.getElementById('searchInput')?.addEventListener('input', () => {
+    if (currentView === "list") renderContent();
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SIDEBAR & UI (same as original — completely untouched)
+// ═══════════════════════════════════════════════════════════════════════
+const sidebar = document.getElementById('sidebar');
+
+document.getElementById('collapseSidebarBtn')?.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    document.getElementById('mainContent').classList.toggle('sidebar-collapsed');
+});
+
+document.getElementById('mobileToggleBtn')?.addEventListener('click', () => {
+    sidebar.classList.toggle('mobile-open');
+});
+
+const profileBtn      = document.getElementById('profileDropdownBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+if (profileBtn && profileDropdown) {
+    profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('active');
+    });
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target)) profileDropdown.classList.remove('active');
+    });
+}
+
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = '../pages/login.html';
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//  LOADING STATE IN CONTENT AREA
+// ═══════════════════════════════════════════════════════════════════════
+function showLoadingInContent() {
+    const contentArea = document.getElementById('contentArea');
+    if (!contentArea) return;
+    contentArea.innerHTML = `
+        <div class="empty-state">
+            <div style="width:48px;height:48px;border:4px solid #e6f4f6;
+                border-top-color:#1f6f7f;border-radius:50%;
+                animation:policySpinner 0.8s linear infinite;margin:0 auto 16px;">
+            </div>
+            <p style="color:var(--text-muted);">Loading policies...</p>
+        </div>
+        <style>
+            @keyframes policySpinner { to { transform: rotate(360deg); } }
+        </style>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════════════════════
+function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])
+    );
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+        return new Date(dateStr).toLocaleDateString('en-IN', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        });
+    } catch (e) { return dateStr; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INIT — replaces original renderTabs() + renderContent() at bottom
+// ═══════════════════════════════════════════════════════════════════════
+async function init() {
+    showLoadingInContent();
+    try {
+        // 1. Load categories from backend
+        allCategories = await fetchCategories();
+
+        if (!allCategories.length) {
+            document.getElementById('tabsContainer').innerHTML = '';
+            document.getElementById('contentArea').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No policy categories available.</p>
+                </div>`;
+            return;
+        }
+
+        // 2. Set first category as active tab
+        //    (same as original: currentTab = "HR Policies" was hardcoded)
+        currentTab = allCategories[0].name;
+
+        // 3. Render tabs
         renderTabs();
+
+        // 4. Load policies for first tab
+        await loadPoliciesForTab(currentTab);
+
+        // 5. Render content
         renderContent();
-  
+
+    } catch (err) {
+        console.error('Init error:', err);
+        document.getElementById('contentArea').innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i>
+                <p>Failed to load policies. Please refresh the page.</p>
+                <button onclick="init()"
+                    style="margin-top:12px;padding:8px 20px;background:var(--primary);
+                    color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;">
+                    <i class="fas fa-redo"></i> Retry
+                </button>
+            </div>`;
+    }
+}
+
+// ── Entry point (replaces original: renderTabs(); renderContent();) ──────────
+init();

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -39,10 +39,9 @@
 
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; }
 
-    /* ── Layout ── */
     .dashboard-container { display: flex; min-height: 100vh; }
 
-    /* ── Sidebar ── */
+    /* Sidebar Styles */
     .sidebar {
       width: var(--sidebar-width);
       background: var(--sidebar-bg);
@@ -77,15 +76,9 @@
       font-size: 13.5px; font-weight: 500; white-space: nowrap;
       transition: all 0.25s ease;
     }
-    .nav-link::before {
-      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-      width: 3px; height: 0%; background: #fff;
-      border-radius: 0 4px 4px 0; transition: height 0.25s ease;
-    }
     .nav-link i { font-size: 15px; min-width: 20px; text-align: center; }
     .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
     .nav-link.active { background: var(--sidebar-active); color: #fff; }
-    .nav-link.active::before, .nav-link:hover::before { height: 60%; }
     .sidebar.collapsed .nav-text { display: none; }
     .sidebar.collapsed .logo-text { display: none; }
     .sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
@@ -100,7 +93,7 @@
     .logout-btn i { font-size: 15px; min-width: 20px; text-align: center; }
     .sidebar.collapsed .logout-btn .nav-text { display: none; }
 
-    /* ── Main ── */
+    /* Main Content */
     .main-content {
       margin-left: var(--sidebar-width);
       flex: 1; display: flex; flex-direction: column;
@@ -108,7 +101,7 @@
     }
     .main-content.sidebar-collapsed { margin-left: var(--sidebar-collapsed); }
 
-    /* ── Header ── */
+    /* Header */
     .header {
       height: var(--header-height);
       background: var(--card-bg); border-bottom: 1px solid var(--border);
@@ -121,15 +114,7 @@
       display: none; background: none; border: none;
       cursor: pointer; padding: 6px; border-radius: 8px; color: var(--text-secondary);
     }
-    
-     .page-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 20px; 
-            font-weight: 600;
-            color: #145c6b;
-        }
-     
-    
+    .page-title { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-primary); }
     .header-right { display: flex; align-items: center; gap: 12px; }
     .icon-btn {
       position: relative; background: none; border: none;
@@ -144,31 +129,16 @@
       display: flex; align-items: center; justify-content: center; font-weight: 700;
     }
     .user-profile { position: relative; }
-    
     .profile-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: transparent;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 40px;
-      cursor: pointer;
-      transition: var(--transition-default);
-      }
-    
-    .avatar {
-      width: 42px;
-      height: 42px;
-      background: var(--primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      background: none; border: none; cursor: pointer; padding: 6px 10px;
     }
-    
+    .avatar {
+      width: 32px; height: 32px; border-radius: 100%;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
     .user-info { text-align: left; }
     .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; }
     .user-role { font-size: 11px; color: var(--text-secondary); }
@@ -193,10 +163,10 @@
     .logout-item { color: #ef4444; }
     .logout-item i { color: #ef4444; }
 
-    /* ── Content ── */
+    /* Content Wrapper */
     .content-wrapper { padding: 24px; flex: 1; }
 
-    /* ── Profile Card ── */
+    /* Cards */
     .profile-content-card {
       background: var(--card-bg); border: 1px solid #20879bcb;
       border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
@@ -211,7 +181,7 @@
     }
     .profile-header h2 i { color: var(--primary); font-size: 16px; }
 
-    /* ── Status Banner ── */
+    /* Status Banner */
     .status-banner {
       display: flex; align-items: center; gap: 12px;
       padding: 12px 16px; border-radius: 10px;
@@ -221,7 +191,113 @@
     .banner-warning { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
     .banner-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
 
-    /* ── Form ── */
+    /* 5-Step Tracker */
+    .tracker-container {
+      background: var(--primary-light);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border: 1px solid #b3dce3;
+    }
+    .tracker-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .step-card {
+      text-align: center;
+      padding: 14px 10px;
+      background: white;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      position: relative;
+      cursor: pointer;
+    }
+    .step-card.completed {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border-left: 4px solid #2e7d32;
+    }
+    .step-card.active {
+      background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+      border-left: 4px solid #ff9800;
+    }
+    .step-card.pending {
+      background: #f5f5f5;
+      opacity: 0.7;
+    }
+    .step-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-size: 20px;
+    }
+    .step-card.completed .step-icon {
+      background: #2e7d32;
+      color: white;
+    }
+    .step-card.active .step-icon {
+      background: #ff9800;
+      color: white;
+    }
+    .step-card.pending .step-icon {
+      background: #e0e0e0;
+      color: #9e9e9e;
+    }
+    .step-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .step-status {
+      font-size: 10px;
+      font-weight: 500;
+      margin-top: 6px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+    .step-card.completed .step-status {
+      background: #2e7d32;
+      color: white;
+    }
+    .step-card.active .step-status {
+      background: #ff9800;
+      color: white;
+    }
+    .step-card.pending .step-status {
+      background: #e0e0e0;
+      color: #757575;
+    }
+    .step-connector {
+      position: absolute;
+      top: 35px;
+      right: -15px;
+      width: 30px;
+      height: 2px;
+      background: #cbd5e1;
+    }
+    .step-card:last-child .step-connector {
+      display: none;
+    }
+    .step-card.completed + .step-card .step-connector {
+      background: #2e7d32;
+    }
+
+    /* Form Styles */
     .form-body { padding: 24px; }
     .form-section { margin-bottom: 28px; }
     .section-title {
@@ -235,7 +311,6 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 16px 20px;
     }
-    .form-grid.full { grid-template-columns: 1fr; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group label {
       font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
@@ -257,19 +332,11 @@
     }
     .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(31,111,127,0.1); }
     textarea.form-input { resize: vertical; min-height: 100px; line-height: 1.6; }
-    select.form-input { cursor: pointer; }
-    .form-input.error { border-color: #ef4444; background: #fef2f2; }
-    .field-error { font-size: 11px; color: #dc2626; margin-top: 2px; display: none; }
-
-    /* Notice calc box */
     .notice-calc {
       background: var(--primary-light); border: 1px solid #b3dce3;
       border-radius: 8px; padding: 12px 16px;
     }
-    .notice-calc p { font-size: 12px; color: var(--primary); margin-bottom: 4px; }
     .lwd-display { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
-
-    /* Checkbox group */
     .checkbox-group {
       display: flex; align-items: flex-start; gap: 10px;
       padding: 12px 14px; background: #fafbfc;
@@ -283,17 +350,11 @@
       font-size: 13px; color: var(--text-secondary); font-weight: 400;
       cursor: pointer; line-height: 1.5; text-transform: none; letter-spacing: 0;
     }
-
-    /* Badge */
     .badge {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
     }
     .badge-active { background: var(--success-bg); color: var(--success); }
-    .badge-dept { background: #ede9fe; color: #6d28d9; }
-    .badge-warning { background: #fef9c3; color: #854d0e; }
-
-    /* Nav buttons */
     .step-navigation {
       display: flex; justify-content: space-between; align-items: center;
       padding: 16px 24px; border-top: 1px solid var(--border); background: #fafbfc;
@@ -327,7 +388,6 @@
       margin: 0 auto 16px; font-size: 24px;
     }
     .modal-icon.warning { background: #fef9c3; color: #854d0e; }
-    .modal-icon.success { background: var(--success-bg); color: var(--success); }
     .modal-box h3 { font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
     .modal-box p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
     .modal-actions { display: flex; gap: 10px; justify-content: center; }
@@ -341,13 +401,8 @@
       background: var(--primary); color: #fff;
       font-size: 13px; font-weight: 600; cursor: pointer; border: none;
     }
-    .btn-ok-m {
-      padding: 9px 28px; border-radius: 8px;
-      background: var(--success); color: #fff;
-      font-size: 13px; font-weight: 600; cursor: pointer; border: none;
-    }
 
-    /* Submitted view */
+    /* Submitted View */
     .submitted-view { padding: 40px 24px; text-align: center; }
     .submitted-icon {
       width: 72px; height: 72px; border-radius: 50%;
@@ -355,30 +410,12 @@
       align-items: center; justify-content: center;
       margin: 0 auto 18px; font-size: 30px; color: var(--success);
     }
-    .submitted-view h3 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
-    .submitted-view p { font-size: 14px; color: var(--text-muted); max-width: 440px; margin: 0 auto 20px; line-height: 1.7; }
     .ref-badge {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 8px 20px; background: var(--primary-light);
       border: 1px solid #b3dce3; border-radius: 30px;
       font-size: 14px; font-weight: 600; color: var(--primary);
     }
-    .track-card {
-      background: #fafbfc; border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px; margin: 24px auto; max-width: 480px; text-align: left;
-    }
-    .track-card h4 {
-      font-size: 12px; font-weight: 600; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
-    }
-    .timeline { display: flex; flex-direction: column; }
-    .tl-item { display: flex; gap: 14px; }
-    .tl-left { display: flex; flex-direction: column; align-items: center; }
-    .tl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .tl-line { width: 2px; flex: 1; min-height: 28px; background: #e2e8f0; }
-    .tl-content { padding-bottom: 20px; }
-    .tl-content strong { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
-    .tl-content span { font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px; }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -387,6 +424,10 @@
       .main-content { margin-left: 0 !important; }
       .mobile-toggle { display: flex; }
       .form-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; gap: 8px; }
+      .step-connector { display: none; }
+      .step-card { display: flex; align-items: center; text-align: left; gap: 12px; }
+      .step-icon { margin: 0; }
     }
   </style>
 </head>
@@ -411,9 +452,9 @@
         <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
         <li><a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
         <li><a href="../pages/leave.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
-        <li><a href="../pages/payroll.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+        <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
         <li><a href="../pages/resignation.html" class="nav-link active"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
-        <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
+        <li><a href="../pages/policies.html" class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
       </ul>
     </nav>
     <div class="sidebar-footer">
@@ -424,7 +465,7 @@
     </div>
   </aside>
 
-  <!-- Main -->
+  <!-- Main Content -->
   <div class="main-content" id="mainContent">
 
     <!-- Header -->
@@ -436,7 +477,7 @@
       <div class="header-right">
         <button class="icon-btn">
           <i class="far fa-bell"></i>
-          <span class="notification-badge">0</span>
+          <span class="notification-badge">3</span>
         </button>
         <div class="user-profile">
           <button class="profile-btn" id="profileDropdownBtn">
@@ -472,37 +513,19 @@
             <!-- Info Banner -->
             <div class="status-banner banner-info">
               <i class="fas fa-info-circle" style="font-size:18px;flex-shrink:0"></i>
-              <span>Once your resignation is submitted, your <strong>HR Department</strong> and <strong>Reporting Manager</strong> will be notified. For any queries during the notice period, please contact HR.</span>
+              <span>Once your resignation is submitted, your <strong>HR Department</strong> and <strong>Reporting Manager</strong> will be notified.</span>
             </div>
 
-            <!-- Employee Info (read-only from localStorage) -->
+            <!-- Employee Info -->
             <div class="form-section">
               <div class="section-title"><i class="fas fa-user"></i> Employee Information</div>
               <div class="form-grid">
-                <div class="form-group">
-                  <label>Employee ID</label>
-                  <div class="field-value" id="disp_empId">—</div>
-                </div>
-                <div class="form-group">
-                  <label>Full Name</label>
-                  <div class="field-value" id="disp_name">—</div>
-                </div>
-                <div class="form-group">
-                  <label>Department</label>
-                  <div class="field-value" id="disp_dept">—</div>
-                </div>
-                <div class="form-group">
-                  <label>Designation</label>
-                  <div class="field-value" id="disp_desig">—</div>
-                </div>
-                <div class="form-group">
-                  <label>Reporting Manager</label>
-                  <div class="field-value" id="disp_manager">—</div>
-                </div>
-                <div class="form-group">
-                  <label>Work Email</label>
-                  <div class="field-value" id="disp_email">—</div>
-                </div>
+                <div class="form-group"><label>Employee ID</label><div class="field-value" id="disp_empId">—</div></div>
+                <div class="form-group"><label>Full Name</label><div class="field-value" id="disp_name">—</div></div>
+                <div class="form-group"><label>Department</label><div class="field-value" id="disp_dept">—</div></div>
+                <div class="form-group"><label>Designation</label><div class="field-value" id="disp_desig">—</div></div>
+                <div class="form-group"><label>Reporting Manager</label><div class="field-value" id="disp_manager">—</div></div>
+                <div class="form-group"><label>Work Email</label><div class="field-value" id="disp_email">—</div></div>
               </div>
             </div>
 
@@ -513,23 +536,22 @@
                 <div class="form-group">
                   <label>Resignation Date <span class="req">*</span></label>
                   <input type="date" class="form-input" id="resignationDate" onchange="calcLWD()">
-                  <span class="field-error" id="err_resignDate">Resignation date is required</span>
                 </div>
                 <div class="form-group">
                   <label>Notice Period</label>
                   <div class="field-value">30 Days <span style="color:var(--text-muted);font-size:12px">(as per contract)</span></div>
                 </div>
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group">
                   <label>Expected Last Working Day</label>
                   <div class="notice-calc">
-                    <p><i class="fas fa-calendar-check" style="margin-right:6px"></i>After serving 30 days notice period, your Last Working Day will be:</p>
+                    <p><i class="fas fa-calendar-check" style="margin-right:6px"></i>After serving 30 days notice period:</p>
                     <div class="lwd-display" id="lwdDisplay">— Please select a Resignation Date first —</div>
                   </div>
                 </div>
                 <div class="form-group">
                   <label>Reason for Resignation <span class="req">*</span></label>
                   <select class="form-input" id="resignReason" onchange="toggleOtherReason()">
-                    <option value="">— Reason Select Karein —</option>
+                    <option value="">— Select Reason —</option>
                     <option>Better Opportunity</option>
                     <option>Personal Reasons</option>
                     <option>Higher Education</option>
@@ -540,33 +562,26 @@
                     <option>Family Responsibilities</option>
                     <option>Other</option>
                   </select>
-                  <span class="field-error" id="err_reason">Please select a reason for resignation</span>
                 </div>
                 <div class="form-group" id="otherReasonGroup" style="display:none">
                   <label>Please Specify <span class="req">*</span></label>
                   <input type="text" class="form-input" id="otherReason" placeholder="Please describe your reason...">
-                  <span class="field-error" id="err_otherReason">Please specify your reason</span>
                 </div>
               </div>
-
               <div class="form-grid full" style="margin-top: 16px;">
                 <div class="form-group">
                   <label>Resignation Letter / Comments <span class="req">*</span></label>
-                  <textarea class="form-input" id="resignComments" rows="5"
-                    placeholder="Write your resignation letter here — share your reason for leaving, your experience with the company, and any future plans..."></textarea>
-                  <span class="field-error" id="err_comments">Minimum 20 characters required</span>
+                  <textarea class="form-input" id="resignComments" rows="5" placeholder="Write your resignation letter here..."></textarea>
                 </div>
               </div>
             </div>
 
-            <!-- Work Handover -->
             <div class="form-section">
               <div class="section-title"><i class="fas fa-tasks"></i> Work Handover Plan</div>
               <div class="form-grid">
                 <div class="form-group">
                   <label>Handover Person <span class="req">*</span></label>
                   <input type="text" class="form-input" id="handoverPerson" placeholder="Employee name to hand over work to...">
-                  <span class="field-error" id="err_handover">Handover person name is required</span>
                 </div>
                 <div class="form-group">
                   <label>Handover Complete By Date</label>
@@ -574,8 +589,7 @@
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
                   <label>Pending Tasks / Projects</label>
-                  <textarea class="form-input" id="pendingTasks" rows="3"
-                    placeholder="List your pending tasks/projects and their current status..."></textarea>
+                  <textarea class="form-input" id="pendingTasks" rows="3" placeholder="List your pending tasks/projects..."></textarea>
                 </div>
               </div>
             </div>
@@ -586,18 +600,17 @@
               <div>
                 <div class="checkbox-group">
                   <input type="checkbox" id="decl1">
-                  <label for="decl1">I confirm that this resignation is submitted of my own free will and I have not been subjected to any pressure or coercion.</label>
+                  <label for="decl1">I confirm that this resignation is submitted of my own free will.</label>
                 </div>
                 <div class="checkbox-group">
                   <input type="checkbox" id="decl2">
-                  <label for="decl2">I understand that I am required to serve a 30-day notice period as per my employment contract. Salary deduction may apply in case of early exit.</label>
+                  <label for="decl2">I understand that I am required to serve a 30-day notice period as per my employment contract.</label>
                 </div>
                 <div class="checkbox-group">
                   <input type="checkbox" id="decl3">
-                  <label for="decl3">I acknowledge my responsibility to protect the company's confidential information and agree to fulfill all post-employment obligations as stated in my contract.</label>
+                  <label for="decl3">I acknowledge my responsibility to protect the company's confidential information.</label>
                 </div>
               </div>
-              <span class="field-error" id="err_decl" style="display:none; margin-top:8px; font-size:12px;">Please accept all declarations to proceed.</span>
             </div>
 
           </div>
@@ -609,7 +622,7 @@
             </div>
             <div style="display:flex;gap:10px;">
               <button class="btn-nav btn-draft" onclick="saveDraft()">
-                <i class="fas fa-save"></i> Draft Save
+                <i class="fas fa-save"></i> Save Draft
               </button>
               <button class="btn-nav btn-submit" onclick="openConfirmModal()">
                 <i class="fas fa-paper-plane"></i> Submit Resignation
@@ -618,58 +631,52 @@
           </div>
         </div>
 
-        <!-- SUBMITTED VIEW -->
+        <!-- SUBMITTED VIEW WITH 5-STEP TRACKER -->
         <div id="submittedView" style="display:none;">
           <div class="submitted-view">
             <div class="submitted-icon"><i class="fas fa-check"></i></div>
             <h3>Resignation Successfully Submitted!</h3>
-            <p>Your resignation request has been sent to the <strong>HR Department</strong> and your <strong>Reporting Manager</strong>. You will receive an email confirmation shortly.</p>
+            <p>Your resignation request has been sent to the HR Department.</p>
             <div class="ref-badge">
               <i class="fas fa-hashtag"></i>
               <span id="refNumber">RES-2025-001</span>
             </div>
 
-            <div class="track-card">
-              <h4><i class="fas fa-stream" style="margin-right:6px;color:var(--primary)"></i>Resignation Status Track</h4>
-              <div class="timeline">
-                <div class="tl-item">
-                  <div class="tl-left">
-                    <div class="tl-dot" style="background:var(--success);"></div>
-                    <div class="tl-line"></div>
-                  </div>
-                  <div class="tl-content">
-                    <strong>Resignation Submitted ✓</strong>
-                    <span id="submitDateDisplay"></span>
-                  </div>
+            <!-- 5-STEP EXIT PROCESS TRACKER -->
+            <div class="tracker-container" style="margin-top: 24px;">
+              <div class="tracker-title">
+                <i class="fas fa-chart-line"></i> Exit Process Tracker
+                <span style="font-size: 11px; font-weight: normal;" id="lastUpdated">Last updated: Just now</span>
+              </div>
+              <div class="steps-grid" id="stepsGrid">
+                <div class="step-card pending" data-step="1">
+                  <div class="step-icon"><i class="fas fa-file-signature"></i></div>
+                  <div class="step-name">1. Resignation</div>
+                  <div class="step-status">Pending</div>
+                  <div class="step-connector"></div>
                 </div>
-                <div class="tl-item">
-                  <div class="tl-left">
-                    <div class="tl-dot" style="background:#e2e8f0;"></div>
-                    <div class="tl-line"></div>
-                  </div>
-                  <div class="tl-content">
-                    <strong style="color:var(--text-muted)">Manager Approval Pending</strong>
-                    <span id="disp_manager2"></span>
-                  </div>
+                <div class="step-card pending" data-step="2">
+                  <div class="step-icon"><i class="fas fa-users"></i></div>
+                  <div class="step-name">2. HR Processing</div>
+                  <div class="step-status">Locked</div>
+                  <div class="step-connector"></div>
                 </div>
-                <div class="tl-item">
-                  <div class="tl-left">
-                    <div class="tl-dot" style="background:#e2e8f0;"></div>
-                    <div class="tl-line"></div>
-                  </div>
-                  <div class="tl-content">
-                    <strong style="color:var(--text-muted)">HR Processing</strong>
-                    <span>Notice period confirmation & paperwork</span>
-                  </div>
+                <div class="step-card pending" data-step="3">
+                  <div class="step-icon"><i class="fas fa-check-double"></i></div>
+                  <div class="step-name">3. Clearance</div>
+                  <div class="step-status">Locked</div>
+                  <div class="step-connector"></div>
                 </div>
-                <div class="tl-item">
-                  <div class="tl-left">
-                    <div class="tl-dot" style="background:#e2e8f0;"></div>
-                  </div>
-                  <div class="tl-content">
-                    <strong style="color:var(--text-muted)">Exit Formalities</strong>
-                    <span>Clearance, handover & F&F settlement</span>
-                  </div>
+                <div class="step-card pending" data-step="4">
+                  <div class="step-icon"><i class="fas fa-rupee-sign"></i></div>
+                  <div class="step-name">4. Settlement</div>
+                  <div class="step-status">Locked</div>
+                  <div class="step-connector"></div>
+                </div>
+                <div class="step-card pending" data-step="5">
+                  <div class="step-icon"><i class="fas fa-comments"></i></div>
+                  <div class="step-name">5. Exit Interview</div>
+                  <div class="step-status">Locked</div>
                 </div>
               </div>
             </div>
@@ -681,7 +688,7 @@
 
             <div style="margin-top:16px;">
               <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Have questions? Contact HR:</p>
-              <span class="badge badge-dept"><i class="fas fa-envelope"></i> hr@company.com</span>
+              <span class="badge badge-active"><i class="fas fa-envelope"></i> hr@company.com</span>
             </div>
           </div>
         </div>
@@ -704,33 +711,26 @@
   </div>
 </div>
 
-
-<script src="../auth.js"></script>
-
 <script>
-// ══════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════
+// ========== CONFIG ==========
 const BASE_URL = 'http://localhost:8086';
 const NOTICE_DAYS = 30;
+let currentExitId = null;
 
-// ══════════════════════════════════════════════
-//  INIT — load employee info from localStorage
-// ══════════════════════════════════════════════
+// ========== INIT ==========
 document.addEventListener('DOMContentLoaded', function () {
-  const firstName   = localStorage.getItem('hrms_first_name') || '';
-  const lastName    = localStorage.getItem('hrms_last_name')  || '';
-  const fullName    = (firstName + ' ' + lastName).trim() || 'Employee';
+  const firstName = localStorage.getItem('hrms_first_name') || '';
+  const lastName = localStorage.getItem('hrms_last_name') || '';
+  const fullName = (firstName + ' ' + lastName).trim() || 'Employee';
   const designation = localStorage.getItem('hrms_designation') || '—';
-  const department  = localStorage.getItem('hrms_department')  || '—';
-  const empId       = localStorage.getItem('hrms_employee_id') || '—';
-  const manager     = localStorage.getItem('hrms_reporting_manager') || '—';
-  const workEmail   = localStorage.getItem('hrms_work_email') || '—';
+  const department = localStorage.getItem('hrms_department') || '—';
+  const empId = localStorage.getItem('hrms_employee_id') || '—';
+  const manager = localStorage.getItem('hrms_reporting_manager') || '—';
+  const workEmail = localStorage.getItem('hrms_work_email') || '—';
 
   const initials = [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
   const role = designation !== '—' ? designation : (department !== '—' ? department : 'Employee');
 
-  // Header - with null checks
   const userAvatar = document.getElementById('userAvatar');
   const userName = document.getElementById('userName');
   const userRole = document.getElementById('userRole');
@@ -738,133 +738,418 @@ document.addEventListener('DOMContentLoaded', function () {
   if (userName) userName.textContent = fullName;
   if (userRole) userRole.textContent = role;
 
-  // Form display fields - with null checks
-  const dispEmpId = document.getElementById('disp_empId');
-  const dispName = document.getElementById('disp_name');
-  const dispDept = document.getElementById('disp_dept');
-  const dispDesig = document.getElementById('disp_desig');
-  const dispManager = document.getElementById('disp_manager');
-  const dispEmail = document.getElementById('disp_email');
-  const dispManager2 = document.getElementById('disp_manager2');
-  
-  if (dispEmpId) dispEmpId.textContent = empId;
-  if (dispName) dispName.textContent = fullName;
-  if (dispDept) dispDept.textContent = department;
-  if (dispDesig) dispDesig.textContent = designation;
-  if (dispManager) dispManager.textContent = manager;
-  if (dispEmail) dispEmail.textContent = workEmail;
-  if (dispManager2) dispManager2.textContent = manager + ' se approval awaited';
+  document.getElementById('disp_empId').textContent = empId;
+  document.getElementById('disp_name').textContent = fullName;
+  document.getElementById('disp_dept').textContent = department;
+  document.getElementById('disp_desig').textContent = designation;
+  document.getElementById('disp_manager').textContent = manager;
+  document.getElementById('disp_email').textContent = workEmail;
 
-  // Set min date = today
   const today = new Date().toISOString().split('T')[0];
   const resignationDateInput = document.getElementById('resignationDate');
   if (resignationDateInput) resignationDateInput.min = today;
 
-  // Load draft first
   loadDraft();
+  checkExistingResignation();
 
-  // Check existing resignation in localStorage
-  const existing = localStorage.getItem('hrms_resignation_status');
-  if (existing === 'submitted') {
-    const data = JSON.parse(localStorage.getItem('hrms_resignation_data') || '{}');
-    const formView = document.getElementById('formView');
-    const submittedView = document.getElementById('submittedView');
-    
-    populateSubmittedView(data);
-    if (formView) formView.style.display = 'none';
-    if (submittedView) submittedView.style.display = 'block';
-  }
-  
-  // Check status from backend after page loads
-  setTimeout(() => {
-    if (typeof checkResignationStatus === 'function') {
-      checkResignationStatus();
-    }
-  }, 1000);
-  
-  // Periodic check every 15 seconds
+  // Auto-refresh status every 10 seconds
   setInterval(() => {
-    if (typeof checkResignationStatus === 'function') {
-      checkResignationStatus();
+    if (currentExitId) {
+      checkStatusFromBackend();
     }
-  }, 15000);
+  }, 10000);
 });
 
-// ══════════════════════════════════════════════
-//  CALCULATE LAST WORKING DAY
-// ══════════════════════════════════════════════
+async function checkExistingResignation() {
+  const empId = localStorage.getItem('hrms_employee_id');
+  if (!empId) return;
+
+  try {
+    const response = await fetch(`${BASE_URL}/api/exit/resignations/employee/${empId}`);
+    const result = await response.json();
+
+    if (response.ok && result.success && result.data) {
+      const resignation = result.data;
+      currentExitId = resignation.id;
+      
+      const formView = document.getElementById('formView');
+      const submittedView = document.getElementById('submittedView');
+      if (formView) formView.style.display = 'none';
+      if (submittedView) submittedView.style.display = 'block';
+      
+      document.getElementById('refNumber').innerHTML = `<i class="fas fa-hashtag"></i> ${resignation.exitId || resignation.id}`;
+      
+      if (resignation.lastWorkingDay) {
+        const lwd = new Date(resignation.lastWorkingDay);
+        document.getElementById('finalLWDDisplay').textContent = lwd.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        document.getElementById('lwdDisplay').textContent = lwd.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+      }
+      
+      await loadClearanceAndSettlementStatus(currentExitId);
+      
+    } else if (response.status === 404) {
+      console.log('No existing resignation found');
+    }
+  } catch (error) {
+    console.error('Error checking existing resignation:', error);
+  }
+}
+
+// DELETE EXIT INTERVIEW DATA (Run once to clear old data)
+async function resetExitInterview() {
+    if (!currentExitId) {
+        console.log('No exit ID found');
+        return;
+    }
+    
+    if (confirm('This will delete the exit interview data. Are you sure?')) {
+        try {
+            const getRes = await fetch(`${BASE_URL}/api/exit/interview/get/${currentExitId}`);
+            const getResult = await getRes.json();
+            
+            if (getResult.success && getResult.data) {
+                const emptyInterview = {
+                    reasonForLeaving: '',
+                    rating: null,
+                    whatLikedMost: '',
+                    whatNeedsImprovement: '',
+                    recommendToOthers: '',
+                    considerRejoining: ''
+                };
+                
+                const saveRes = await fetch(`${BASE_URL}/api/exit/interview/save/${currentExitId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emptyInterview)
+                });
+                
+                const saveResult = await saveRes.json();
+                if (saveResult.success) {
+                    console.log('✅ Exit interview data cleared!');
+                    showToast('Exit interview data cleared. Refresh to see changes.', 'success');
+                    setTimeout(() => location.reload(), 2000);
+                }
+            }
+        } catch (error) {
+            console.error('Error resetting interview:', error);
+            showToast('Error resetting interview', 'error');
+        }
+    }
+}
+
+async function loadClearanceAndSettlementStatus(exitId) {
+  try {
+    // Get Clearance Status
+    const clearanceRes = await fetch(`${BASE_URL}/api/exit/clearance/status/${exitId}`);
+    const clearanceResult = await clearanceRes.json();
+    
+    let clearanceData = {};
+    if (clearanceResult.success && clearanceResult.data) {
+      clearanceData = clearanceResult.data;
+    }
+    
+    // Get Settlement Details
+    const settlementRes = await fetch(`${BASE_URL}/api/exit/settlement/details/${exitId}`);
+    const settlementResult = await settlementRes.json();
+    
+    let settlementData = null;
+    if (settlementResult.success && settlementResult.data) {
+      settlementData = settlementResult.data;
+    }
+    
+    // Get Exit Interview
+    const interviewRes = await fetch(`${BASE_URL}/api/exit/interview/get/${exitId}`);
+    const interviewResult = await interviewRes.json();
+    
+    let interviewSubmitted = false;
+    let interviewData = null;
+    if (interviewResult.success && interviewResult.data) {
+      interviewData = interviewResult.data;
+      const reason = interviewData.reasonForLeaving;
+      // Check if interview has actual content
+      interviewSubmitted = reason && reason.trim() !== '' && reason.length > 0;
+      console.log('Interview data:', { reason: reason?.substring(0, 50), rating: interviewData.rating, interviewSubmitted });
+    }
+    
+    // Get current status from resignation
+    const resignRes = await fetch(`${BASE_URL}/api/exit/resignations/${exitId}`);
+    const resignResult = await resignRes.json();
+    let currentStatus = 'PENDING';
+    if (resignResult.success && resignResult.data) {
+      currentStatus = resignResult.data.status;
+    }
+    
+    const isPending = currentStatus === 'PENDING';
+    const isApproved = currentStatus === 'APPROVED';
+    const isHRProcessing = currentStatus === 'HR_PROCESSING';
+    const isClearancePending = currentStatus === 'CLEARANCE_PENDING';
+    const isCompleted = currentStatus === 'COMPLETED';
+    const isRejected = currentStatus === 'REJECTED';
+    
+    console.log('Current Status:', currentStatus);
+    console.log('Interview Submitted:', interviewSubmitted);
+    
+    // Calculate clearance progress
+    const totalClearance = 4;
+    let completedClearance = 0;
+    if (clearanceData.itClearance) completedClearance++;
+    if (clearanceData.hrClearance) completedClearance++;
+    if (clearanceData.financeClearance) completedClearance++;
+    if (clearanceData.adminClearance) completedClearance++;
+    const allClearanceDone = completedClearance === totalClearance;
+    
+    // Step 1: Resignation
+    let step1Completed = !isPending && !isRejected;
+    let step1Text = isPending ? 'Under Review' : (isRejected ? 'Rejected ❌' : 'Approved ✓');
+    
+    // Step 2: HR Processing
+    let step2Completed = isHRProcessing || isClearancePending || isCompleted;
+    let step2Active = isApproved;
+    let step2Text = isPending ? 'Pending Approval' : 
+                    (isApproved ? 'Ready to Start' : 
+                    (isHRProcessing ? 'In Progress...' : 
+                    (step2Completed ? 'Completed ✓' : 'Locked')));
+    
+    // Step 3: Clearance
+    let step3Completed = allClearanceDone;
+    let step3Active = (isHRProcessing || isClearancePending) && !step3Completed;
+    let step3Text = allClearanceDone ? 'All Cleared ✓' : 
+                    (completedClearance > 0 ? `${completedClearance}/${totalClearance} Done` : 'Pending');
+    
+    // Step 4: Settlement
+    let step4Completed = settlementData && settlementData.netPayable && settlementData.netPayable > 0;
+    let step4Active = step3Completed && !step4Completed;
+    let step4Text = step4Completed ? `₹${settlementData.netPayable.toLocaleString()} Paid ✓` : 'Pending';
+    
+    // ✅ STEP 5 - FIXED
+    let step5Completed = false;
+    let step5Active = false;
+    let step5Text = 'Pending';
+    
+    // If interview data exists, mark as completed
+    if (interviewSubmitted) {
+      step5Completed = true;
+      step5Text = 'Interview Done ✓';
+      step5Active = false;
+    } 
+    // If status is COMPLETED but no interview data, still mark as pending with warning
+    else if (isCompleted && !interviewSubmitted) {
+      step5Active = true;
+      step5Text = 'Pending';
+      console.warn('⚠️ Status is COMPLETED but no interview data found!');
+    }
+    // If process is in later stages but no interview, show awaiting
+    else if ((isHRProcessing || isClearancePending || isCompleted) && !interviewSubmitted) {
+      step5Active = true;
+      step5Text = 'Awaiting';
+    }
+    
+    // If rejected
+    if (isRejected) {
+      step1Text = 'Rejected ❌';
+      step2Text = 'Cancelled';
+      step3Text = 'Cancelled';
+      step4Text = 'Cancelled';
+      step5Text = 'Cancelled';
+      step2Completed = step3Completed = step4Completed = step5Completed = false;
+    }
+    
+    console.log('Step 5 Status:', { step5Completed, step5Active, step5Text, interviewSubmitted });
+    
+    // Update DOM for all 5 steps
+    const steps = [
+      { element: document.querySelector('.step-card[data-step="1"]'), completed: step1Completed, active: isPending, text: step1Text },
+      { element: document.querySelector('.step-card[data-step="2"]'), completed: step2Completed, active: step2Active, text: step2Text },
+      { element: document.querySelector('.step-card[data-step="3"]'), completed: step3Completed, active: step3Active, text: step3Text },
+      { element: document.querySelector('.step-card[data-step="4"]'), completed: step4Completed, active: step4Active, text: step4Text },
+      { element: document.querySelector('.step-card[data-step="5"]'), completed: step5Completed, active: step5Active, text: step5Text }
+    ];
+    
+    steps.forEach(step => {
+      if (step.element) {
+        if (step.completed) {
+          step.element.classList.remove('pending', 'active');
+          step.element.classList.add('completed');
+        } else if (step.active) {
+          step.element.classList.remove('pending', 'completed');
+          step.element.classList.add('active');
+        } else {
+          step.element.classList.remove('completed', 'active');
+          step.element.classList.add('pending');
+        }
+        const statusSpan = step.element.querySelector('.step-status');
+        if (statusSpan) statusSpan.textContent = step.text;
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error loading status:', error);
+  }
+}
+
+async function updateTrackerByStatus(status) {
+  let clearanceData = {};
+  let settlementData = null;
+  let interviewData = null;
+  
+  if (currentExitId) {
+    try {
+      const clearanceRes = await fetch(`${BASE_URL}/api/exit/clearance/status/${currentExitId}`);
+      const clearanceResult = await clearanceRes.json();
+      if (clearanceResult.success && clearanceResult.data) {
+        clearanceData = clearanceResult.data;
+      }
+      
+      const settlementRes = await fetch(`${BASE_URL}/api/exit/settlement/details/${currentExitId}`);
+      const settlementResult = await settlementRes.json();
+      if (settlementResult.success && settlementResult.data) {
+        settlementData = settlementResult.data;
+      }
+      
+      const interviewRes = await fetch(`${BASE_URL}/api/exit/interview/get/${currentExitId}`);
+      const interviewResult = await interviewRes.json();
+      if (interviewResult.success && interviewResult.data) {
+        const hasInterviewData = interviewResult.data.reasonForLeaving && 
+                                  interviewResult.data.reasonForLeaving.trim() !== '' &&
+                                  interviewResult.data.reasonForLeaving.length > 10;
+        if (hasInterviewData) {
+          interviewData = interviewResult.data;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching status data:', error);
+    }
+  }
+  
+  const isPending = status === 'PENDING';
+  const isApproved = status === 'APPROVED';
+  const isHRProcessing = status === 'HR_PROCESSING';
+  const isClearancePending = status === 'CLEARANCE_PENDING';
+  const isCompleted = status === 'COMPLETED';
+  const isRejected = status === 'REJECTED';
+  
+  const totalClearance = 4;
+  let completedClearance = 0;
+  if (clearanceData.itClearance) completedClearance++;
+  if (clearanceData.hrClearance) completedClearance++;
+  if (clearanceData.financeClearance) completedClearance++;
+  if (clearanceData.adminClearance) completedClearance++;
+  const allClearanceDone = completedClearance === totalClearance;
+  
+  let step1Completed = !isPending && !isRejected;
+  let step1Text = isPending ? 'Under Review' : (isRejected ? 'Rejected ❌' : 'Approved ✓');
+  
+  let step2Completed = isHRProcessing || isClearancePending || isCompleted;
+  let step2Active = isApproved;
+  let step2Text = isPending ? 'Pending Approval' : 
+                  (isApproved ? 'Ready to Start' : 
+                  (isHRProcessing ? 'In Progress...' : 
+                  (step2Completed ? 'Completed ✓' : 'Locked')));
+  
+  let step3Completed = allClearanceDone;
+  let step3Active = (isHRProcessing || isClearancePending) && !step3Completed;
+  let step3Text = allClearanceDone ? 'All Cleared ✓' : 
+                  (completedClearance > 0 ? `${completedClearance}/${totalClearance} Done` : 'Pending');
+  
+  let step4Completed = settlementData && settlementData.netPayable && settlementData.netPayable > 0;
+  let step4Active = step3Completed && !step4Completed;
+  let step4Text = step4Completed ? `₹${settlementData.netPayable.toLocaleString()} Paid ✓` : 'Pending';
+  
+  let step5Completed = interviewData !== null && (isHRProcessing || isClearancePending || isCompleted);
+  let step5Active = step4Completed && !step5Completed;
+  let step5Text = step5Completed ? 'Interview Done ✓' : 'Pending';
+  
+  if (isRejected) {
+    step1Text = 'Rejected ❌';
+    step2Text = 'Cancelled';
+    step3Text = 'Cancelled';
+    step4Text = 'Cancelled';
+    step5Text = 'Cancelled';
+    step2Completed = step3Completed = step4Completed = step5Completed = false;
+  }
+
+  const steps = [
+    { element: document.querySelector('.step-card[data-step="1"]'), completed: step1Completed, active: isPending, text: step1Text },
+    { element: document.querySelector('.step-card[data-step="2"]'), completed: step2Completed, active: step2Active, text: step2Text },
+    { element: document.querySelector('.step-card[data-step="3"]'), completed: step3Completed, active: step3Active, text: step3Text },
+    { element: document.querySelector('.step-card[data-step="4"]'), completed: step4Completed, active: step4Active, text: step4Text },
+    { element: document.querySelector('.step-card[data-step="5"]'), completed: step5Completed, active: step5Active, text: step5Text }
+  ];
+  
+  steps.forEach(step => {
+    if (step.element) {
+      if (step.completed) {
+        step.element.classList.remove('pending', 'active');
+        step.element.classList.add('completed');
+      } else if (step.active) {
+        step.element.classList.remove('pending', 'completed');
+        step.element.classList.add('active');
+      } else {
+        step.element.classList.remove('completed', 'active');
+        step.element.classList.add('pending');
+      }
+      const statusSpan = step.element.querySelector('.step-status');
+      if (statusSpan) statusSpan.textContent = step.text;
+    }
+  });
+  
+  console.log('📊 Tracker Updated:', { 
+    status, 
+    interviewSubmitted: interviewData !== null,
+    step5Text,
+    step1Text, step2Text, step3Text, step4Text 
+  });
+}
+
+function getClearanceProgressText(clearanceData) {
+  const total = 4;
+  let completed = 0;
+  if (clearanceData.itClearance) completed++;
+  if (clearanceData.hrClearance) completed++;
+  if (clearanceData.financeClearance) completed++;
+  if (clearanceData.adminClearance) completed++;
+  
+  if (completed === total) return 'All Departments Cleared ✓';
+  if (completed > 0) return `${completed}/${total} Departments Cleared`;
+  return 'Pending';
+}
+
 function calcLWD() {
   const d = document.getElementById('resignationDate').value;
   const el = document.getElementById('lwdDisplay');
-  if (!d) { el.textContent = '— Pehle Resignation Date select karein —'; return; }
+  if (!d) { el.textContent = '— Please select a Resignation Date first —'; return; }
   const dt = new Date(d);
   dt.setDate(dt.getDate() + NOTICE_DAYS);
   const opts = { day: '2-digit', month: 'long', year: 'numeric' };
-  const enStr = dt.toLocaleDateString('en-IN', opts);
-  el.textContent = enStr;
-  document.getElementById('finalLWDDisplay').textContent = enStr;
+  el.textContent = dt.toLocaleDateString('en-IN', opts);
+  document.getElementById('finalLWDDisplay').textContent = dt.toLocaleDateString('en-IN', opts);
   localStorage.setItem('hrms_lwd', dt.toISOString().split('T')[0]);
 }
 
-// ══════════════════════════════════════════════
-//  TOGGLE OTHER REASON FIELD
-// ══════════════════════════════════════════════
 function toggleOtherReason() {
   const v = document.getElementById('resignReason').value;
-  document.getElementById('otherReasonGroup').style.display = v === 'Other' ? 'flex' : 'none';
-  if (v !== 'Other') {
-    document.getElementById('otherReason').classList.remove('error');
-    document.getElementById('err_otherReason').style.display = 'none';
-  }
+  document.getElementById('otherReasonGroup').style.display = v === 'Other' ? 'block' : 'none';
 }
 
-// ══════════════════════════════════════════════
-//  VALIDATION
-// ══════════════════════════════════════════════
 function validateForm() {
   let ok = true;
-
-  function check(id, errId, condition) {
-    const el = document.getElementById(id);
-    const err = document.getElementById(errId);
-    if (condition) {
-      el.classList.add('error');
-      err.style.display = 'block';
-      ok = false;
-    } else {
-      el.classList.remove('error');
-      err.style.display = 'none';
-    }
-  }
-
-  check('resignationDate', 'err_resignDate', !document.getElementById('resignationDate').value);
-  check('resignReason', 'err_reason', !document.getElementById('resignReason').value);
-  check('resignComments', 'err_comments', document.getElementById('resignComments').value.trim().length < 20);
-  check('handoverPerson', 'err_handover', !document.getElementById('handoverPerson').value.trim());
-
-  if (document.getElementById('resignReason').value === 'Other') {
-    check('otherReason', 'err_otherReason', !document.getElementById('otherReason').value.trim());
-  }
-
-  const decl = ['decl1','decl2','decl3'].every(id => document.getElementById(id).checked);
-  document.getElementById('err_decl').style.display = decl ? 'none' : 'block';
-  if (!decl) ok = false;
-
+  if (!document.getElementById('resignationDate').value) ok = false;
+  if (!document.getElementById('resignReason').value) ok = false;
+  if (document.getElementById('resignComments').value.trim().length < 10) ok = false;
+  if (!document.getElementById('handoverPerson').value.trim()) ok = false;
+  if (document.getElementById('resignReason').value === 'Other' && !document.getElementById('otherReason').value.trim()) ok = false;
+  if (!document.getElementById('decl1').checked || !document.getElementById('decl2').checked || !document.getElementById('decl3').checked) ok = false;
   return ok;
 }
 
-// ══════════════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════════════
 function openConfirmModal() {
   if (!validateForm()) {
     showToast('Please fill all required fields', 'error');
-    const firstErr = document.querySelector('.form-input.error, .field-error[style*="block"]');
-    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
   document.getElementById('confirmModal').classList.add('active');
 }
+
 function closeModal() {
   document.getElementById('confirmModal').classList.remove('active');
 }
@@ -885,12 +1170,10 @@ async function submitResignation() {
   const handoverDate = document.getElementById('handoverDate').value;
   const pendingTasks = document.getElementById('pendingTasks').value;
   
-  // Calculate LWD properly
   const dt = new Date(resignDate);
   dt.setDate(dt.getDate() + NOTICE_DAYS);
   const lastWorkingDay = dt.toISOString().split('T')[0];
   
-  // Prepare payload matching ExitRequestDto
   const payload = {
     employeeId: empId,
     resignationDate: resignDate,
@@ -899,148 +1182,50 @@ async function submitResignation() {
     remarks: comments + (handoverPerson ? `\nHandover to: ${handoverPerson}` : '') + 
              (handoverDate ? `\nHandover Date: ${handoverDate}` : '') +
              (pendingTasks ? `\nPending Tasks: ${pendingTasks}` : ''),
-    basicSalary: null,
-    leaveEncashment: null,
-    bonus: null,
-    allowances: null,
-    salaryAdvance: null,
-    loanRecovery: null,
-    assetDamage: null,
-    otherDeductions: null
+    basicSalary: null, leaveEncashment: null, bonus: null, allowances: null,
+    salaryAdvance: null, loanRecovery: null, assetDamage: null, otherDeductions: null
   };
 
-  console.log('Submitting resignation payload:', payload);
-  
   try {
     const response = await fetch('http://localhost:8086/api/exit/resignations/create', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload)
     });
     
-    console.log('Response status:', response.status);
-    const json = await response.json();
-    console.log('Response data:', json);
+    const result = await response.json();
     
-    if (response.ok && json.success) {
-      const exitId = json.exitId || json.data?.exitId || generateRefNumber();
-      const resignationId = json.id || json.data?.id;
+    if (response.ok && result.success) {
+      const exitId = result.exitId || result.data?.exitId || ('RES-' + Date.now());
+      currentExitId = result.data?.id;
       
       const savedData = {
-        refNumber: exitId,
-        resignationId: resignationId,
-        exitId: exitId,
-        employeeId: empId,
-        employeeName: fullName,
-        resignationDate: resignDate,
-        lastWorkingDay: lastWorkingDay,
-        reasonForLeaving: payload.reasonForLeaving,
-        status: 'PENDING',
-        submittedAt: new Date().toISOString(),
-        remarks: payload.remarks
+        refNumber: exitId, exitId: exitId, employeeId: empId, employeeName: fullName,
+        resignationDate: resignDate, lastWorkingDay: lastWorkingDay,
+        reasonForLeaving: payload.reasonForLeaving, status: 'PENDING',
+        submittedAt: new Date().toISOString(), remarks: payload.remarks
       };
       
       localStorage.setItem('hrms_resignation_status', 'submitted');
       localStorage.setItem('hrms_resignation_data', JSON.stringify(savedData));
       
-      populateSubmittedView(savedData);
       document.getElementById('formView').style.display = 'none';
       document.getElementById('submittedView').style.display = 'block';
+      document.getElementById('refNumber').innerHTML = `<i class="fas fa-hashtag"></i> ${exitId}`;
+      
+      updateTrackerByStatus('PENDING');
       showToast('Resignation submitted successfully! HR will review it.', 'success');
+      
+      checkStatusFromBackend();
     } else {
-      showToast(json.message || 'Submission failed. Please try again.', 'error');
+      showToast(result.message || 'Submission failed. Please try again.', 'error');
     }
   } catch (err) {
     console.error('[HRMS] API Error:', err);
-    const fallbackData = {
-      refNumber: generateRefNumber(),
-      resignationId: 'local-' + Date.now(),
-      employeeId: empId,
-      employeeName: fullName,
-      resignationDate: resignDate,
-      lastWorkingDay: lastWorkingDay,
-      reasonForLeaving: reason === 'Other' ? otherReason : reason,
-      status: 'PENDING',
-      submittedAt: new Date().toISOString(),
-      remarks: comments
-    };
-    
-    localStorage.setItem('hrms_resignation_status', 'submitted');
-    localStorage.setItem('hrms_resignation_data', JSON.stringify(fallbackData));
-    populateSubmittedView(fallbackData);
-    document.getElementById('formView').style.display = 'none';
-    document.getElementById('submittedView').style.display = 'block';
-    showToast('Saved locally! Will sync when online.', 'warning');
+    showToast('Error submitting resignation. Please try again.', 'error');
   }
 }
 
-function generateRefNumber() {
-  const yr = new Date().getFullYear();
-  const num = Math.floor(Math.random() * 900) + 100;
-  return `RES-${yr}-${num}`;
-}
-
-// ══════════════════════════════════════════════
-//  POPULATE SUBMITTED VIEW
-// ══════════════════════════════════════════════
-function populateSubmittedView(data) {
-    console.log('Populating submitted view with data:', data);
-    
-    const refNumber = data.refNumber || data.exitId || data.resignationId || 'N/A';
-    const refSpan = document.getElementById('refNumber');
-    if (refSpan) {
-        refSpan.innerHTML = `<i class="fas fa-hashtag"></i> ${refNumber}`;
-    }
-    
-    const submitDateSpan = document.getElementById('submitDateDisplay');
-    if (submitDateSpan) {
-        if (data.submittedAt) {
-            const d = new Date(data.submittedAt);
-            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        } else {
-            submitDateSpan.textContent = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-        }
-    }
-    
-    const lwdSpan = document.getElementById('finalLWDDisplay');
-    if (lwdSpan && data.lastWorkingDay) {
-        const d = new Date(data.lastWorkingDay);
-        lwdSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-    } else if (lwdSpan) {
-        lwdSpan.textContent = '—';
-    }
-    
-    const managerSpan = document.getElementById('disp_manager2');
-    if (managerSpan) {
-        const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
-        if (data.status === 'APPROVED') {
-            managerSpan.textContent = managerName + ' ✅ Approved';
-        } else if (data.status === 'REJECTED') {
-            managerSpan.textContent = managerName + ' ❌ Rejected';
-        } else if (data.status === 'HR_PROCESSING') {
-            managerSpan.textContent = managerName + ' ✅ HR Processing Started';
-        } else if (data.status === 'CLEARANCE_PENDING') {
-            managerSpan.textContent = managerName + ' ✅ HR Completed, Clearance Pending';
-        } else if (data.status === 'COMPLETED') {
-            managerSpan.textContent = managerName + ' ✅ Process Complete';
-        } else if (data.status === 'PENDING') {
-            managerSpan.textContent = managerName + ' ⏳ Awaiting Approval';
-        } else {
-            managerSpan.textContent = managerName;
-        }
-    }
-    
-    if (typeof updateTimelineByStatus === 'function') {
-        updateTimelineByStatus(data.status);
-    }
-}
-
-// ══════════════════════════════════════════════
-//  DRAFT SAVE
-// ══════════════════════════════════════════════
 function saveDraft() {
   const draft = {
     resignationDate: document.getElementById('resignationDate').value,
@@ -1065,410 +1250,6 @@ function loadDraft() {
   if (draft.pendingTasks) document.getElementById('pendingTasks').value = draft.pendingTasks;
 }
 
-// ══════════════════════════════════════════════
-//  CHECK RESIGNATION STATUS FROM BACKEND
-// ══════════════════════════════════════════════
-// ══════════════════════════════════════════════
-//  CHECK RESIGNATION STATUS FROM BACKEND
-// ══════════════════════════════════════════════
-async function checkResignationStatus() {
-    const empId = localStorage.getItem('hrms_employee_id');
-    if (!empId) {
-        console.log('No employee ID found');
-        return;
-    }
-    
-    console.log('🔍 Checking resignation status for employee:', empId);
-    
-    try {
-        const response = await fetch(`${BASE_URL}/api/exit/resignations/employee/${empId}`);
-        const result = await response.json();
-        
-        console.log('Response status:', response.status);
-        console.log('Response data:', result);
-        
-        if (response.ok && result.success && result.data) {
-            const myResignation = result.data;
-            console.log('✅ Found resignation:', myResignation);
-            console.log('✅ Status from backend:', myResignation.status);
-            
-            // Clear old data and save new
-            localStorage.removeItem('hrms_resignation_data');
-            localStorage.setItem('hrms_resignation_status', 'submitted');
-            localStorage.setItem('hrms_resignation_data', JSON.stringify(myResignation));
-            
-            // Force update UI
-            forceUpdateUI(myResignation);
-        } else if (response.status === 404) {
-            console.log('No resignation found for this employee');
-        } else {
-            console.log('Error response:', result.message);
-        }
-    } catch (err) {
-        console.error('Error checking status:', err);
-    }
-}
-
-// ══════════════════════════════════════════════
-//  FORCE UPDATE UI - DIRECTLY OVERWRITE
-// ══════════════════════════════════════════════
-function forceUpdateUI(data) {
-    console.log('🔄 FORCE UPDATING UI with status:', data?.status);
-    
-    if (!data || !data.status) {
-        console.log('No data or status found');
-        return;
-    }
-    
-    const status = data.status;
-    const isApproved = status === 'APPROVED' || status === 'HR_PROCESSING' || status === 'CLEARANCE_PENDING' || status === 'COMPLETED';
-    const isRejected = status === 'REJECTED';
-    const isCompleted = status === 'COMPLETED';
-    
-    const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
-    
-    // Show submitted view
-    const formView = document.getElementById('formView');
-    const submittedView = document.getElementById('submittedView');
-    
-    if (formView) formView.style.display = 'none';
-    if (submittedView) submittedView.style.display = 'block';
-    
-    // Get the timeline container and COMPLETELY REPLACE it
-    const trackCard = document.querySelector('.track-card');
-    if (trackCard) {
-        // Find the timeline div inside track-card
-        let timelineDiv = trackCard.querySelector('.timeline');
-        if (!timelineDiv) {
-            // Create timeline div if it doesn't exist
-            timelineDiv = document.createElement('div');
-            timelineDiv.className = 'timeline';
-            const h4 = trackCard.querySelector('h4');
-            if (h4 && h4.nextSibling) {
-                trackCard.insertBefore(timelineDiv, h4.nextSibling);
-            } else {
-                trackCard.appendChild(timelineDiv);
-            }
-        }
-        
-        // Set timeline HTML based on status
-        if (isRejected) {
-            timelineDiv.innerHTML = `
-                <div class="tl-item">
-                    <div class="tl-left">
-                        <div class="tl-dot" style="background: var(--success);"></div>
-                        <div class="tl-line"></div>
-                    </div>
-                    <div class="tl-content">
-                        <strong>Resignation Submitted ✓</strong>
-                        <span id="submitDateDisplay"></span>
-                    </div>
-                </div>
-                <div class="tl-item">
-                    <div class="tl-left">
-                        <div class="tl-dot" style="background: #dc3545;"></div>
-                    </div>
-                    <div class="tl-content">
-                        <strong style="color: #dc3545;">Manager Approval ✗ (Rejected)</strong>
-                        <span>Your resignation has been rejected</span>
-                    </div>
-                </div>
-            `;
-        } else if (isApproved) {
-            timelineDiv.innerHTML = `
-                <div class="tl-item">
-                    <div class="tl-left">
-                        <div class="tl-dot" style="background: var(--success);"></div>
-                        <div class="tl-line" style="background: var(--success);"></div>
-                    </div>
-                    <div class="tl-content">
-                        <strong>Resignation Submitted ✓</strong>
-                        <span id="submitDateDisplay"></span>
-                    </div>
-                </div>
-                <div class="tl-item">
-                    <div class="tl-left">
-                        <div class="tl-dot" style="background: var(--success);"></div>
-                    </div>
-                    <div class="tl-content">
-                        <strong style="color: var(--success);">Manager Approval ✓ (Approved)</strong>
-                        <span>${managerName} has approved your resignation</span>
-                    </div>
-                </div>
-            `;
-        } else {
-            timelineDiv.innerHTML = `
-                <div class="tl-item">
-                    <div class="tl-left">
-                        <div class="tl-dot" style="background: var(--success);"></div>
-                        <div class="tl-line"></div>
-                    </div>
-                    <div class="tl-content">
-                        <strong>Resignation Submitted ✓</strong>
-                        <span id="submitDateDisplay"></span>
-                    </div>
-                </div>
-                <div class="tl-item">
-                    <div class="tl-left">
-                        <div class="tl-dot" style="background: #e2e8f0;"></div>
-                    </div>
-                    <div class="tl-content">
-                        <strong style="color: var(--text-muted);">Manager Approval ⏳ (Awaiting)</strong>
-                        <span>${managerName} will review your resignation</span>
-                    </div>
-                </div>
-            `;
-        }
-    }
-    
-    // Update submit date
-    const submitDateSpan = document.getElementById('submitDateDisplay');
-    if (submitDateSpan) {
-        if (data.submittedAt) {
-            const d = new Date(data.submittedAt);
-            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        } else if (data.resignationDate) {
-            const d = new Date(data.resignationDate);
-            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-        } else if (data.createdAt) {
-            const d = new Date(data.createdAt);
-            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
-    }
-    
-    // Update last working day
-    const lwdSpan = document.getElementById('finalLWDDisplay');
-    if (lwdSpan && data.lastWorkingDay) {
-        const d = new Date(data.lastWorkingDay);
-        lwdSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-    }
-    
-    // Update ref number
-    const refSpan = document.getElementById('refNumber');
-    if (refSpan) {
-        const refNumber = data.exitId || data.id || 'N/A';
-        refSpan.innerHTML = `<i class="fas fa-hashtag"></i> ${refNumber}`;
-    }
-    
-    // Update manager name display
-    const managerSpan = document.getElementById('disp_manager2');
-    if (managerSpan) {
-        if (isApproved) {
-            managerSpan.textContent = `${managerName} ✅ Approved`;
-        } else if (isRejected) {
-            managerSpan.textContent = `${managerName} ❌ Rejected`;
-        } else {
-            managerSpan.textContent = `${managerName} ⏳ Awaiting Approval`;
-        }
-    }
-    
-    // Remove existing banner and add status banner
-    const existingBanner = document.querySelector('.submitted-view .status-banner');
-    if (existingBanner) existingBanner.remove();
-    
-    const container = document.querySelector('.submitted-view');
-    if (container) {
-        const banner = document.createElement('div');
-        banner.className = 'status-banner';
-        if (isApproved) {
-            banner.className += ' banner-success';
-            banner.innerHTML = `<i class="fas fa-check-circle"></i><span>✅ Your resignation has been APPROVED! You are now in notice period.</span>`;
-        } else if (isRejected) {
-            banner.className += ' banner-warning';
-            banner.innerHTML = `<i class="fas fa-exclamation-triangle"></i><span>❌ Your resignation has been REJECTED. Please contact HR.</span>`;
-        } else {
-            banner.className += ' banner-info';
-            banner.innerHTML = `<i class="fas fa-info-circle"></i><span>⏳ Your resignation is pending HR approval.</span>`;
-        }
-        
-        const trackCardElement = document.querySelector('.track-card');
-        if (trackCardElement) {
-            trackCardElement.insertAdjacentElement('afterend', banner);
-        }
-    }
-    
-    console.log('✅ UI force updated for status:', status);
-}
-
-// ══════════════════════════════════════════════
-//  OVERRIDE THE OLD updateResignationStatusUI
-// ══════════════════════════════════════════════
-window.updateResignationStatusUI = forceUpdateUI;
-
-// ══════════════════════════════════════════════
-//  MAKE SURE CHECK HAPPENS ON PAGE LOAD AND EVERY 5 SECONDS
-// ══════════════════════════════════════════════
-// Add this inside your DOMContentLoaded event listener
-setTimeout(() => {
-    checkResignationStatus();
-}, 500);
-
-setInterval(() => {
-    checkResignationStatus();
-}, 5000);
-
-// ══════════════════════════════════════════════
-//  UPDATE UI BASED ON RESIGNATION STATUS
-// ══════════════════════════════════════════════
-function updateResignationStatusUI(data) {
-    console.log('🔄 Updating UI with status:', data?.status);
-    
-    if (!data || !data.status) {
-        console.log('No data or status found');
-        return;
-    }
-    
-    const formView = document.getElementById('formView');
-    const submittedView = document.getElementById('submittedView');
-    
-    if (formView) formView.style.display = 'none';
-    if (submittedView) submittedView.style.display = 'block';
-    
-    const status = data.status;
-    // Check if status is APPROVED, HR_PROCESSING, CLEARANCE_PENDING, or COMPLETED
-    const isApproved = status === 'APPROVED' || status === 'HR_PROCESSING' || status === 'CLEARANCE_PENDING' || status === 'COMPLETED';
-    const isRejected = status === 'REJECTED';
-    
-    const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
-    
-    // Get the timeline container
-    const timelineContainer = document.querySelector('.submitted-view .timeline');
-    if (timelineContainer) {
-        timelineContainer.innerHTML = `
-            <div class="tl-item">
-                <div class="tl-left">
-                    <div class="tl-dot" style="background: var(--success);"></div>
-                    <div class="tl-line" style="background: ${isApproved ? 'var(--success)' : '#e2e8f0'};"></div>
-                </div>
-                <div class="tl-content">
-                    <strong>Resignation Submitted ✓</strong>
-                    <span id="submitDateDisplay"></span>
-                </div>
-            </div>
-            <div class="tl-item">
-                <div class="tl-left">
-                    <div class="tl-dot" style="background: ${isRejected ? '#dc3545' : (isApproved ? 'var(--success)' : '#e2e8f0')};"></div>
-                </div>
-                <div class="tl-content">
-                    <strong>Manager Approval ${isRejected ? '✗ (Rejected)' : (isApproved ? '✓ (Approved)' : '⏳ (Awaiting)')}</strong>
-                    <span>${isRejected ? 'Your resignation has been rejected by HR' : (isApproved ? `${managerName} has approved your resignation` : `${managerName} will review your resignation`)}</span>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Update submit date
-    const submitDateSpan = document.getElementById('submitDateDisplay');
-    if (submitDateSpan) {
-        if (data.submittedAt) {
-            const d = new Date(data.submittedAt);
-            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        } else if (data.resignationDate) {
-            const d = new Date(data.resignationDate);
-            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-        }
-    }
-    
-    // Update last working day
-    const lwdSpan = document.getElementById('finalLWDDisplay');
-    if (lwdSpan && data.lastWorkingDay) {
-        const d = new Date(data.lastWorkingDay);
-        lwdSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-    }
-    
-    // Update ref number
-    const refSpan = document.getElementById('refNumber');
-    if (refSpan) {
-        const refNumber = data.exitId || data.id || 'N/A';
-        refSpan.innerHTML = `<i class="fas fa-hashtag"></i> ${refNumber}`;
-    }
-    
-    console.log('✅ UI updated for status:', status);
-}
-
-// ══════════════════════════════════════════════
-//  UPDATE TIMELINE BASED ON STATUS
-// ══════════════════════════════════════════════
-function updateTimelineByStatus(status) {
-    console.log('📊 Updating timeline for status:', status);
-    
-    const timelineContainer = document.querySelector('.timeline');
-    if (!timelineContainer) return;
-    
-    const managerName = localStorage.getItem('hrms_reporting_manager') || 'HR Manager';
-    const isApproved = ['APPROVED', 'HR_PROCESSING', 'CLEARANCE_PENDING', 'COMPLETED'].includes(status);
-    const isRejected = status === 'REJECTED';
-    const isCompleted = status === 'COMPLETED';
-    
-    timelineContainer.innerHTML = `
-        <div class="tl-item">
-            <div class="tl-left">
-                <div class="tl-dot" style="background: var(--success);"></div>
-                <div class="tl-line" id="line1" style="background: ${isApproved || isCompleted ? 'var(--success)' : '#e2e8f0'};"></div>
-            </div>
-            <div class="tl-content">
-                <strong>Resignation Submitted ✓</strong>
-                <span id="submitDateDisplay"></span>
-            </div>
-        </div>
-        <div class="tl-item">
-            <div class="tl-left">
-                <div class="tl-dot" id="step2Dot" style="background: ${isRejected ? '#dc3545' : (isApproved ? 'var(--success)' : '#e2e8f0')};"></div>
-            </div>
-            <div class="tl-content">
-                <strong id="step2Title">Manager Approval ${isRejected ? '✗ (Rejected)' : (isApproved ? '✓ (Approved)' : '⏳ (Awaiting)')}</strong>
-                <span id="disp_manager2">${isRejected ? `${managerName} has rejected` : (isApproved ? `${managerName} has approved` : `${managerName} will review your resignation`)}</span>
-            </div>
-        </div>
-    `;
-    
-    // Update submit date
-    const localData = localStorage.getItem('hrms_resignation_data');
-    if (localData) {
-        const data = JSON.parse(localData);
-        const submitDateSpan = document.getElementById('submitDateDisplay');
-        if (submitDateSpan && data.submittedAt) {
-            const d = new Date(data.submittedAt);
-            submitDateSpan.textContent = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
-    }
-    
-    console.log('✅ Timeline updated for status:', status);
-}
-
-// ══════════════════════════════════════════════
-//  SHOW STATUS BANNER
-// ══════════════════════════════════════════════
-function showStatusBanner(type, message) {
-  const container = document.querySelector('.submitted-view');
-  if (!container) return;
-  
-  const existingBanner = container.querySelector('.status-banner');
-  if (existingBanner) existingBanner.remove();
-  
-  const banner = document.createElement('div');
-  banner.className = 'status-banner';
-  
-  if (type === 'approved') {
-    banner.className += ' banner-success';
-    banner.innerHTML = `<i class="fas fa-check-circle" style="font-size:16px;flex-shrink:0"></i><span>${message}</span>`;
-  } else if (type === 'rejected') {
-    banner.className += ' banner-warning';
-    banner.innerHTML = `<i class="fas fa-exclamation-triangle" style="font-size:16px;flex-shrink:0"></i><span>${message}</span>`;
-  } else {
-    banner.className += ' banner-info';
-    banner.innerHTML = `<i class="fas fa-info-circle" style="font-size:16px;flex-shrink:0"></i><span>${message}</span>`;
-  }
-  
-  const trackCard = container.querySelector('.track-card');
-  if (trackCard) {
-    trackCard.insertAdjacentElement('afterend', banner);
-  }
-}
-
-// ══════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════
 function showToast(msg, type = 'success') {
   Toastify({
     text: type === 'success' ? `✓ ${msg}` : type === 'error' ? `✕ ${msg}` : `ℹ ${msg}`,
@@ -1486,9 +1267,7 @@ function showToast(msg, type = 'success') {
   }).showToast();
 }
 
-// ══════════════════════════════════════════════
-//  SIDEBAR & HEADER EVENTS
-// ══════════════════════════════════════════════
+// Sidebar Events
 document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('collapsed');
   document.getElementById('mainContent').classList.toggle('sidebar-collapsed');
@@ -1496,27 +1275,16 @@ document.getElementById('collapseSidebarBtn').addEventListener('click', () => {
 document.getElementById('mobileToggleBtn').addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('mobile-open');
 });
-
 const profileDropdownBtn = document.getElementById('profileDropdownBtn');
 const profileDropdown = document.getElementById('profileDropdown');
-profileDropdownBtn.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.classList.toggle('active'); });
-document.addEventListener('click', () => profileDropdown.classList.remove('active'));
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { profileDropdown.classList.remove('active'); closeModal(); }
-});
-
-
-
-
-// document.getElementById('logoutBtn').addEventListener('click', doLogout);
-// document.getElementById('dropdownLogoutBtn').addEventListener('click', doLogout);
-
-document.getElementById('confirmModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// Initial load of draft
-loadDraft();
+if (profileDropdownBtn) {
+  profileDropdownBtn.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.classList.toggle('active'); });
+  document.addEventListener('click', () => profileDropdown.classList.remove('active'));
+}
+function doLogout() { if (confirm('Are you sure you want to logout?')) window.location.href = '../index.html'; }
+document.getElementById('logoutBtn')?.addEventListener('click', doLogout);
+document.getElementById('dropdownLogoutBtn')?.addEventListener('click', doLogout);
+document.getElementById('confirmModal')?.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 </script>
 </body>
 </html>
