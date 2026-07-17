@@ -149,7 +149,8 @@ async function apiCheckOut() {
     headers: { 'Content-Type': 'application/json' }
   });
   if (!res.ok) throw new Error(`Check-out failed (${res.status})`);
-  return hmsNow();
+  const data = await res.json();
+  return { checkOutTime: hmsNow(), attendanceId: data.attendanceId };
 }
 
 async function apiUpdateNote(notes) {
@@ -462,16 +463,20 @@ document.getElementById('checkOutBtn').addEventListener('click', async () => {
   if (!loadSession()) { showToast('No active session.', 'error'); return; }
   document.getElementById('checkOutBtn').disabled = true;
   try {
-    const checkOutTime = await apiCheckOut();
+    const { checkOutTime, attendanceId } = await apiCheckOut();
     clearSession();
     stopLivePingLoop();
 
-    // Capture checkout location — NEW
-    if (currentAttendanceId) {
+    // Capture checkout location — uses attendanceId straight from checkout response,
+    // not the stale in-memory variable (fixes silent skip after page reload)
+    const geoAttendanceId = attendanceId || currentAttendanceId;
+    if (geoAttendanceId) {
       getCurrentCoords()
-        .then(coords => apiCreateGeoLog(currentAttendanceId, coords, 'CHECK_OUT'))
+        .then(coords => apiCreateGeoLog(geoAttendanceId, coords, 'CHECK_OUT'))
         .then(() => console.log('[Attendance] Geo log captured for check-out'))
         .catch(err => console.warn('[Attendance] Checkout geo capture skipped:', err.message));
+    } else {
+      console.warn('[Attendance] Checkout geo capture skipped: no attendanceId available');
     }
     currentAttendanceId = null;
 
