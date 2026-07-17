@@ -51,6 +51,15 @@
     .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
 
 
+    a{
+        text-decoration: none;
+    }
+
+    .dropdown-item i {
+    font-size: 15px;
+    min-width: 18px;
+    color: #1f6f7f;
+    }
 
 </style>
 
@@ -118,7 +127,8 @@
                 <div class="header-right">
                     <div class="notification-bell"><button class="icon-btn"><i class="far fa-bell"></i><span
                                 class="notification-badge">3</span></button></div>
-                    <div class="user-profile">
+                    
+                                <div class="user-profile">
                         <button class="profile-btn" id="profileDropdownBtn">
                             <div class="avatar">AM</div>
                              <div class="user-info">
@@ -128,11 +138,12 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="profile-dropdown" id="profileDropdown">
-                            <a href="#" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My
+                            <a href="../pages/profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My
                                     Profile</span></a>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item logout-item"><i
-                                    class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+                                    class="fas fa-sign-out-alt"></i><span>Logout</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -155,7 +166,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     const firstName = localStorage.getItem('hrms_first_name') || '';
     const lastName  = localStorage.getItem('hrms_last_name')  || '';
-    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+    const fullName  = localStorage.getItem('hrms_full_name') || 'Employee';
     const designation = localStorage.getItem('hrms_designation') || '';
     const department  = localStorage.getItem('hrms_department')  || '';
 

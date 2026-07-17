@@ -310,7 +310,7 @@
   function populateUserUI() {
      const firstName = localStorage.getItem('hrms_first_name') || '';
     const lastName  = localStorage.getItem('hrms_last_name')  || '';
-    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+    const fullName  = localStorage.getItem('hrms_full_name') || 'Employee';
 
     const designation = localStorage.getItem('hrms_designation')  || '';
     const department  = localStorage.getItem('hrms_department')   || '';
@@ -325,7 +325,7 @@
       if (el) el.innerText = val;
     };
 
-    set('userName',          fullName || firstName);
+    set('userName',          fullName );
     set('userRole',          role);
     set('userAvatar',        initials);
     set('dashboardUserName', firstName);

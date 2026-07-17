@@ -361,7 +361,7 @@ function onEmployeeLoaded() {
   const avatarEl = document.getElementById('userAvatar');
   if (avatarEl) avatarEl.textContent = initials;
   const nameEl = document.getElementById('userName');
-  if (nameEl) nameEl.textContent = `${d.firstName||''} ${d.lastName||''}`.trim()||'Employee';
+  if (nameEl) nameEl.textContent = localStorage.getItem('hrms_full_name') || 'Employee';
   const roleEl = document.getElementById('userRole');
   if (roleEl) roleEl.textContent = d.designation||'—';
   if (d.employeePrimeId) localStorage.setItem('hrms_employee_prime_id', d.employeePrimeId);

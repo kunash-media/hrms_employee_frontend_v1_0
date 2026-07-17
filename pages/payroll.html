@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HRMS | Payroll & Payslips</title>
+  <title>Employee | Payroll</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <!-- jsPDF/autoTable no longer used for payslip PDF (kept only in case other code on this page needs it later) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <!-- NEW: html2pdf renders the actual payslip DOM to PDF, same approach as admin payslips.html, -->
+  <!-- so the on-screen preview and the downloaded PDF are always pixel-identical. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="../css/payroll.css" />
 
@@ -41,6 +45,12 @@
     
     a{
         text-decoration: none;
+    }
+
+    a i{
+    font-size: 15px;
+    min-width: 18px;
+    color: #1f6f7f;
     }
     
     .sidebar-header {
@@ -81,6 +91,79 @@
 
    
   </style>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PAYSLIP FORMAT OVERRIDE
+       Loaded AFTER payroll.css on purpose, so these rules win the
+       cascade for the .ps-* classes without editing payroll.css
+       (payroll.css may be shared by other pages).
+       Copied 1:1 from admin payslips.html so the employee payslip
+       preview/PDF exactly mirrors the admin format.
+  ════════════════════════════════════════════════════════════ -->
+  <style id="ps-format-override">
+    .payslip-container { max-width: 750px; margin: 0 auto; background: white; padding: 22px 26px; font-size: 12.5px; color: #111; }
+
+    .ps-header { border: 2px solid #1B738C; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+    .ps-company-row { background: #1B738C; color: white; padding: 10px 16px; display: flex; align-items: center; gap: 14px; }
+    .ps-company-logo-wrap { background: white; border-radius: 6px; padding: 3px; flex-shrink: 0; }
+    .ps-company-logo-wrap img { width: 44px; height: 44px; object-fit: contain; display: block; }
+    .ps-company-logo-wrap .ps-logo-fallback { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #1B738C; font-weight: 700; text-align: center; }
+    .ps-company-text { flex: 1; text-align: center; }
+    .ps-company-name { font-size: 15px; font-weight: 700; letter-spacing: .4px; }
+    .ps-company-addr { font-size: 10.5px; opacity: .88; margin-top: 3px; }
+    .ps-month-row    { text-align: center; padding: 6px; font-weight: 600; font-size: 12px; color: #1B738C; background: #e9f6fb; border-top: 1px solid #62C9EA; }
+
+    .ps-emp-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #1B738C; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+    .ps-emp-cell { display: flex; gap: 8px; padding: 6px 12px; border-bottom: 1px solid #d4edf5; }
+    .ps-emp-cell:nth-child(odd)  { border-right: 1px solid #d4edf5; }
+    .ps-emp-cell:nth-last-child(1), .ps-emp-cell:nth-last-child(2) { border-bottom: none; }
+    .ps-emp-label { color: #1B738C; font-weight: 600; min-width: 120px; font-size: 11px; flex-shrink: 0; }
+    .ps-emp-value { color: #222; font-size: 11px; }
+
+    .ps-att-strip { display: grid; grid-template-columns: repeat(6,1fr); border: 1px solid #1B738C; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+    .ps-att-cell  { text-align: center; padding: 6px 4px; border-right: 1px solid #d4edf5; }
+    .ps-att-cell:last-child { border-right: none; }
+    .ps-att-val   { font-size: 14px; font-weight: 800; color: #1B738C; }
+    .ps-att-val.lop  { color: #dc3545; }
+    .ps-att-val.paid { color: #16a34a; }
+    .ps-att-lbl   { font-size: 9.5px; color: #5a7c8a; margin-top: 2px; }
+    .ps-att-head  { background: #1B738C; grid-column: 1/-1; text-align: center; padding: 4px; font-size: 10px; font-weight: 700; color: white; letter-spacing: .06em; text-transform: uppercase; }
+
+    .ps-salary-table { width: 100%; border-collapse: collapse; border: 1px solid #1B738C; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+    .ps-salary-table thead th { background: #1B738C; color: white; padding: 7px 12px; font-size: 11.5px; text-align: left; font-weight: 600; }
+    .ps-salary-table thead th.amt-col { text-align: right; }
+    .ps-salary-table tbody td { padding: 6px 12px; font-size: 11.5px; border-bottom: 1px solid #e4f3f8; }
+    .ps-salary-table tbody tr:last-child td { border-bottom: none; }
+    .ps-salary-table tbody td.amt-col { text-align: right; }
+    .ps-salary-table tbody tr.lop-row td { color: #dc3545; }
+    .ps-salary-table tbody tr.exp-row td { color: #0e6fa8; }
+    .ps-salary-table tfoot .total-row td { font-weight: 700; background: #e9f6fb; border-top: 2px solid #1B738C; padding: 7px 12px; font-size: 11.5px; }
+    .ps-salary-table tfoot .total-row td.amt-col { text-align: right; }
+
+    .ps-net-row { display: flex; justify-content: space-between; align-items: center; background: #1B738C; color: white; border-radius: 6px; padding: 10px 16px; margin-bottom: 10px; }
+    .ps-net-label  { font-size: 13px; font-weight: 600; }
+    .ps-net-words  { font-size: 10.5px; opacity: .85; margin-top: 3px; font-style: italic; }
+    .ps-net-amount { font-size: 22px; font-weight: 800; }
+
+    .ps-footer { text-align: center; font-size: 10px; color: #888; padding-top: 8px; border-top: 1px solid #e0f0f7; }
+
+    @media (max-width: 768px) {
+      .ps-emp-grid, .ps-att-strip { grid-template-columns: 1fr; }
+      .ps-emp-cell:nth-child(odd) { border-right: none; }
+      .ps-att-strip { grid-template-columns: repeat(3,1fr); }
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #payslipToPrint, #payslipToPrint * { visibility: visible; }
+      #payslipToPrint {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body class="bg-[#f8fafc] font-sans text-slate-700 overflow-x-hidden">
@@ -101,7 +184,7 @@
     <!-- header -->
     <div id="sidebarHeader" class="relative z-10 flex items-center justify-between flex-shrink-0 px-4 border-b border-white/10" style="height:70px;">
       <a href="#" class="flex items-center gap-2.5 text-white no-underline">
-        <i class="fas fa-briefcase text-xl min-w-[20px]"></i>
+        <i class="fas fa-briefcase text-white text-xl min-w-[20px]"></i>
         <span class="logo-text font-display font-bold text-[15px] whitespace-nowrap">Employee Portal</span>
       </a>
       <button id="collapseSidebarBtn" aria-label="Toggle sidebar"
@@ -293,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var allPayslips      = [];
   var filteredPayslips = [];
   var currentSlip      = null;
-  var logoBase64       = null;   // cached once after first successful fetch
+  var logoBase64       = null;   // cached once after first successful fetch (kept for potential future use)
 
   /* ══════════════════════════════════════════════════════════════
      UTILITIES
@@ -307,9 +390,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /** Format for HTML display with ₹ symbol */
   function fmtINR(v) { return '\u20B9' + fmtNum(v); }
-
-  /** Format for PDF display (helvetica can't render ₹) */
-  function fmtPDF(v) { return 'Rs. ' + fmtNum(v); }
 
   function formatDate(iso) {
     if (!iso) return 'N/A';
@@ -354,9 +434,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ══════════════════════════════════════════════════════════════
-     LOGO  –  fetch once as base64 for both modal and PDF
-     Uses a canvas to convert HTMLImageElement → base64 string.
-     If the image fails, logoBase64 stays null (handled gracefully).
+     LOGO  –  fetch once as base64 (kept from original; harmless,
+     no longer required by PDF generation since html2pdf captures
+     the live <img> tag directly).
   ══════════════════════════════════════════════════════════════ */
   function preloadLogo() {
     return new Promise(function(resolve) {
@@ -387,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var ln  = localStorage.getItem('hrms_last_name')   || '';
     var des = localStorage.getItem('hrms_designation') || '';
     var dep = localStorage.getItem('hrms_department')  || '';
-    var fullName = (fn + ' ' + ln).trim() || 'Employee';
+    var fullName = localStorage.getItem('hrms_full_name') || 'Employee'; 
     var initials = ([fn,ln].filter(Boolean).map(function(x){return x[0];}).join('') || 'E').toUpperCase();
     document.getElementById('userAvatar').textContent = initials;
     document.getElementById('userName').textContent   = fullName;
@@ -514,61 +594,40 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ══════════════════════════════════════════════════════════════
-     PAYSLIP MODAL
+     PAYSLIP DOCUMENT BUILDER
+     Produces the exact same markup/classes as admin payslips.html
+     openPayslip(). Used for BOTH the modal preview and the PDF
+     export, so the two can never drift out of sync again.
   ══════════════════════════════════════════════════════════════ */
-
-  /**
-   * Build the 4-column merged table body.
-   * earnings and deductions are arrays of [label, formattedValue].
-   * We ALWAYS render all rows — no filtering on zero — so every
-   * field is visible even when value is 0.00.
-   */
-  function buildTableBody(earnings, deductions) {
-    var maxLen = Math.max(earnings.length, deductions.length);
-    var rows = '';
-    for (var i = 0; i < maxLen; i++) {
-      var el = earnings[i]    ? '<td>' + earnings[i][0]    + '</td><td class="amt-col">' + earnings[i][1]    + '</td>'
-                              : '<td></td><td class="amt-col"></td>';
-      var dl = deductions[i]  ? '<td>' + deductions[i][0]  + '</td><td class="amt-col">' + deductions[i][1]  + '</td>'
-                              : '<td></td><td class="amt-col"></td>';
-      rows += '<tr>' + el + dl + '</tr>';
-    }
-    return rows;
-  }
-
-  function openModal(idx) {
-    currentSlip = filteredPayslips[idx];
-    var s = currentSlip;
-
+  function buildPayslipHtml(s) {
     var ml       = MONTH_MAP[s.payrollMonth] || s.payrollMonth;
     var basic    = n(s.basicSalary);
     var hra      = n(s.hra);
-    var allow    = n(s.allowances);
+    var da       = n(s.da);
+    var spl      = n(s.specialAllowance);
     var gross    = n(s.grossSalary);
-    var empPf    = n(s.employeePf);    // null-safe via n()
-    var emplrPf  = n(s.employerPf);    // null-safe via n()
+    var empPf    = n(s.employeePf);
+    var emplrPf  = n(s.employerPf);
     var esi      = n(s.esi);
-    var tds      = n(s.tds);
+    var pt       = n(s.pt);
     var totalDed = n(s.totalDeductions);
     var net      = n(s.netSalary);
+    var expReimb = n(s.expenseReimbursement);
+    var lopDed   = n(s.lopDeduction);
+    var lopDays  = n(s.lopDays);
+    var daysWkd  = s.daysWorked         != null ? s.daysWorked         : '\u2014';
+    var wkDays   = s.workingDaysInMonth != null ? s.workingDaysInMonth : '\u2014';
+    var paidDays = s.daysWorked         != null ? s.daysWorked         : '\u2014';
+    var words    = numberToWords(Math.round(net));
 
-    /* Always show all defined rows — even when 0.00 */
-    var earnings = [
-      ['Basic Salary',               '\u20B9 ' + fmtNum(basic)],
-      ['House Rent Allowance (HRA)', '\u20B9 ' + fmtNum(hra)],
-      ['Other Allowances',           '\u20B9 ' + fmtNum(allow)],
-    ];
-    var deductions = [
-      ['Employee PF',      '\u20B9 ' + fmtNum(empPf)],
-      ['Employer PF',      '\u20B9 ' + fmtNum(emplrPf)],
-      ['ESI',              '\u20B9 ' + fmtNum(esi)],
-      ['TDS / Income Tax', '\u20B9 ' + fmtNum(tds)],
-    ];
+    var f = function(v){ return parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); };
 
-    /* Logo: use cached base64 if available; fallback to icon */
-    var logoHtml = logoBase64
-      ? '<img src="' + logoBase64 + '" alt="Logo" style="width:100px;height:52px;object-fit:contain;border-radius:8px;background:#fff;padding:4px;flex-shrink:0;" />'
-      : '<div style="width:52px;height:52px;background:#1f6f7f;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-briefcase" style="color:#fff;font-size:22px;"></i></div>';
+    var logoHtml = '<div class="ps-company-logo-wrap">'
+      + '<img src="/Images/logo.png" alt="Company Logo"'
+      + ' onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'"'
+      + ' style="width:44px;height:44px;object-fit:contain;">'
+      + '<div class="ps-logo-fallback" style="display:none;">SIEC</div>'
+      + '</div>';
 
     var html =
       '<div id="payslipToPrint" class="payslip-container">'
@@ -577,52 +636,75 @@ document.addEventListener('DOMContentLoaded', function () {
       + '<div class="ps-header">'
       +   '<div class="ps-company-row">'
       +     logoHtml
-      +     '<div>'
+      +     '<div class="ps-company-text">'
       +       '<div class="ps-company-name">Sustainable Integrated Environmental Consultant.</div>'
-      +       '<div class="ps-company-addr">Office-401, Sanskriti Arcade, Kaspate Wasti, Wakad, Pune \u2013 411057</div>'
+      +       '<div class="ps-company-addr">Office-401, Sanskriti Arcade, Kaspate Wasti, Wakad, Pune - 411057</div>'
       +     '</div>'
       +   '</div>'
-      +   '<div class="ps-month-row">PAYSLIP FOR THE MONTH OF ' + ml.toUpperCase() + ' ' + s.payrollYear + '</div>'
+      +   '<div class="ps-month-row">PAYSLIP FOR THE MONTH OF ' + ml.toUpperCase() + '</div>'
       + '</div>'
 
-      /* ── Employee Detail Grid (8 cells = 4 rows × 2 cols) ── */
+      /* ── Employee Detail Grid (6 cells — matches admin payslips.html) ── */
       + '<div class="ps-emp-grid">'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Employee Name</span><span class="ps-emp-value">' + (s.fullName   ||'N/A') + '</span></div>'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Employee ID</span><span class="ps-emp-value">'   + (s.employeeId||'N/A') + '</span></div>'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Designation</span><span class="ps-emp-value">'   + (s.designation||'N/A')+'</span></div>'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Department</span><span class="ps-emp-value">'    + (s.department ||'N/A')+'</span></div>'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Pay Period</span><span class="ps-emp-value">'    + ml + ' ' + s.payrollYear + '</span></div>'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Status</span><span class="ps-emp-value">'        + (s.status     ||'N/A') + '</span></div>'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Initiated By</span><span class="ps-emp-value">'  + (s.initiatedBy||'N/A') + '</span></div>'
-      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Pay Date</span><span class="ps-emp-value">'      + formatDate(s.updatedAt) + '</span></div>'
+      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Name</span><span class="ps-emp-value">'         + (s.fullName    ||'\u2014') + '</span></div>'
+      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Emp. Code</span><span class="ps-emp-value">'    + (s.employeeId  ||'\u2014') + '</span></div>'
+      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Designation</span><span class="ps-emp-value">'  + (s.designation ||'\u2014') + '</span></div>'
+      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Department</span><span class="ps-emp-value">'   + (s.department  ||'\u2014') + '</span></div>'
+      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Pay Period</span><span class="ps-emp-value">'   + ml + '</span></div>'
+      +   '<div class="ps-emp-cell"><span class="ps-emp-label">Status</span><span class="ps-emp-value">'       + (s.status      ||'\u2014') + '</span></div>'
+      + '</div>'
+
+      /* ── Attendance Strip ── */
+      + '<div class="ps-att-strip">'
+      +   '<div class="ps-att-head">Attendance Summary</div>'
+      +   '<div class="ps-att-cell"><div class="ps-att-val">'                              + wkDays   + '</div><div class="ps-att-lbl">Working Days</div></div>'
+      +   '<div class="ps-att-cell"><div class="ps-att-val paid">'                         + daysWkd  + '</div><div class="ps-att-lbl">Days Worked</div></div>'
+      +   '<div class="ps-att-cell"><div class="ps-att-val lop">'                          + lopDays  + '</div><div class="ps-att-lbl">LOP Days</div></div>'
+      +   '<div class="ps-att-cell"><div class="ps-att-val paid">'                         + paidDays + '</div><div class="ps-att-lbl">Days Paid</div></div>'
+      +   '<div class="ps-att-cell"><div class="ps-att-val ' + (lopDed>0?'lop':'') + '">' + f(lopDed)   + '</div><div class="ps-att-lbl">LOP Deduction</div></div>'
+      +   '<div class="ps-att-cell"><div class="ps-att-val" style="color:#0e6fa8">'        + f(expReimb) + '</div><div class="ps-att-lbl">Exp. Reimb.</div></div>'
       + '</div>'
 
       /* ── Salary Table ── */
       + '<table class="ps-salary-table">'
-      +   '<thead><tr>'
-      +     '<th style="width:37%">Earnings</th><th class="amt-col" style="width:13%">Amount</th>'
-      +     '<th style="width:37%">Deductions</th><th class="amt-col" style="width:13%">Amount</th>'
-      +   '</tr></thead>'
-      +   '<tbody>' + buildTableBody(earnings, deductions) + '</tbody>'
-      +   '<tfoot><tr class="total-row">'
-      +     '<td>Gross Earnings</td><td class="amt-col">\u20B9 ' + fmtNum(gross) + '</td>'
-      +     '<td>Total Deductions</td><td class="amt-col">\u20B9 ' + fmtNum(totalDed) + '</td>'
-      +   '</tr></tfoot>'
+      + '<thead><tr>'
+      + '<th style="width:36%">Earnings</th><th class="amt-col" style="width:14%">Amount (\u20B9)</th>'
+      + '<th style="width:36%">Deductions</th><th class="amt-col" style="width:14%">Amount (\u20B9)</th>'
+      + '</tr></thead>'
+      + '<tbody>'
+      + '<tr><td>Basic</td><td class="amt-col">'                + f(basic)   + '</td><td>PF (Employee)</td><td class="amt-col">'         + f(empPf)   + '</td></tr>'
+      + '<tr><td>HRA</td><td class="amt-col">'                  + f(hra)     + '</td><td>PF (Employer)</td><td class="amt-col">'         + f(emplrPf) + '</td></tr>'
+      + '<tr><td>DA</td><td class="amt-col">'                   + f(da)      + '</td><td>ESIC</td><td class="amt-col">'                  + (esi>0?f(esi):'NA') + '</td></tr>'
+      + '<tr><td>Special Allowance</td><td class="amt-col">'    + f(spl)     + '</td><td>Professional Tax (PT)</td><td class="amt-col">' + f(pt)      + '</td></tr>'
+      + (expReimb>0 ? '<tr class="exp-row"><td>Expense Reimbursement</td><td class="amt-col">+' + f(expReimb) + '</td><td></td><td></td></tr>' : '')
+      + (lopDed>0   ? '<tr class="lop-row"><td></td><td></td><td>Loss of Pay (' + lopDays + ' day' + (lopDays===1?'':'s') + ')</td><td class="amt-col">-' + f(lopDed) + '</td></tr>' : '')
+      + '</tbody>'
+      + '<tfoot><tr class="total-row">'
+      + '<td>Gross Earnings</td><td class="amt-col">' + f(gross) + '</td>'
+      + '<td>Total Deductions</td><td class="amt-col">' + f(totalDed + lopDed) + '</td>'
+      + '</tr></tfoot>'
       + '</table>'
 
       /* ── Net Pay ── */
       + '<div class="ps-net-row">'
-      +   '<div>'
-      +     '<div class="ps-net-label">NET PAY (Take Home)</div>'
-      +     '<div class="ps-net-words">' + numberToWords(net) + '</div>'
-      +   '</div>'
-      +   '<div class="ps-net-amount">\u20B9 ' + fmtNum(net) + '</div>'
+      + '<div><div class="ps-net-label">NET PAY (Take Home)</div>'
+      + '<div class="ps-net-words">' + words + '</div></div>'
+      + '<div class="ps-net-amount">\u20B9 ' + f(net) + '</div>'
       + '</div>'
 
-      + '<div class="ps-footer">This is a Computer Generated Payslip and does not require a physical Signature.<br>For any discrepancies, please contact HR department within 7 days.</div>'
+      + '<div class="ps-footer">This is a Computer Generated Payslip and does not require Signature.<br>'
+      + 'For any discrepancies, please contact HR department within 7 days.</div>'
       + '</div>';
 
-    document.getElementById('payslipDocContent').innerHTML = html;
+    return html;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     PAYSLIP MODAL
+  ══════════════════════════════════════════════════════════════ */
+  function openModal(idx) {
+    currentSlip = filteredPayslips[idx];
+    document.getElementById('payslipDocContent').innerHTML = buildPayslipHtml(currentSlip);
 
     /* Show modal */
     var overlay = document.getElementById('modalOverlay');
@@ -653,202 +735,60 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ══════════════════════════════════════════════════════════════
-     PDF GENERATION
-     Row height = 8mm (label 3mm + value 5mm = 8mm per row).
-     Emp box: 4 rows × 8mm = 32mm + 4mm padding = 36mm.
-     Column width split: (182 - 6) / 2 = 88mm each.
+     PDF GENERATION  –  html2pdf on the real payslip DOM, same
+     technique as admin payslips.html downloadPayslipPDF(). This
+     guarantees the PDF always matches the on-screen preview
+     exactly, since both are built from buildPayslipHtml().
+
+     Works whether the modal is currently open (View → Download)
+     or not (card's direct Download button): if the slip being
+     requested isn't the one currently rendered in the modal, it's
+     rendered into an off-screen container first, captured, then
+     removed.
   ══════════════════════════════════════════════════════════════ */
-  function generatePDF(slip) {
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      showToast('PDF library not ready. Please wait and try again.', 'error');
+  function downloadPayslipPDF(slip) {
+    if (!slip) { showToast('Payslip not found.', 'error'); return; }
+
+    var ml   = MONTH_MAP[slip.payrollMonth] || slip.payrollMonth;
+    var name = (slip.fullName || 'Employee').replace(/\s+/g,'_');
+    var opt = {
+      margin: [.35,.35,.35,.35],
+      filename: 'Salary_Slip_' + name + '_' + slip.payrollMonth + '_' + slip.payrollYear + '.pdf',
+      image: { type:'jpeg', quality:.98 },
+      html2canvas: { scale:2, useCORS:true },
+      jsPDF: { unit:'in', format:'a4', orientation:'portrait' }
+    };
+
+    var isOpenInModal = currentSlip === slip &&
+      document.getElementById('modalOverlay').classList.contains('opacity-100');
+
+    if (isOpenInModal) {
+      var el = document.getElementById('payslipToPrint');
+      html2pdf().set(opt).from(el).save()
+        .then(function(){ showToast(ml + ' ' + slip.payrollYear + ' payslip downloaded!', 'success'); })
+        .catch(function(){ showToast('PDF generation failed.', 'error'); });
       return;
     }
 
-    var s        = slip;
-    var ml       = MONTH_MAP[s.payrollMonth] || s.payrollMonth;
-    var basic    = n(s.basicSalary);
-    var hra      = n(s.hra);
-    var allow    = n(s.allowances);
-    var gross    = n(s.grossSalary);
-    var empPf    = n(s.employeePf);
-    var emplrPf  = n(s.employerPf);
-    var esi      = n(s.esi);
-    var tds      = n(s.tds);
-    var totalDed = n(s.totalDeductions);
-    var net      = n(s.netSalary);
+    // Not currently shown in modal (e.g. card's Download button) —
+    // render off-screen, capture, then clean up.
+    var holder = document.createElement('div');
+    holder.style.position = 'fixed';
+    holder.style.left = '-9999px';
+    holder.style.top  = '0';
+    holder.innerHTML = buildPayslipHtml(slip);
+    document.body.appendChild(holder);
 
-    var PRIMARY      = [31, 111, 127];
-    var PRIMARY_DARK = [20, 92, 107];
-    var SOFT         = [230, 244, 246];
-    var TEXT         = [51,  65,  85];
-    var MUTED        = [100, 116, 139];
-    var W = 210, M = 14;
-    var colW = (W - M*2 - 6) / 2;   // 88mm per column
-
-    var doc = new window.jspdf.jsPDF({ unit:'mm', format:'a4' });
-
-    /* ── 1. Header bar ── */
-    doc.setFillColor.apply(doc, PRIMARY);
-    doc.roundedRect(M, 10, W-M*2, 26, 4, 4, 'F');
-    doc.setTextColor(255,255,255);
-
-    /* Logo inside header (left) */
-    if (logoBase64) {
-      try { doc.addImage(logoBase64, 'PNG', M+2, 12, 20, 20); }
-      catch(e) { /* ignore if image fails */ }
-    }
-    var textX = logoBase64 ? M+26 : M+6;
-
-    doc.setFont('helvetica','bold'); doc.setFontSize(12);
-    doc.text('Sustainable Integrated Environmental Consultant.', textX, 20);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
-    doc.text('Office-401, Sanskriti Arcade, Kaspate Wasti, Wakad, Pune - 411057', textX, 27);
-    doc.setFont('helvetica','bold'); doc.setFontSize(11);
-    doc.text('PAYSLIP', W-M-6, 20, { align:'right' });
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text(ml + ' ' + s.payrollYear, W-M-6, 27, { align:'right' });
-
-    var y = 42;
-
-    /* ── 2. Employee Info grid ──
-       8 fields, rendered as left col (4) + right col (4).
-       Each row: label at y+rowH*i+3, value at y+rowH*i+8.
-       rowH = 9mm, total box = 4*9 = 36mm + 2mm padding = 38mm */
-    var ROW_H = 9;
-    var BOX_H = 4 * ROW_H + 2;
-    doc.setFillColor.apply(doc, SOFT);
-    doc.roundedRect(M, y, W-M*2, BOX_H, 3, 3, 'F');
-
-    var leftFields  = [
-      ['Employee Name', s.fullName    || 'N/A'],
-      ['Employee ID',   s.employeeId  || 'N/A'],
-      ['Designation',   s.designation || 'N/A'],
-      ['Department',    s.department  || 'N/A']
-    ];
-    var rightFields = [
-      ['Pay Period',    ml + ' ' + s.payrollYear],
-      ['Status',        s.status      || 'N/A'],
-      ['Initiated By',  s.initiatedBy || 'N/A'],
-      ['Pay Date',      formatDate(s.updatedAt)]
-    ];
-
-    leftFields.forEach(function(f, i) {
-      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, MUTED);
-      doc.text(f[0], M+4, y + 3 + i*ROW_H);
-      doc.setFont('helvetica','bold');   doc.setFontSize(8.5); doc.setTextColor.apply(doc, TEXT);
-      doc.text(String(f[1]), M+4, y + 8 + i*ROW_H);
-    });
-    var cx = W/2 + 4;
-    rightFields.forEach(function(f, i) {
-      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, MUTED);
-      doc.text(f[0], cx, y + 3 + i*ROW_H);
-      doc.setFont('helvetica','bold');   doc.setFontSize(8.5); doc.setTextColor.apply(doc, TEXT);
-      doc.text(String(f[1]), cx, y + 8 + i*ROW_H);
-    });
-
-    y += BOX_H + 6;
-
-    /* ── 3. Earnings / Deductions table ──
-       Always render all rows (no zero-filter) so layout is stable. */
-    var earningRows = [
-      ['Basic Salary',    fmtPDF(basic)],
-      ['HRA',             fmtPDF(hra)],
-      ['Other Allowances',fmtPDF(allow)],
-      ['Gross Earnings',  fmtPDF(gross)]      /* total row */
-    ];
-    var deductRows = [
-      ['Employee PF',      fmtPDF(empPf)],
-      ['Employer PF',      fmtPDF(emplrPf)],
-      ['ESI',              fmtPDF(esi)],
-      ['TDS / Income Tax', fmtPDF(tds)],
-      ['Total Deductions', fmtPDF(totalDed)]  /* total row */
-    ];
-
-    /* Column headers */
-    doc.setFillColor.apply(doc, PRIMARY);
-    doc.roundedRect(M, y, colW, 8, 2, 2, 'F');
-    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-    doc.text('Earnings', M+4, y+5.5);
-
-    doc.setFillColor(229,108,108);
-    doc.roundedRect(M+colW+6, y, colW, 8, 2, 2, 'F');
-    doc.text('Deductions', M+colW+10, y+5.5);
-
-    y += 10;
-
-    var RH = 7;    /* row height in mm */
-    var y2 = y;
-
-    earningRows.forEach(function(row, i) {
-      var isTotal = (i === earningRows.length - 1);
-      if (isTotal) { doc.setFillColor.apply(doc, SOFT); doc.rect(M, y, colW, RH, 'F'); }
-      doc.setFont('helvetica', isTotal?'bold':'normal');
-      doc.setFontSize(isTotal?9:8.5); doc.setTextColor.apply(doc, TEXT);
-      doc.text(row[0], M+3, y+5);
-      doc.text(row[1], M+colW-3, y+5, { align:'right' });
-      if (!isTotal) { doc.setDrawColor(226,232,240); doc.line(M, y+RH, M+colW, y+RH); }
-      y += RH;
-    });
-
-    deductRows.forEach(function(row, i) {
-      var isTotal = (i === deductRows.length - 1);
-      if (isTotal) { doc.setFillColor.apply(doc, SOFT); doc.rect(M+colW+6, y2, colW, RH, 'F'); }
-      doc.setFont('helvetica', isTotal?'bold':'normal');
-      doc.setFontSize(isTotal?9:8.5); doc.setTextColor.apply(doc, TEXT);
-      doc.text(row[0], M+colW+9, y2+5);
-      doc.text(row[1], M+colW*2+3, y2+5, { align:'right' });
-      if (!isTotal) { doc.setDrawColor(226,232,240); doc.line(M+colW+6, y2+RH, M+colW*2+6, y2+RH); }
-      y2 += RH;
-    });
-
-    y = Math.max(y, y2) + 8;
-
-    /* ── 4. Net Pay banner ── */
-    doc.setFillColor.apply(doc, PRIMARY_DARK);
-    doc.roundedRect(M, y, W-M*2, 22, 4, 4, 'F');
-    doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    doc.text('NET PAY - ' + ml.toUpperCase() + ' ' + s.payrollYear, M+6, y+8);
-    doc.setFont('helvetica','bold'); doc.setFontSize(18);
-    doc.text(fmtPDF(net), M+6, y+18);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-    doc.text('Gross: ' + fmtPDF(gross), W-M-52, y+10, { align:'left' });
-    doc.text('Deductions: ' + fmtPDF(totalDed), W-M-52, y+17, { align:'left' });
-    y += 28;
-
-    /* ── 5. Amount in words ── */
-    doc.setFillColor(248,250,252);
-    doc.roundedRect(M, y, W-M*2, 12, 3, 3, 'F');
-    doc.setTextColor.apply(doc, MUTED);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7);
-    doc.text('Amount in Words:', M+4, y+5);
-    doc.setTextColor.apply(doc, TEXT);
-    doc.setFont('helvetica','bold'); doc.setFontSize(8);
-    doc.text(numberToWords(net), M+4, y+10);
-    y += 18;
-
-    /* ── 6. Footer ── */
-    doc.setDrawColor.apply(doc, MUTED);
-    doc.setLineDash([2,2]); doc.line(M, y, W-M, y); doc.setLineDash([]);
-    y += 5;
-    doc.setTextColor.apply(doc, MUTED);
-    doc.setFont('helvetica','italic'); doc.setFontSize(7.5);
-    doc.text('* This is a computer-generated payslip and does not require a physical signature.', M, y+4);
-    doc.setFont('helvetica','bold'); doc.setFontSize(8);
-    doc.text('Authorised Signatory', W-M-6, y+8, { align:'right' });
-    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, MUTED);
-    doc.text('Sustainable Integrated Environmental Consultant.', W-M-6, y+13, { align:'right' });
-    doc.setFontSize(7);
-    doc.text('Page 1 of 1  |  Generated on ' + new Date().toLocaleDateString('en-IN'), W/2, 290, { align:'center' });
-
-    var fname = 'Payslip_' + (s.fullName||'Employee').replace(/\s+/g,'_') + '_' + ml + '_' + s.payrollYear + '.pdf';
-    doc.save(fname);
-    showToast('\u2713 ' + ml + ' ' + s.payrollYear + ' payslip downloaded!', 'success');
+    var offEl = holder.querySelector('#payslipToPrint');
+    html2pdf().set(opt).from(offEl).save()
+      .then(function(){ showToast(ml + ' ' + slip.payrollYear + ' payslip downloaded!', 'success'); })
+      .catch(function(){ showToast('PDF generation failed.', 'error'); })
+      .finally(function(){ document.body.removeChild(holder); });
   }
 
   /* ── Download button on modal ── */
   document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-    if (currentSlip) generatePDF(currentSlip);
+    if (currentSlip) downloadPayslipPDF(currentSlip);
   });
 
   /* ══════════════════════════════════════════════════════════════
@@ -857,8 +797,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ══════════════════════════════════════════════════════════════ */
   window.__openPayslip = function(idx) { openModal(idx); };
   window.__downloadPDF = function(idx) {
-    currentSlip = filteredPayslips[idx];
-    generatePDF(currentSlip);
+    downloadPayslipPDF(filteredPayslips[idx]);
   };
 
   /* ══════════════════════════════════════════════════════════════

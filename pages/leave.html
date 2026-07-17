@@ -1207,7 +1207,7 @@ function loadEmployeeProfile() {
         .split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase() || '--';
 
     document.getElementById('userAvatar').textContent = initials;
-    document.getElementById('userName').textContent   = CURRENT_EMP.name || 'Employee';
+    document.getElementById('userName').textContent   = fullName  = localStorage.getItem('hrms_full_name')  || 'Employee';
     document.getElementById('userRole').textContent   = CURRENT_EMP.dept  || '';
 }
 

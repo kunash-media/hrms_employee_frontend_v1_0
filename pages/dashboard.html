@@ -261,37 +261,37 @@
 
    
    <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const firstName = localStorage.getItem('hrms_first_name') || '';
-    const lastName  = localStorage.getItem('hrms_last_name')  || '';
-    const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
-    const designation = localStorage.getItem('hrms_designation') || '';
-    const department  = localStorage.getItem('hrms_department')  || '';
+//   document.addEventListener('DOMContentLoaded', function () {
+//     const firstName = localStorage.getItem('hrms_first_name') || '';
+//     const lastName  = localStorage.getItem('hrms_last_name')  || '';
+//     const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+//     const designation = localStorage.getItem('hrms_designation') || '';
+//     const department  = localStorage.getItem('hrms_department')  || '';
 
-    const initials = [firstName, lastName]
-      .filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
+//     const initials = [firstName, lastName]
+//       .filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
 
-    const role = designation || department || 'Employee';
+//     const role = designation || department || 'Employee';
 
-    const avatarEl = document.getElementById('userAvatar');
-    if (avatarEl) avatarEl.innerText = initials;
+//     const avatarEl = document.getElementById('userAvatar');
+//     if (avatarEl) avatarEl.innerText = initials;
 
-    const userNameEl = document.getElementById('userName');
-    if (userNameEl) userNameEl.innerText = fullName;
+//     const userNameEl = document.getElementById('userName');
+//     if (userNameEl) userNameEl.innerText = fullName;
 
-    const userRoleEl = document.getElementById('userRole');
-    if (userRoleEl) userRoleEl.innerText = role;
+//     const userRoleEl = document.getElementById('userRole');
+//     if (userRoleEl) userRoleEl.innerText = role;
 
-    const dashNameEl = document.getElementById('dashboardUserName');
-    if (dashNameEl) dashNameEl.innerText = firstName || fullName;
+//     const dashNameEl = document.getElementById('dashboardUserName');
+//     if (dashNameEl) dashNameEl.innerText = firstName || fullName;
 
-    const greetingEl = document.getElementById('greetingMessage');
-    if (greetingEl) {
-      const h = new Date().getHours();
-      const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-      greetingEl.innerText = g + "! Here's your dashboard overview.";
-    }
-  });
+//     const greetingEl = document.getElementById('greetingMessage');
+//     if (greetingEl) {
+//       const h = new Date().getHours();
+//       const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+//       greetingEl.innerText = g + "! Here's your dashboard overview.";
+//     }
+//   });
 </script>
 
  <script src="../auth.js"></script>
