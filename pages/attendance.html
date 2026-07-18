@@ -119,6 +119,114 @@
   color: var(--primary, #1B738C);
 }
 
+/* ── Location Verification Overlay — Google/Microsoft-style ── */
+.location-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.location-overlay.active {
+  display: flex;
+}
+
+.location-overlay-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: locOverlayIn 0.2s ease;
+}
+
+@keyframes locOverlayIn {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.location-overlay-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(27, 115, 140, 0.08);
+  color: var(--primary, #1B738C);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 16px;
+  transition: all 0.25s ease;
+}
+
+.location-overlay-icon.success {
+  background: rgba(111, 175, 46, 0.12);
+  color: #6faf2e;
+}
+
+.location-overlay-icon.error {
+  background: rgba(229, 108, 108, 0.12);
+  color: #e56c6c;
+}
+
+.location-overlay-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.location-overlay-subtitle {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.location-overlay-spinner {
+  font-size: 18px;
+  color: var(--primary, #1B738C);
+  margin-bottom: 4px;
+}
+
+.location-overlay-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 40px;
+  border: none;
+  background: var(--primary, #1B738C);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: opacity 0.2s;
+}
+
+.location-overlay-retry:hover { opacity: 0.9; }
+
+.location-overlay-cancel {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.location-overlay-cancel:hover { color: #64748b; }
+
 
 </style>
 <body>
@@ -401,6 +509,28 @@
         <i class="fas fa-save"></i> Save Changes
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     Location Verification Overlay — NEW
+══════════════════════════════════════════ -->
+<div class="location-overlay" id="locationOverlay">
+  <div class="location-overlay-box">
+    <div class="location-overlay-icon" id="locOverlayIcon">
+      <i class="fas fa-map-marker-alt"></i>
+    </div>
+    <div class="location-overlay-title" id="locOverlayTitle">Verifying your location</div>
+    <div class="location-overlay-subtitle" id="locOverlaySubtitle">
+      Please allow location access to continue check-in
+    </div>
+    <div class="location-overlay-spinner" id="locOverlaySpinner">
+      <i class="fas fa-circle-notch fa-spin"></i>
+    </div>
+    <button class="location-overlay-retry" id="locOverlayRetryBtn" style="display:none;">
+      <i class="fas fa-redo"></i> Try Again
+    </button>
+    <button class="location-overlay-cancel" id="locOverlayCancelBtn">Cancel</button>
   </div>
 </div>
 

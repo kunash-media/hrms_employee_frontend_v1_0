@@ -189,6 +189,95 @@ function getCurrentCoords(timeoutMs = 8000) {
   });
 }
 
+/* ── Location Verification Overlay controller — NEW ──────── */
+function showLocationOverlay() {
+  const overlay = document.getElementById('locationOverlay');
+  const icon    = document.getElementById('locOverlayIcon');
+  const title   = document.getElementById('locOverlayTitle');
+  const sub     = document.getElementById('locOverlaySubtitle');
+  const spinner = document.getElementById('locOverlaySpinner');
+  const retry   = document.getElementById('locOverlayRetryBtn');
+
+  icon.className = 'location-overlay-icon';
+  icon.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+  title.textContent = 'Verifying your location';
+  sub.textContent = 'Please allow location access to continue check-in';
+  spinner.style.display = 'block';
+  retry.style.display = 'none';
+
+  overlay.classList.add('active');
+}
+
+function hideLocationOverlay() {
+  document.getElementById('locationOverlay').classList.remove('active');
+}
+
+/**
+ * Runs the full location verification flow inside the overlay.
+ * Resolves with coords on success, rejects on failure/cancel.
+ */
+function verifyLocationWithOverlay() {
+  return new Promise((resolve, reject) => {
+    const overlay = document.getElementById('locationOverlay');
+    const icon    = document.getElementById('locOverlayIcon');
+    const title   = document.getElementById('locOverlayTitle');
+    const sub     = document.getElementById('locOverlaySubtitle');
+    const spinner = document.getElementById('locOverlaySpinner');
+    const retry   = document.getElementById('locOverlayRetryBtn');
+    const cancel  = document.getElementById('locOverlayCancelBtn');
+
+    let settled = false;
+
+    function attempt() {
+      showLocationOverlay();
+      console.log('[Attendance] Location verification started');
+
+      getCurrentCoords()
+        .then(coords => {
+          if (settled) return;
+          console.log('[Attendance] Location verified:', coords);
+
+          // Success state — brief green acknowledgement, then auto-close
+          icon.className = 'location-overlay-icon success';
+          icon.innerHTML = '<i class="fas fa-check"></i>';
+          title.textContent = 'Location verified';
+          sub.textContent = 'Proceeding with check-in...';
+          spinner.style.display = 'none';
+          retry.style.display = 'none';
+
+          setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            hideLocationOverlay();
+            resolve(coords);
+          }, 700);
+        })
+        .catch(err => {
+          if (settled) return;
+          console.warn('[Attendance] Location verification failed:', err.message);
+
+          // Error state — retry available, check-in blocked until resolved
+          icon.className = 'location-overlay-icon error';
+          icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+          title.textContent = 'Location access needed';
+          sub.textContent = 'Check-in requires location access. Please allow it in your browser to continue.';
+          spinner.style.display = 'none';
+          retry.style.display = 'inline-flex';
+        });
+    }
+
+    retry.onclick = () => attempt();
+    cancel.onclick = () => {
+      if (settled) return;
+      settled = true;
+      hideLocationOverlay();
+      reject(new Error('Location verification cancelled by user'));
+    };
+
+    attempt();
+  });
+}
+
 /* ── Geofencing — log coordinates against an attendance record ── */
 async function apiCreateGeoLog(attendanceId, coords, logType = 'CHECK_IN') {
   const payload = {
@@ -377,39 +466,6 @@ function tickTimer() {
 }
 
 /* ── Check-in action ─────────────────────────────────────── */
-// document.getElementById('checkInBtn').addEventListener('click', async () => {
-//   if (!selectedCheckInStatus) {
-//     showToast('Please select a status before checking in', 'error');
-//     return;
-//   }
-//   const sess = loadSession();
-//   if (sess) { showToast('Already checked in!', 'error'); return; }
-//   const todayRec = getTodayRecord();
-//   if (todayRec && todayRec.checkOutTime) { showToast('Already checked out today.', 'error'); return; }
-
-//   document.getElementById('checkInBtn').disabled = true;
-//   try {
-//     const checkInTime = await apiCheckIn();
-//     saveSession(checkInTime);
-//     await fetchAllRecords();
-
-//     // Hide pills and reset after successful check-in
-//     resetStatusPills();
-
-//     refreshStatCards();
-//     renderTable();
-//     showToast(`Checked in at ${fmt12(checkInTime)} · ${selectedCheckInStatus || 'Present'}`);
-
-//     if (timerInterval) clearInterval(timerInterval);
-//     timerInterval = setInterval(tickTimer, 1000);
-//   } catch (err) {
-//     console.error('[Attendance] checkIn:', err);
-//     showToast(err.message || 'Check-in failed', 'error');
-//     // Re-enable only if a status is still selected
-//     document.getElementById('checkInBtn').disabled = !selectedCheckInStatus;
-//   }
-// });
-
 
 document.getElementById('checkInBtn').addEventListener('click', async () => {
   if (!selectedCheckInStatus) {
@@ -420,6 +476,15 @@ document.getElementById('checkInBtn').addEventListener('click', async () => {
   if (sess) { showToast('Already checked in!', 'error'); return; }
   const todayRec = getTodayRecord();
   if (todayRec && todayRec.checkOutTime) { showToast('Already checked out today.', 'error'); return; }
+
+  // Mandatory location verification overlay — blocks check-in until resolved — NEW
+  let verifiedCoords;
+  try {
+    verifiedCoords = await verifyLocationWithOverlay();
+  } catch (err) {
+    console.warn('[Attendance] Check-in aborted — location not verified:', err.message);
+    return; // user cancelled or denied — check-in never proceeds
+  }
 
   document.getElementById('checkInBtn').disabled = true;
   try {
@@ -439,13 +504,10 @@ document.getElementById('checkInBtn').addEventListener('click', async () => {
     if (attendanceId) {
       currentAttendanceId = attendanceId;
 
-      getCurrentCoords()
-        .then(coords => apiCreateGeoLog(attendanceId, coords, 'CHECK_IN'))
-        .then(() => console.log('[Attendance] Geo log captured for check-in'))
-        .catch(err => {
-          console.warn('[Attendance] Geo capture skipped:', err.message);
-          showToast('Checked in, but location could not be captured', 'error');
-        });
+      // verifiedCoords was already confirmed via the overlay before check-in started
+      apiCreateGeoLog(attendanceId, verifiedCoords, 'CHECK_IN')
+        .then(() => console.log('[Attendance] Geo log captured for check-in (pre-verified)'))
+        .catch(err => console.warn('[Attendance] Geo log save failed:', err.message));
 
       // Start periodic live location ping — keeps admin's "most recent location" fresh
       startLivePingLoop(attendanceId);
