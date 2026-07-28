@@ -520,16 +520,39 @@ document.getElementById('checkInBtn').addEventListener('click', async () => {
   }
 });
 
-/* ── Check-out action ────────────────────────────────────── */
-document.getElementById('checkOutBtn').addEventListener('click', async () => {
+/* ── Check-out flow with confirmation overlay ────────────── */
+
+// Step 1: Check Out button click — just opens confirmation, no API call yet
+document.getElementById('checkOutBtn').addEventListener('click', () => {
   if (!loadSession()) { showToast('No active session.', 'error'); return; }
+  document.getElementById('checkoutConfirmOverlay').classList.add('active');
+});
+
+// Step 2: User clicks "No" — just close overlay, nothing happens
+document.getElementById('checkoutConfirmNoBtn').addEventListener('click', () => {
+  document.getElementById('checkoutConfirmOverlay').classList.remove('active');
+});
+
+// Step 3: User clicks "Yes" — close overlay, THEN run actual checkout
+document.getElementById('checkoutConfirmYesBtn').addEventListener('click', async () => {
+  document.getElementById('checkoutConfirmOverlay').classList.remove('active');
+  await performCheckOut();
+});
+
+// Step 4: Backdrop click also closes overlay (cancel by clicking outside)
+document.getElementById('checkoutConfirmOverlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('active');
+});
+
+// Step 5: Actual checkout logic — runs ONLY after explicit "Yes" confirmation
+async function performCheckOut() {
   document.getElementById('checkOutBtn').disabled = true;
   try {
     const { checkOutTime, attendanceId } = await apiCheckOut();
     clearSession();
     stopLivePingLoop();
 
-    // Capture checkout location — uses attendanceId straight from checkout response,
+    // Capture checkout location — use attendanceId straight from checkout response,
     // not the stale in-memory variable (fixes silent skip after page reload)
     const geoAttendanceId = attendanceId || currentAttendanceId;
     if (geoAttendanceId) {
@@ -552,7 +575,7 @@ document.getElementById('checkOutBtn').addEventListener('click', async () => {
     showToast(err.message || 'Check-out failed', 'error');
     document.getElementById('checkOutBtn').disabled = false;
   }
-});
+}
 
 /* ── Table rendering ─────────────────────────────────────── */
 function renderTable() {

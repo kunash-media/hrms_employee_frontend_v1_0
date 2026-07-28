@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>My Leaves | Employee Portal — Nexus</title>
+    <title>My Leaves | SIEC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -751,6 +751,7 @@
             .tabs-bar { gap: 2px; }
             .tab-btn  { padding: 7px 12px; font-size: 12px; }
         }
+
     </style>
 </head>
 <body>
@@ -773,12 +774,18 @@
             <li><a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
             <li><a href="../pages/profile.html"   class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
             <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
+            
+            <li>
+                <a href="../pages/calendar.html" class="nav-link"><i class="fas fa-calendar-alt"></i><span
+                                class="nav-text">Calendar</span></a>
+            </li>
+            
             <li><a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
             <li><a href="../pages/leave.html" class="nav-link active"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
             <li><a href="../pages/payroll.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
-            <li><a href="../pages/resignation.html" class="nav-link"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
+            <!--<li><a href="../pages/resignation.html" class="nav-link"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>-->
 
-            <li><a href="../pages/under-construction.html"  class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
+            <li><a href="../pages/policies.html"  class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
         </ul>
     </nav>
     <div class="sidebar-footer">
@@ -938,7 +945,7 @@
                     <div id="appEmpty" style="display:none;" class="empty-state">
                         <i class="fas fa-calendar-times"></i>
                         <p>No leave applications found.</p>
-                        <button class="btn-primary btn-sm" style="margin-top:12px;" onclick="openApplyModal()"><i class="fas fa-plus"></i> Apply Now</button>
+                        <button class="btn-primary" style="margin-top:12px;" onclick="openApplyModal()"> Apply Now</button>
                     </div>
                 </div>
             </div>
@@ -1207,7 +1214,7 @@ function loadEmployeeProfile() {
         .split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase() || '--';
 
     document.getElementById('userAvatar').textContent = initials;
-    document.getElementById('userName').textContent   = fullName  = localStorage.getItem('hrms_full_name')  || 'Employee';
+    document.getElementById('userName').textContent   = localStorage.getItem('hrms_full_name') || 'Employee';
     document.getElementById('userRole').textContent   = CURRENT_EMP.dept  || '';
 }
 

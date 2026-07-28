@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar | SIEC Employee Portal</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+    <style>
+        /* ===== SAME DESIGN TOKENS AS ADMIN CALENDAR MODULE (for visual parity) ===== */
+        :root {
+            --color-primary:   #1B738C;
+            --color-secondary: #1a6a80;
+            --color-border:    #62C9EA;
+            --color-bg:        #EBF4F6;
+            --color-white:     #ffffff;
+
+            --status-wfh-bg:       #0891b2;  --status-wfh-fg:       #ffffff;
+            --status-halfday-bg:   #ca8a04;  --status-halfday-fg:   #ffffff;
+            --status-holiday-bg:   #ef4444;  --status-holiday-fg:   #ffffff;
+            --status-festival-bg:  #f97316;  --status-festival-fg:  #ffffff;
+        }
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        a { text-decoration: none; }
+
+        .sidebar-header { display:flex; align-items:center; justify-content:space-between; padding:0 16px; height:var(--header-height); border-bottom:1px solid rgba(255,255,255,.08); flex-shrink:0; }
+        .nav-link { display:flex; align-items:center; gap:12px; padding:10px 18px; color:var(--sidebar-text); text-decoration:none; border-radius:8px; margin:2px 8px; transition:all .25s ease; white-space:nowrap; font-size:13.5px; }
+        .nav-link i { font-size:15px; min-width:20px; text-align:center; }
+        .nav-link:hover { background:var(--sidebar-hover); color:#fff; }
+        .nav-link.active { background:var(--sidebar-active); color:#fff; }
+        .logo { display:flex; align-items:center; gap:10px; color:#fff; text-decoration:none; }
+        .logo i { font-size:20px; color:white; min-width:20px; }
+        .logo-text { font-family:'Poppins', sans-serif; font-weight:700; font-size:15px; white-space:nowrap; }
+        .collapse-btn { background:none; border:none; color:var(--sidebar-text); cursor:pointer; padding:6px; border-radius:6px; display:flex; align-items:center; transition:background .2s; }
+        .collapse-btn:hover { background:var(--sidebar-hover); color:#fff; }
+        .sidebar.collapsed .collapse-btn i { transform:rotate(180deg); }
+
+        /* ===== CARDS / BUTTONS / BADGES — copied 1:1 from the admin Calendar module ===== */
+        .section-card { background:var(--color-white); border-radius:12px; border:1px solid var(--color-border); padding:20px; margin-bottom:20px; }
+        .btn-outline { border:1px solid var(--color-border); color:var(--color-primary); padding:8px 14px; border-radius:8px; background:transparent; cursor:pointer; font-size:13px; font-weight:500; transition:background-color .2s ease,color .2s ease; white-space:nowrap; }
+        .btn-outline:hover { background-color:var(--color-primary); color:white; }
+        select { border:1px solid var(--color-border); border-radius:8px; padding:8px 12px; width:auto; font-size:13px; color:#333; background:white; }
+        select:focus { outline:none !important; border-color:var(--color-secondary) !important; box-shadow:0 0 0 3px rgba(27,115,140,.08) !important; }
+
+        .badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:600; letter-spacing:.02em; }
+        .badge-holiday  { background:var(--status-holiday-bg);  color:var(--status-holiday-fg); }
+        .badge-halfday  { background:var(--status-halfday-bg);  color:var(--status-halfday-fg); }
+        .badge-wfh      { background:var(--status-wfh-bg);      color:var(--status-wfh-fg); }
+        .badge-festival { background:var(--status-festival-bg); color:var(--status-festival-fg); }
+
+        .year-switcher { display:flex; align-items:center; gap:10px; }
+        .year-switcher .year-label { font-size:16px; font-weight:700; color:var(--color-primary); min-width:150px; text-align:center; }
+        .year-nav-btn { width:32px; height:32px; border-radius:8px; border:1px solid var(--color-border); background:white; color:var(--color-primary); cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+        .year-nav-btn:hover { background:var(--color-primary); color:white; }
+
+        .holiday-legend { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+        .cal-legend-item { display:flex; align-items:center; gap:4px; font-size:11.5px; color:#555; }
+        .cal-legend-dot { width:10px; height:10px; border-radius:4px; }
+
+        .current-month-wrap { display:flex; gap:18px; flex-wrap:wrap; align-items:stretch; }
+        .current-month-cal-col { flex:2 1 480px; }
+        .current-month-list-col { flex:1 1 260px; max-width:300px; }
+        .current-month-card { background:var(--color-white); border:1px solid var(--color-border); border-radius:14px; padding:16px; height:100%; }
+        .current-month-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .current-month-header h3 { font-size:14px; font-weight:700; color:var(--color-primary); margin:0; }
+
+        .cm-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:9px; }
+        .cm-dayname { text-align:left; font-size:12px; font-weight:600; color:var(--color-secondary); padding:2px 4px 8px; }
+        .cm-dayname.is-weekend-name { color:#c0293e; }
+        .cm-cell { min-height:84px; display:flex; flex-direction:column; justify-content:space-between; align-items:stretch; padding:10px; font-size:12px; color:#234; cursor:default; border-radius:14px; background:#e4f1f5; border:1px solid #d6ecf1; position:relative; }
+        .cm-cell.empty { border-color:transparent; background:repeating-linear-gradient(45deg,#eef6f8,#eef6f8 6px,#dcedf1 6px,#dcedf1 12px); }
+        .cm-cell.is-weekend:not(.has-entry) { background:#fdecee; border-color:#f6cdd3; }
+        .cm-cell.is-today { box-shadow:inset 0 0 0 2px var(--color-primary); }
+        .cm-cell-top { display:flex; align-items:center; justify-content:space-between; width:100%; }
+        .cm-cell .cm-daynum { font-weight:600; font-size:13px; color:var(--color-primary); }
+        .cm-cell.is-weekend .cm-daynum { color:#c0293e; }
+        .cm-cell.has-entry .cm-daynum { color:inherit; }
+        .cm-badge-icon { width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-size:9.5px; flex-shrink:0; }
+        .cm-cell .cm-pill { font-size:10.5px; font-weight:700; line-height:1.25; margin-top:8px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+        .cm-cell.has-entry { color:#fff; background-image:linear-gradient(155deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,0) 55%); box-shadow:0 3px 10px rgba(0,0,0,.10); }
+        .cm-cell.mk-holiday  { background-color:var(--status-holiday-bg); }
+        .cm-cell.mk-half_day { background-color:var(--status-halfday-bg); }
+        .cm-cell.mk-wfh      { background-color:var(--status-wfh-bg); }
+        .cm-cell.mk-festival { background-color:var(--status-festival-bg); }
+        .cm-cell.is-filtered-out { opacity:.35; }
+
+        .upcoming-list { display:flex; flex-direction:column; gap:10px; max-height:560px; overflow-y:auto; padding-right:4px; }
+        .upcoming-card { border:1px solid var(--color-border); border-radius:10px; padding:10px 12px; background:#f7fbfc; position:relative; }
+        .upcoming-card.is-today { background:#fff; border-color:var(--color-primary); box-shadow:0 2px 10px rgba(27,115,140,.12); }
+        .upcoming-card-toptag { display:inline-block; font-size:9px; font-weight:800; letter-spacing:.06em; color:#fff; background:var(--color-primary); padding:2px 7px; border-radius:5px; margin-bottom:6px; text-transform:uppercase; }
+        .upcoming-card-date { float:right; font-size:10.5px; color:var(--color-secondary); font-weight:600; }
+        .upcoming-card-name { font-size:13px; font-weight:700; color:#26424b; }
+        .upcoming-card-sub { font-size:11px; color:var(--color-secondary); margin-top:2px; }
+
+        .empty-state { text-align:center; padding:40px 20px; color:var(--color-secondary); }
+        .empty-state i { font-size:36px; opacity:.4; display:block; margin-bottom:10px; }
+        .empty-state p { font-size:13px; }
+
+        .main-content { }
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:var(--color-bg); }
+        ::-webkit-scrollbar-thumb { background:var(--color-secondary); border-radius:10px; }
+        body { background-color: var(--color-bg); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (employee nav — unchanged) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo"><i class="fas fa-briefcase"></i><span class="logo-text">Employee Portal</span></div>
+                <button class="collapse-btn" id="collapseSidebarBtn" aria-label="Toggle sidebar"><i class="fas fa-chevron-left"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li><a href="../pages/dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span class="nav-text">Dashboard</span></a></li>
+                    <li><a href="../pages/profile.html" class="nav-link"><i class="fas fa-user"></i><span class="nav-text">Profile</span></a></li>
+                    <li><a href="../pages/attendance.html" class="nav-link"><i class="fas fa-clock"></i><span class="nav-text">Attendance</span></a></li>
+                    <li><a href="../pages/expenses.html" class="nav-link"><i class="fas fa-money-bill"></i><span class="nav-text">Expenses</span></a></li>
+                    <li><a href="../pages/leave.html" class="nav-link"><i class="fas fa-umbrella-beach"></i><span class="nav-text">Leave</span></a></li>
+                    <li><a href="../pages/payroll.html" class="nav-link"><i class="fas fa-money-bill-wave"></i><span class="nav-text">Payroll</span></a></li>
+                    <li><a href="../pages/calendar.html" class="nav-link active"><i class="fas fa-calendar-alt"></i><span class="nav-text">Calendar</span></a></li>
+                    <li><a href="../pages/resignation.html" class="nav-link"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Resignation</span></a></li>
+                    <li><a href="../pages/under-construction.html" class="nav-link"><i class="fas fa-file-contract"></i><span class="nav-text">Company Policies</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span class="nav-text">Logout</span></button>
+            </div>
+        </aside>
+
+        <div class="main-content" id="mainContent">
+            <header class="header">
+                <div class="header-left">
+                    <button class="mobile-toggle" id="mobileToggleBtn"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">Calendar</div>
+                </div>
+                <div class="header-right">
+                    <div class="notification-bell">
+                        <button class="icon-btn" id="notificationBtn"><i class="far fa-bell"></i><span class="notification-badge">0</span></button>
+                    </div>
+                    <div class="user-profile">
+                        <button class="profile-btn" id="profileDropdownBtn">
+                            <div class="avatar" id="userAvatar">EM</div>
+                            <div class="user-info">
+                                <div class="user-name" id="userName">Employee</div>
+                                <div class="user-role" id="userRole">-</div>
+                            </div>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        </button>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <a href="../pages/profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper" style="padding:20px;">
+                <div class="mb-5">
+                    <h1 class="text-xl font-bold" style="color:var(--color-primary);">Calendar</h1>
+                    <p class="text-xs mt-1" style="color:var(--color-secondary);">Public holidays, Indian festivals, Half Day &amp; Work From Home dates — view only</p>
+                </div>
+
+                <!-- TOOLBAR: month switcher + filter (view-only, no add button) -->
+                <div class="section-card">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div class="year-switcher">
+                            <button class="year-nav-btn" onclick="changeMonth(-1)" title="Previous month"><i class="fas fa-chevron-left"></i></button>
+                            <span class="year-label" id="calMonthLabel">Month Year</span>
+                            <button class="year-nav-btn" onclick="changeMonth(1)" title="Next month"><i class="fas fa-chevron-right"></i></button>
+                            <button class="btn-outline" onclick="goToCurrentMonth()" style="margin-left:6px;">Today</button>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label style="font-size:12px; font-weight:600; color:var(--color-primary); margin:0;">Filter</label>
+                            <select id="typeFilter" onchange="renderAll()">
+                                <option value="">All Types</option>
+                                <option value="Holiday">Public Holiday</option>
+                                <option value="Festival">Indian Festival</option>
+                                <option value="Half_Day">Half Day</option>
+                                <option value="WFH">Work From Home</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="holiday-legend section-card" style="padding:10px 16px; margin-bottom:0;">
+                        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--status-holiday-bg);"></div>Public Holiday</div>
+                        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--status-festival-bg);"></div>Indian Festival</div>
+                        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--status-halfday-bg);"></div>Half Day</div>
+                        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--status-wfh-bg);"></div>Work From Home</div>
+                        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fff; box-shadow:inset 0 0 0 2px var(--color-primary);"></div>Today</div>
+                    </div>
+
+                    <div id="calendarErrorNotice" style="display:none; font-size:11.5px; color:#92487A; background:#f6ecf3; border:1px solid #e3c7db; border-radius:8px; padding:8px 12px; margin-top:12px;">
+                        <i class="fas fa-exclamation-triangle"></i> Couldn't reach the calendar server. Please try again later or contact HR/IT.
+                    </div>
+                </div>
+
+                <!-- MONTH GRID + UPCOMING (same layout/classes as admin's spotlight) -->
+                <div class="current-month-wrap">
+                    <div class="current-month-cal-col">
+                        <div class="current-month-card">
+                            <div class="current-month-header">
+                                <h3 id="cmTitle">Month Year</h3>
+                            </div>
+                            <div class="cm-grid" id="calGrid"></div>
+                        </div>
+                    </div>
+                    <div class="current-month-list-col">
+                        <div class="current-month-card">
+                            <div class="current-month-header"><h3>Upcoming</h3></div>
+                            <div class="upcoming-list" id="upcomingList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const firstName = localStorage.getItem('hrms_first_name') || '';
+            const lastName  = localStorage.getItem('hrms_last_name')  || '';
+            const fullName  = (firstName + ' ' + lastName).trim() || 'Employee';
+            const designation = localStorage.getItem('hrms_designation') || '';
+            const department  = localStorage.getItem('hrms_department')  || '';
+            const initials = [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase() || 'E';
+            const role = designation || department || 'Employee';
+            const avatarEl = document.getElementById('userAvatar'); if (avatarEl) avatarEl.innerText = initials;
+            const userNameEl = document.getElementById('userName'); if (userNameEl) userNameEl.innerText = fullName;
+            const userRoleEl = document.getElementById('userRole'); if (userRoleEl) userRoleEl.innerText = role;
+        });
+    </script>
+    <script src="../auth.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        const API = { BASE: 'http://localhost:8086', CALENDAR_LIST: '/api/calendar' };
+        const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const TYPE_LABEL = { Holiday:'Public Holiday', Festival:'Indian Festival', Half_Day:'Half Day', WFH:'Work From Home' };
+        const BADGE_CLASS = { Holiday:'badge-holiday', Festival:'badge-festival', Half_Day:'badge-halfday', WFH:'badge-wfh' };
+        const ICON_MAP = { Holiday:'fa-flag', Festival:'fa-star', Half_Day:'fa-user-clock', WFH:'fa-house' };
+
+        function todayISO(){ return new Date().toISOString().split('T')[0]; }
+        function formatDate(d){ const dt = new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+        function escapeHtml(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+        function dayStatusSuffix(entry){
+            if (!entry || entry.type !== 'Festival') return '';
+            const STATUS_LABEL = { Working: 'Working Day', Half_Day: 'Half Day', WFH: 'Work From Home', Holiday: 'Holiday' };
+            return ' — ' + (STATUS_LABEL[entry.dayStatus] || 'Working Day');
+        }
+        function cellColorKey(entry){
+            if (!entry) return '';
+            if (entry.type === 'Festival' && entry.dayStatus === 'Holiday') return 'holiday';
+            return entry.type.toLowerCase();
+        }
+        function escapeAttr(str){ return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+        async function apiFetch(url){
+            const res = await fetch(API.BASE + url, { headers:{'Content-Type':'application/json'} });
+            if (!res.ok){ const t = await res.text().catch(()=>''); throw new Error(`HTTP ${res.status}: ${t || res.statusText}`); }
+            return res.json();
+        }
+
+        const state = { year: new Date().getFullYear(), month: new Date().getMonth(), cache: {} };
+
+        async function loadYear(year){
+            if (state.cache[year] !== undefined) return state.cache[year];
+            try {
+                const data = await apiFetch(`${API.CALENDAR_LIST}?year=${year}`);
+                state.cache[year] = Array.isArray(data) ? data : [];
+            } catch (err) {
+                console.error(`[Calendar] Failed to load calendar for year=${year}:`, err.message);
+                state.cache[year] = null; // null = "tried, failed" — do not substitute fake/limited data
+            }
+            return state.cache[year];
+        }
+        function entriesForYear(year){ return state.cache[year] || []; }
+        function currentFilter(){ return document.getElementById('typeFilter').value; }
+
+        window.changeMonth = function(delta){
+            state.month += delta;
+            if (state.month < 0){ state.month = 11; state.year -= 1; }
+            if (state.month > 11){ state.month = 0; state.year += 1; }
+            refreshCalendar();
+        };
+        window.goToCurrentMonth = function(){
+            state.year = new Date().getFullYear();
+            state.month = new Date().getMonth();
+            refreshCalendar();
+        };
+        window.renderAll = function(){ renderMonthGrid(); renderUpcoming(); };
+
+        async function refreshCalendar(){
+            await Promise.all([ loadYear(state.year), loadYear(state.year + 1) ]);
+            const notice = document.getElementById('calendarErrorNotice');
+            if (notice) notice.style.display = (state.cache[state.year] === null) ? 'block' : 'none';
+            renderAll();
+        }
+
+        function renderMonthGrid(){
+            const { year, month } = state;
+            const filter = currentFilter();
+            const entries = entriesForYear(year).filter(e => !filter || e.type === filter);
+            const map = {};
+            entries.forEach(e => { map[e.date] = e; });
+
+            document.getElementById('cmTitle').textContent = `${MONTHS[month]} ${year}`;
+            document.getElementById('calMonthLabel').textContent = `${MONTHS[month]} ${year}`;
+
+            const daysInMonth  = new Date(year, month+1, 0).getDate();
+            const firstWeekDay = new Date(year, month, 1).getDay();
+            const today = todayISO();
+            const DAYNAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+            let html = '';
+            DAYNAMES.forEach((d,i) => html += `<div class="cm-dayname${(i===0||i===6)?' is-weekend-name':''}">${d}</div>`);
+            for (let i = 0; i < firstWeekDay; i++) html += `<div class="cm-cell empty"></div>`;
+
+            for (let d = 1; d <= daysInMonth; d++){
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const dow = new Date(year, month, d).getDay();
+                const entry = map[dateStr];
+                const cls = [
+                    'cm-cell',
+                    (dow===0||dow===6) ? 'is-weekend' : '',
+                    dateStr===today ? 'is-today' : '',
+                    entry ? `has-entry mk-${cellColorKey(entry)}` : '',
+                ].filter(Boolean).join(' ');
+                const title = entry ? `${entry.name} (${entry.type.replace('_',' ')}${dayStatusSuffix(entry)})` : '';
+                const badge = entry ? `<span class="cm-badge-icon"><i class="fas ${ICON_MAP[entry.type] || 'fa-circle'}"></i></span>` : '';
+                const pill  = entry ? `<span class="cm-pill">${escapeHtml(entry.name)}</span>` : '';
+                html += `<div class="${cls}" title="${escapeAttr(title)}"><div class="cm-cell-top"><span class="cm-daynum">${d}</span>${badge}</div>${pill}</div>`;
+            }
+            document.getElementById('calGrid').innerHTML = html;
+        }
+
+        function renderUpcoming(){
+            const today = todayISO();
+            const filter = currentFilter();
+            const currentYearEntries = entriesForYear(state.year);
+            const nextYearEntries = entriesForYear(state.year + 1);
+            const upcoming = [...currentYearEntries, ...nextYearEntries]
+                .filter(e => e.date >= today && (!filter || e.type === filter))
+                .sort((a,b) => a.date.localeCompare(b.date)).slice(0, 8);
+
+            const list = document.getElementById('upcomingList');
+            if (upcoming.length === 0){
+                list.innerHTML = `<div class="empty-state" style="padding:20px 10px;"><i class="fas fa-calendar-check"></i><p>No upcoming holidays or custom days.</p></div>`;
+                return;
+            }
+            list.innerHTML = upcoming.map(e => {
+                const isToday = e.date === today;
+                return `
+                <div class="upcoming-card ${isToday ? 'is-today' : ''}">
+                    ${isToday ? '<span class="upcoming-card-toptag">Today</span>' : ''}
+                    <span class="upcoming-card-date">${formatDate(e.date)}</span>
+                    <div style="clear:both;"></div>
+                    <div class="upcoming-card-name">${escapeHtml(e.name)}</div>
+                    <div class="upcoming-card-sub"${(e.type === 'Holiday' || (e.type === 'Festival' && e.dayStatus === 'Holiday')) ? ' style="color:var(--status-holiday-bg); font-weight:600;"' : ''}>${TYPE_LABEL[e.type] || e.type}${dayStatusSuffix(e)}</div>
+                </div>`;
+            }).join('');
+        }
+
+        refreshCalendar();
+    })();
+    </script>
+</body>
+</html>
