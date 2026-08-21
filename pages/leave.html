@@ -729,6 +729,27 @@
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
         .overlay.active { display: block; }
 
+        /* Carry-forward / Comp-off / LWP additions */
+        .cf-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+        }
+        .cf-card .cf-label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+        .cf-card .cf-num   { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1; }
+        .cf-card .cf-sub   { font-size: 10px; color: var(--text-light); margin-top: 4px; }
+        .cf-card.lapsed { opacity: 0.55; }
+
+        .co-entry {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #edf2f7;
+        }
+        .co-entry:last-child { border-bottom: none; }
+
+        .toggle-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+        .toggle-row input[type=checkbox] { width:auto; }
+
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2,1fr); }
             .three-col  { grid-template-columns: 1fr; }
@@ -954,6 +975,17 @@
         <!-- ===== BALANCE ===== -->
         <div id="tab-balance" class="tab-content">
             <div class="balance-grid" id="balanceCards"></div>
+
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-forward"></i> Carried-Forward Leave</h3></div>
+                <div class="balance-grid" id="carryForwardCards"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-calendar-check"></i> Comp Off Earned</h3></div>
+                <div id="compOffList"></div>
+            </div>
+
             <div class="card">
                 <div class="card-header"><h3><i class="fas fa-table"></i> Approved Leave History</h3></div>
                 <div id="balanceDetailTable"></div>
@@ -1028,7 +1060,7 @@
             <div class="form-grid" style="margin-bottom:14px;">
                 <div class="form-group">
                     <label>Leave Type *</label>
-                    <select id="ap-type" onchange="apCheckBalance()">
+                    <select id="ap-type" onchange="apCheckBalance(); apCheckPolicy();">
                         <option value="">Select leave type</option>
                     </select>
                 </div>
@@ -1062,6 +1094,15 @@
             </div>
 
             <div class="balance-panel" id="ap-balPanel"></div>
+
+            <!-- LWP eligibility + emergency (shown only for leave types requiring manager approval) -->
+            <div class="balance-panel" id="ap-lwpPanel" style="display:none;"></div>
+            <div class="toggle-row" id="ap-emergencyRow" style="display:none;">
+                <input type="checkbox" id="ap-isEmergency">
+                <label style="margin:0;" for="ap-isEmergency">
+                    This is an unforeseen emergency (skips manager pre-approval)
+                </label>
+            </div>
 
             <div class="section-label"><span>Reason & Notes</span></div>
             <div class="form-group" style="margin-bottom:14px;">
@@ -1156,6 +1197,12 @@ const YEAR = String(new Date().getFullYear());
 let calYear  = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 let miniChart = null;
+
+// ── New state: policy config / carry-forward / comp-off / LWP ──
+let policyConfigs   = [];   // all policy config rows from /api/leave/policy-config
+let carryForwardData = [];  // /api/leave/carry-forward/balance/all
+let compOffData      = null; // /api/leave/comp-off/balance
+let lwpEligibility    = null; // /api/leave/lwp/eligibility (fetched only when needed)
 
 // ============================================================
 //  API UTILITY
@@ -1277,6 +1324,70 @@ async function loadMyLeaves() {
 }
 
 // ============================================================
+//  4b. LOAD POLICY CONFIG  (for LWP manager-approval detection)
+// ============================================================
+async function loadPolicyConfigs() {
+    try {
+        const data = await apiFetch(`${BASE_URL}/leave/policy-config`);
+        policyConfigs = Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error('Policy config load failed:', err);
+        policyConfigs = []; // feature just stays off if this fails — no crash
+    }
+}
+
+// Same specific -> department "All" -> employeeType "All" fallback the backend uses.
+function getApplicablePolicy(leaveTypeName) {
+    if (!leaveTypeName) return null;
+    const empType = CURRENT_EMP.empType || 'All';
+    const dept    = CURRENT_EMP.dept    || 'All';
+    return policyConfigs.find(p => p.leaveTypeName === leaveTypeName && p.employeeType === empType && p.department === dept)
+        || policyConfigs.find(p => p.leaveTypeName === leaveTypeName && p.employeeType === empType && p.department === 'All')
+        || policyConfigs.find(p => p.leaveTypeName === leaveTypeName && p.employeeType === 'All' && p.department === 'All')
+        || null;
+}
+
+// ============================================================
+//  4c. LOAD CARRY-FORWARD BALANCE
+// ============================================================
+async function loadCarryForwardData() {
+    if (!CURRENT_EMP.id) { carryForwardData = []; return; }
+    try {
+        const data = await apiFetch(`${BASE_URL}/leave/carry-forward/balance/all?empId=${CURRENT_EMP.id}&year=${YEAR}`);
+        carryForwardData = Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error('Carry-forward load failed:', err);
+        carryForwardData = [];
+    }
+}
+
+// ============================================================
+//  4d. LOAD COMP-OFF BALANCE
+// ============================================================
+async function loadCompOffData() {
+    if (!CURRENT_EMP.id) { compOffData = null; return; }
+    try {
+        compOffData = await apiFetch(`${BASE_URL}/leave/comp-off/balance?empId=${CURRENT_EMP.id}`);
+    } catch (err) {
+        console.error('Comp-off load failed:', err);
+        compOffData = null;
+    }
+}
+
+// ============================================================
+//  4e. LOAD LWP ELIGIBILITY  (called only when an LWP-type leave is selected)
+// ============================================================
+async function loadLwpEligibility() {
+    if (!CURRENT_EMP.id) { lwpEligibility = null; return; }
+    try {
+        lwpEligibility = await apiFetch(`${BASE_URL}/leave/lwp/eligibility?empId=${CURRENT_EMP.id}&year=${YEAR}`);
+    } catch (err) {
+        console.error('LWP eligibility check failed:', err);
+        lwpEligibility = null;
+    }
+}
+
+// ============================================================
 //  5. UPDATE STATS  — shows — when no data
 // ============================================================
 function updateStats() {
@@ -1303,6 +1414,7 @@ async function submitLeave() {
     const toDate      = document.getElementById('ap-to').value;
     const reason      = document.getElementById('ap-reason').value.trim();
     const description = document.getElementById('ap-desc').value.trim();
+    const isEmergency = document.getElementById('ap-isEmergency').checked;
 
     if (!leaveType)   { showToast('Please select Leave Type!', 'error');         return; }
     if (!fromDate)    { showToast('Please select From Date!', 'error');          return; }
@@ -1333,11 +1445,39 @@ async function submitLeave() {
             method: 'POST',
             body: JSON.stringify(payload)
         });
+
+        // If this leave type requires manager approval (e.g. LWP), register it —
+        // additive step, doesn't block the leave request itself if it fails.
+        const policy = getApplicablePolicy(leaveType);
+        if (policy && policy.requiresManagerApprovalBeforeHr) {
+            try {
+                await apiFetch(`${BASE_URL}/leave/manager-approval/register`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        leaveRequestId: saved.id,
+                        empId: CURRENT_EMP.id,
+                        leaveTypeName: leaveType,
+                        empType: CURRENT_EMP.empType,
+                        department: CURRENT_EMP.dept,
+                        isEmergency
+                    })
+                });
+            } catch (regErr) {
+                console.error('Manager-approval registration failed:', regErr);
+                // Non-fatal — the leave request itself was already saved successfully.
+            }
+        }
+
         myLeaves.unshift(saved);
         await loadBalance();
         updateStats();
         closeModal('applyModal');
-        showToast('✅ Leave request submitted! Awaiting HR approval.', 'success');
+        showToast(
+            policy && policy.requiresManagerApprovalBeforeHr && !isEmergency
+                ? '✅ Leave request submitted! Awaiting Manager & HR approval.'
+                : '✅ Leave request submitted! Awaiting HR approval.',
+            'success'
+        );
         renderApplications();
         renderOverview();
         renderCalendar();
@@ -1419,6 +1559,14 @@ function apResetForm() {
     if (panel) panel.style.display = 'none';
     const chip = document.getElementById('ap-dayChip');
     if (chip) chip.style.display = 'none';
+
+    // Reset LWP-related fields too
+    const lwpPanel = document.getElementById('ap-lwpPanel');
+    if (lwpPanel) { lwpPanel.style.display = 'none'; lwpPanel.innerHTML = ''; }
+    const emergencyRow = document.getElementById('ap-emergencyRow');
+    if (emergencyRow) emergencyRow.style.display = 'none';
+    const emergencyBox = document.getElementById('ap-isEmergency');
+    if (emergencyBox) emergencyBox.checked = false;
 }
 
 function apCalcDays() {
@@ -1464,6 +1612,56 @@ function apCheckBalance() {
     panel.innerHTML = `<i class="fas fa-${ok ? 'info-circle' : 'exclamation-triangle'}" style="margin-right:5px;"></i>
         <strong>${leaveType}:</strong> ${bal.remaining} day(s) remaining · ${bal.used} used of ${bal.allot} allotted
         ${!ok && days > 0 ? `<br><i class="fas fa-exclamation-triangle" style="margin-right:3px;"></i>Requested ${days} day(s) exceeds your balance of ${bal.remaining}.` : ''}`;
+}
+
+// ============================================================
+//  9b. LWP POLICY CHECK  (shows emergency checkbox + eligibility)
+//      Fires when the leave type dropdown changes.
+// ============================================================
+async function apCheckPolicy() {
+    const leaveType = document.getElementById('ap-type').value;
+    const lwpPanel = document.getElementById('ap-lwpPanel');
+    const emergencyRow = document.getElementById('ap-emergencyRow');
+
+    if (!leaveType) {
+        lwpPanel.style.display = 'none';
+        emergencyRow.style.display = 'none';
+        return;
+    }
+
+    const policy = getApplicablePolicy(leaveType);
+    const requiresManagerApproval = policy && policy.requiresManagerApprovalBeforeHr;
+
+    if (!requiresManagerApproval) {
+        lwpPanel.style.display = 'none';
+        emergencyRow.style.display = 'none';
+        return;
+    }
+
+    // This leave type needs manager approval (e.g. LWP) — show emergency
+    // checkbox and fetch/display eligibility.
+    emergencyRow.style.display = 'flex';
+
+    lwpPanel.style.display = 'block';
+    lwpPanel.className = 'balance-panel ok';
+    lwpPanel.innerHTML = `<i class="fas fa-spinner fa-spin" style="margin-right:5px;"></i>Checking eligibility...`;
+
+    await loadLwpEligibility();
+
+    if (!lwpEligibility) {
+        lwpPanel.innerHTML = `<i class="fas fa-info-circle" style="margin-right:5px;"></i>
+            This leave type requires your Reporting Manager's approval before HR can approve it
+            (unless flagged as an emergency below).`;
+        return;
+    }
+
+    const ok = lwpEligibility.eligible;
+    lwpPanel.className = `balance-panel ${ok ? 'ok' : 'warn'}`;
+    lwpPanel.innerHTML = `<i class="fas fa-${ok ? 'info-circle' : 'exclamation-triangle'}" style="margin-right:5px;"></i>
+        ${lwpEligibility.message}
+        <br><i class="fas fa-user-check" style="margin-right:3px;"></i>
+        This leave type also requires your Reporting Manager's approval before HR can approve it,
+        unless you mark it as an emergency below.`;
 }
 
 // ============================================================
@@ -1687,6 +1885,8 @@ function viewDetail(id) {
 function renderBalance() {
     renderBalanceCards();
     renderBalanceDetailTable();
+    renderCarryForwardCards();
+    renderCompOffList();
 }
 
 function renderBalanceCards() {
@@ -1721,6 +1921,62 @@ function renderBalanceCards() {
             <div style="font-size:10px;color:#64748b;margin-top:4px;">${pct}% used</div>
         </div>`;
     }).join('');
+}
+
+// ── Carry-Forward cards ──
+async function renderCarryForwardCards() {
+    const container = document.getElementById('carryForwardCards');
+    if (!container) return;
+
+    await loadCarryForwardData();
+
+    if (!carryForwardData.length) {
+        container.innerHTML = emptyState('forward', 'No carried-forward leave.', 'Carry-forward balances (if any) appear here after year-end processing.');
+        return;
+    }
+
+    container.innerHTML = carryForwardData.map(cf => {
+        const lapsed = cf.status === 'LAPSED';
+        const fc = lapsed ? '#94a3b8' : cf.remainingCarry > 0 ? '#16a34a' : '#94a3b8';
+        return `<div class="cf-card ${lapsed ? 'lapsed' : ''}">
+            <div class="cf-label">${cf.leaveType}</div>
+            <div class="cf-num" style="color:${fc};">${cf.remainingCarry}</div>
+            <div class="cf-sub">
+                ${cf.carriedDays} carried from ${cf.fromYear} · ${cf.usedFromCarry} used
+                ${cf.expiryDate ? `<br>${lapsed ? 'Lapsed on' : 'Expires'} ${formatDate(cf.expiryDate)}` : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Comp Off earned list ──
+async function renderCompOffList() {
+    const container = document.getElementById('compOffList');
+    if (!container) return;
+
+    await loadCompOffData();
+
+    if (!compOffData || !compOffData.entries || !compOffData.entries.length) {
+        container.innerHTML = emptyState('calendar-check', 'No Comp Off earned yet.', 'These appear when HR credits you for working an approved weekly-off or holiday.');
+        return;
+    }
+
+    const header = `<div style="margin-bottom:10px;font-size:13px;font-weight:700;color:#1f6f7f;">
+        Total available: ${compOffData.totalAvailableDays} day(s)
+    </div>`;
+
+    const rows = compOffData.entries.map(e => `
+        <div class="co-entry">
+            <div>
+                <div style="font-size:13px;font-weight:600;color:#1f6f7f;">Worked ${formatDate(e.workedDate)}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">
+                    +${e.creditedDays} day(s)${e.expiryDate ? ` · expires ${formatDate(e.expiryDate)}` : ' · no expiry'}
+                </div>
+            </div>
+            <span class="pill ${e.status === 'AVAILABLE' ? 'approved' : 'cancelled'}">${e.status}</span>
+        </div>`).join('');
+
+    container.innerHTML = header + rows;
 }
 
 function renderBalanceDetailTable() {
@@ -1894,6 +2150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadLeaveTypes();         // DB se — no fallback
         await loadBalance();            // DB se — no fallback
         await loadMyLeaves();           // DB se — no fallback
+        await loadPolicyConfigs();      // DB se — LWP/carry-forward/comp-off rules
 
         updateStats();
         renderOverview();
